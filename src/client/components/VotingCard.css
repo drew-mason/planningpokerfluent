@@ -1,0 +1,284 @@
+/* VotingCard.css - Planning Poker Card Styles */
+
+.voting-card {
+    position: relative;
+    width: 80px;
+    height: 120px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+    user-select: none;
+    --card-color: #3b82f6;
+}
+
+.voting-card:focus {
+    outline: 2px solid var(--card-color);
+    outline-offset: 2px;
+}
+
+.card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+}
+
+.voting-card.revealed .card-inner {
+    transform: rotateY(180deg);
+}
+
+.card-front,
+.card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    background: white;
+    border: 2px solid var(--card-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 8px;
+}
+
+.card-back {
+    transform: rotateY(180deg);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #4f46e5;
+}
+
+.card-front {
+    background: linear-gradient(135deg, white 0%, #f8fafc 100%);
+}
+
+/* Card states */
+.voting-card.hovered {
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+.voting-card.selected {
+    transform: translateY(-12px) scale(1.1);
+    box-shadow: 0 16px 24px rgba(0, 0, 0, 0.2);
+}
+
+.voting-card.selected .card-front {
+    background: linear-gradient(135deg, var(--card-color) 0%, var(--card-color) 100%);
+    color: white;
+    border-color: var(--card-color);
+}
+
+.voting-card.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.voting-card.animating {
+    animation: cardPulse 0.2s ease-out;
+}
+
+@keyframes cardPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+}
+
+/* Card content */
+.card-header,
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    height: 16px;
+}
+
+.card-footer {
+    align-items: flex-end;
+}
+
+.card-corner {
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0.7;
+}
+
+.card-footer .card-corner {
+    transform: rotate(180deg);
+}
+
+.card-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    text-align: center;
+}
+
+.card-value {
+    font-size: 24px;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 2px;
+}
+
+.card-description {
+    font-size: 8px;
+    font-weight: 500;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+}
+
+/* Card back design */
+.card-pattern {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.1) 0px,
+        rgba(255, 255, 255, 0.1) 2px,
+        transparent 2px,
+        transparent 12px
+    );
+    border-radius: 10px;
+}
+
+.planning-poker-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
+    opacity: 0.8;
+}
+
+/* Selection indicator */
+.selection-indicator {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 24px;
+    height: 24px;
+    z-index: 10;
+}
+
+.selection-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 3px solid var(--card-color);
+    border-radius: 50%;
+    background: white;
+    animation: selectionPulse 1.5s ease-in-out infinite;
+}
+
+.selection-checkmark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--card-color);
+    font-size: 12px;
+    font-weight: 900;
+}
+
+@keyframes selectionPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Special card variants */
+.voting-card.unknown-card .card-value {
+    font-size: 36px;
+    color: #6b7280;
+}
+
+.voting-card.coffee-card .card-value {
+    font-size: 28px;
+    color: #92400e;
+}
+
+.voting-card.infinity-card .card-value {
+    font-size: 32px;
+    color: #7c2d12;
+}
+
+/* Card variants */
+.voting-card.variant-tshirt .card-value {
+    font-size: 20px;
+}
+
+.voting-card.variant-fibonacci .card-front {
+    border-style: dashed;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .voting-card {
+        width: 70px;
+        height: 105px;
+    }
+    
+    .card-value {
+        font-size: 20px;
+    }
+    
+    .card-description {
+        font-size: 7px;
+    }
+    
+    .card-corner {
+        font-size: 8px;
+    }
+    
+    .planning-poker-logo {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    .voting-card {
+        width: 60px;
+        height: 90px;
+    }
+    
+    .card-value {
+        font-size: 18px;
+    }
+    
+    .card-description {
+        font-size: 6px;
+    }
+    
+    .card-corner {
+        font-size: 7px;
+    }
+    
+    .planning-poker-logo {
+        font-size: 24px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .card-front {
+        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        color: white;
+    }
+    
+    .card-back {
+        background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    }
+}

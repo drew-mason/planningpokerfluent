@@ -2,7 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { PlanningSessionService } from './services/PlanningSessionService'
 import SessionList from './components/SessionList'
 import SessionForm from './components/SessionForm'
+import SessionDashboard from './components/SessionDashboard'
 import './app.css'
+
+type ViewMode = 'list' | 'dashboard'
 
 export default function App() {
     const [sessions, setSessions] = useState([])
@@ -10,6 +13,8 @@ export default function App() {
     const [showForm, setShowForm] = useState(false)
     const [selectedSession, setSelectedSession] = useState<any>(null)
     const [error, setError] = useState<string | null>(null)
+    const [viewMode, setViewMode] = useState<ViewMode>('list')
+    const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
 
     const sessionService = useMemo(() => new PlanningSessionService(), [])
 
@@ -72,14 +77,12 @@ export default function App() {
 
     const handleJoinSession = async (session: any) => {
         try {
-            // For now, just simulate joining - in real implementation you might navigate to session view
-            const sessionCode = typeof session.session_code === 'object' 
-                ? session.session_code.value 
-                : session.session_code
+            const sessionId = typeof session.sys_id === 'object' 
+                ? session.sys_id.value 
+                : session.sys_id
             
-            await sessionService.joinSession(sessionCode)
-            alert(`Joined session: ${session.name}`)
-            await refreshSessions()
+            setActiveSessionId(sessionId)
+            setViewMode('dashboard')
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to join session'
             setError(errorMessage)
@@ -88,12 +91,31 @@ export default function App() {
     }
 
     const handleViewSession = (session: any) => {
-        // For now, just show session details - in real implementation you might navigate to session view
-        const sessionName = typeof session.name === 'object' ? session.name.value : session.name
-        const sessionCode = typeof session.session_code === 'object' ? session.session_code.value : session.session_code
-        alert(`Viewing session: ${sessionName} (Code: ${sessionCode})`)
+        const sessionId = typeof session.sys_id === 'object' 
+            ? session.sys_id.value 
+            : session.sys_id
+        
+        setActiveSessionId(sessionId)
+        setViewMode('dashboard')
     }
 
+    const handleExitSession = () => {
+        setActiveSessionId(null)
+        setViewMode('list')
+        refreshSessions()
+    }
+
+    // Dashboard view
+    if (viewMode === 'dashboard' && activeSessionId) {
+        return (
+            <SessionDashboard
+                sessionId={activeSessionId}
+                onExit={handleExitSession}
+            />
+        )
+    }
+
+    // Main session list view
     return (
         <div className="planning-app">
             <header className="app-header">
