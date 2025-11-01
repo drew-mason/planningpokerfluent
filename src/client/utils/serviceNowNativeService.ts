@@ -130,8 +130,25 @@ export class ServiceNowNativeService {
             
             if (!response.ok) {
                 console.error(`ServiceNowNativeService.queryWithRESTAPI: HTTP ${response.status}: ${response.statusText}`);
-                const errorText = await response.text();
-                console.error('ServiceNowNativeService.queryWithRESTAPI: Error response:', errorText);
+                
+                try {
+                    const errorData = await response.json();
+                    console.error('ServiceNowNativeService.queryWithRESTAPI: Error response:', errorData);
+                    
+                    // Check if it's a table not found error - return empty array instead of throwing
+                    if (response.status === 404 || response.status === 500) {
+                        if (errorData.error && (
+                            errorData.error.message.includes('Invalid table') ||
+                            errorData.error.message.includes('Exception while executing request')
+                        )) {
+                            console.warn(`ServiceNowNativeService.queryWithRESTAPI: Table ${tableName} might not exist or has configuration issues - returning empty array`);
+                            return [];
+                        }
+                    }
+                } catch (jsonError) {
+                    console.error('ServiceNowNativeService.queryWithRESTAPI: Could not parse error response');
+                }
+                
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
             

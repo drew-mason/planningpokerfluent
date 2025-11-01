@@ -257,12 +257,17 @@ export class PlanningSessionService {
             const participants = await nativeService.query(
                 'x_902080_planpoker_session_participant',
                 {
-                    filters: { session: sessionId, left_at: null },
+                    filters: { session: sessionId },
                     fields: ['sys_id', 'user', 'role', 'joined_at', 'left_at']
                 }
             )
 
-            return participants as SessionParticipant[]
+            // Filter out participants who have left (client-side filtering)
+            const activeParticipants = participants.filter((p: any) => 
+                !p.left_at || p.left_at === '' || p.left_at === null
+            )
+
+            return activeParticipants as SessionParticipant[]
         } catch (error) {
             console.error(`Error fetching participants for session ${sessionId}:`, error)
             return []
@@ -276,12 +281,18 @@ export class PlanningSessionService {
                 'x_902080_planpoker_session_stories',
                 {
                     filters: { session: sessionId },
-                    orderBy: 'sequence_order',
                     fields: ['sys_id', 'story_title', 'description', 'sequence_order', 'status', 'final_estimate', 'consensus_achieved', 'sys_created_on']
                 }
             )
 
-            return stories as SessionStory[]
+            // Sort client-side by sequence_order to avoid ORDERBY REST API issues
+            const sortedStories = stories.sort((a: any, b: any) => {
+                const orderA = parseInt(a.sequence_order?.value || a.sequence_order || '0')
+                const orderB = parseInt(b.sequence_order?.value || b.sequence_order || '0')
+                return orderA - orderB
+            })
+
+            return sortedStories as SessionStory[]
         } catch (error) {
             console.error(`Error fetching stories for session ${sessionId}:`, error)
             return []

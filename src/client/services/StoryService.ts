@@ -34,7 +34,8 @@ export class StoryService {
             const searchParams = new URLSearchParams()
             searchParams.set('sysparm_display_value', 'all')
             searchParams.set('sysparm_fields', 'sys_id,story_title,description,sequence_order,status,final_estimate,consensus_achieved,sys_created_on')
-            searchParams.set('sysparm_query', `session=${sessionId}^ORDERBYsequence_order`)
+            // Remove ORDERBY to avoid 500 errors - will sort client-side
+            searchParams.set('sysparm_query', `session=${sessionId}`)
 
             const headers = {
                 Accept: 'application/json',
@@ -52,7 +53,16 @@ export class StoryService {
             }
 
             const { result } = await response.json()
-            return result || []
+            
+            // Sort client-side by sequence_order
+            const sortedResult = (result || []).sort((a: any, b: any) => {
+                const orderA = parseInt(a.sequence_order?.value || a.sequence_order || '0')
+                const orderB = parseInt(b.sequence_order?.value || b.sequence_order || '0')
+                return orderA - orderB
+            })
+            
+            console.log(`StoryService.getSessionStories: ✅ Retrieved and sorted ${sortedResult.length} stories`)
+            return sortedResult
         } catch (error) {
             console.error(`Error fetching stories for session ${sessionId}:`, error)
             throw error
