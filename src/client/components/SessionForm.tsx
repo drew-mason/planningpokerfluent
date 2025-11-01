@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
+import { PlanningSession } from '../types'
 import './SessionForm.css'
 
 interface SessionFormProps {
-    session?: any
-    onSubmit: (formData: any) => void
+    session?: PlanningSession | null
+    onSubmit: (formData: Partial<PlanningSession>) => void
     onCancel: () => void
 }
 

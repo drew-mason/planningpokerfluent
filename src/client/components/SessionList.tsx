@@ -1,26 +1,27 @@
 import React, { useState } from 'react'
+import { PlanningSession, PlanningSessionService, getValue, getDisplayValue } from '../types'
 import './SessionList.css'
 
 interface SessionListProps {
-    sessions: any[]
-    onEdit: (session: any) => void
+    sessions: PlanningSession[]
+    onEdit: (session: PlanningSession) => void
     onRefresh: () => void
-    onJoinSession: (session: any) => void
-    onViewSession: (session: any) => void
-    service: any
+    onJoinSession: (session: PlanningSession) => void
+    onViewSession: (session: PlanningSession) => void
+    service: PlanningSessionService
 }
 
 export default function SessionList({ sessions, onEdit, onRefresh, onJoinSession, onViewSession, service }: SessionListProps) {
     const [joinCode, setJoinCode] = useState('')
     const [showJoinModal, setShowJoinModal] = useState(false)
 
-    const handleDelete = async (session: any) => {
+    const handleDelete = async (session: PlanningSession) => {
         if (!confirm('Are you sure you want to delete this planning session?')) {
             return
         }
 
         try {
-            const sysId = typeof session.sys_id === 'object' ? session.sys_id.value : session.sys_id
+            const sysId = getValue(session.sys_id)
             await service.delete(sysId)
             onRefresh()
         } catch (error) {
@@ -41,7 +42,7 @@ export default function SessionList({ sessions, onEdit, onRefresh, onJoinSession
             setShowJoinModal(false)
             setJoinCode('')
             onRefresh()
-            alert(`Successfully joined session: ${result.sessionName}`)
+            alert(`Successfully joined session: ${getDisplayValue(result.name)}`)
         } catch (error) {
             console.error('Failed to join session:', error)
             const errorMessage = error instanceof Error ? error.message : 'Invalid session code'
@@ -110,20 +111,20 @@ export default function SessionList({ sessions, onEdit, onRefresh, onJoinSession
                 <div className="sessions-grid">
                     {sessions.map((session) => {
                         // Extract primitive values from potential objects
-                        const name = typeof session.name === 'object' ? session.name.display_value : session.name
-                        const description = typeof session.description === 'object' ? session.description.display_value : session.description
-                        const status = typeof session.status === 'object' ? session.status.display_value : session.status
-                        const sessionCode = typeof session.session_code === 'object' ? session.session_code.display_value : session.session_code
-                        const totalStories = typeof session.total_stories === 'object' ? session.total_stories.display_value : session.total_stories
-                        const completedStories = typeof session.completed_stories === 'object' ? session.completed_stories.display_value : session.completed_stories
-                        const consensusRate = typeof session.consensus_rate === 'object' ? session.consensus_rate.display_value : session.consensus_rate
-                        const createdOn = typeof session.sys_created_on === 'object' ? session.sys_created_on.display_value : session.sys_created_on
+                        const name = getDisplayValue(session.name)
+                        const description = getDisplayValue(session.description)
+                        const status = getDisplayValue(session.status)
+                        const sessionCode = getDisplayValue(session.session_code)
+                        const totalStories = Number(getValue(session.total_stories)) || 0
+                        const completedStories = Number(getValue(session.completed_stories)) || 0
+                        const consensusRate = Number(getValue(session.consensus_rate)) || 0
+                        const createdOn = getDisplayValue(session.sys_created_on)
                         
                         const progressPercentage = totalStories > 0 ? Math.round((completedStories / totalStories) * 100) : 0
 
                         return (
                             <div 
-                                key={typeof session.sys_id === 'object' ? session.sys_id.value : session.sys_id}
+                                key={getValue(session.sys_id)}
                                 className="session-card"
                             >
                                 <div className="session-card-header">

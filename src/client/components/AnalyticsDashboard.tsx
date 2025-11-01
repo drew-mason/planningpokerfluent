@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AnalyticsService } from '../services/AnalyticsService';
+import { AnalyticsService } from '../services';
 import { VelocityChart } from './VelocityChart';
 import { ConsensusChart } from './ConsensusChart';
 import './AnalyticsDashboard.css';

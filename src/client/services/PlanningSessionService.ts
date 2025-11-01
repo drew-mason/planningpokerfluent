@@ -188,7 +188,7 @@ export class PlanningSessionService {
     }
 
     // Delete a planning session
-    async delete(sysId: string) {
+    async delete(sysId: string): Promise<void> {
         try {
             const response = await fetch(`/api/now/table/${this.tableName}/${sysId}`, {
                 method: 'DELETE',
@@ -203,7 +203,7 @@ export class PlanningSessionService {
                 throw new Error(errorData.error?.message || `HTTP error ${response.status}`)
             }
 
-            return response.ok
+            // Return void for successful deletion
         } catch (error) {
             console.error(`Error deleting planning session ${sysId}:`, error)
             throw error
@@ -259,11 +259,8 @@ export class PlanningSessionService {
                 throw new Error(errorData.error?.message || 'Failed to join session')
             }
 
-            return {
-                sessionId: session.sys_id,
-                sessionName: session.name,
-                status: session.status
-            }
+            // Return the full session details
+            return this.get(session.sys_id)
         } catch (error) {
             console.error(`Error joining session with code ${sessionCode}:`, error)
             throw error

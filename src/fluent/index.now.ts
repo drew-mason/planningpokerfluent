@@ -3,4 +3,4 @@
 // Export Planning Poker tables
 export * from './tables/planning-poker.now'
 
-// Planning Poker Fluent APIs and business logic will be added here
+// Planning Poker Fluent APIs and business logic

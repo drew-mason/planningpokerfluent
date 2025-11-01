@@ -4,9 +4,8 @@ import SessionList from './components/SessionList'
 import SessionForm from './components/SessionForm'
 import SessionDashboard from './components/SessionDashboard'
 import { AnalyticsDashboard } from './components/AnalyticsDashboard'
+import { PlanningSession, ViewMode } from './types'
 import './app.css'
-
-type ViewMode = 'list' | 'dashboard' | 'analytics'
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component<
@@ -50,10 +49,10 @@ class ErrorBoundary extends React.Component<
 export default function App() {
     console.log('Planning Poker App: Component mounting')
     
-    const [sessions, setSessions] = useState([])
+    const [sessions, setSessions] = useState<PlanningSession[]>([])
     const [loading, setLoading] = useState(true)
     const [showForm, setShowForm] = useState(false)
-    const [selectedSession, setSelectedSession] = useState<any>(null)
+    const [selectedSession, setSelectedSession] = useState<PlanningSession | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [viewMode, setViewMode] = useState<ViewMode>('list')
     const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
@@ -84,7 +83,7 @@ export default function App() {
         setShowForm(true)
     }
 
-    const handleEditClick = (session: any) => {
+    const handleEditClick = (session: PlanningSession) => {
         setSelectedSession(session)
         setShowForm(true)
     }
@@ -94,7 +93,7 @@ export default function App() {
         setSelectedSession(null)
     }
 
-    const handleFormSubmit = async (formData: any) => {
+    const handleFormSubmit = async (sessionData: Partial<PlanningSession>) => {
         setLoading(true)
         try {
             if (selectedSession) {
@@ -102,9 +101,9 @@ export default function App() {
                     typeof selectedSession.sys_id === 'object'
                         ? selectedSession.sys_id.value
                         : selectedSession.sys_id
-                await sessionService.update(sysId, formData)
+                await sessionService.update(sysId, sessionData)
             } else {
-                await sessionService.create(formData)
+                await sessionService.create(sessionData)
             }
             setShowForm(false)
             await refreshSessions()
@@ -117,7 +116,7 @@ export default function App() {
         }
     }
 
-    const handleJoinSession = async (session: any) => {
+    const handleJoinSession = async (session: PlanningSession) => {
         try {
             const sessionId = typeof session.sys_id === 'object' 
                 ? session.sys_id.value 
@@ -132,7 +131,7 @@ export default function App() {
         }
     }
 
-    const handleViewSession = (session: any) => {
+    const handleViewSession = (session: PlanningSession) => {
         const sessionId = typeof session.sys_id === 'object' 
             ? session.sys_id.value 
             : session.sys_id

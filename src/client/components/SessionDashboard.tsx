@@ -16,21 +16,22 @@ interface Participant {
     joined_at: string
 }
 
-interface Story {
+interface SessionStory {
     sys_id: string
     story_title: any
     description?: any
     sequence_order: number
     status: string
+    session: string
     final_estimate?: string
     consensus_achieved?: boolean
 }
 
 export default function SessionDashboard({ sessionId, onExit }: SessionDashboardProps) {
     const [session, setSession] = useState<any>(null)
-    const [stories, setStories] = useState<Story[]>([])
+    const [stories, setStories] = useState<SessionStory[]>([])
     const [participants, setParticipants] = useState<Participant[]>([])
-    const [currentStory, setCurrentStory] = useState<Story | null>(null)
+    const [currentStory, setCurrentStory] = useState<SessionStory | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [isDealer, setIsDealer] = useState(false)
@@ -57,7 +58,7 @@ export default function SessionDashboard({ sessionId, onExit }: SessionDashboard
             setParticipants(sessionParticipants)
             
             // Set current story (first pending/voting story)
-            const activeStory = sessionStories.find((story: Story) => 
+            const activeStory = sessionStories.find((story: SessionStory) => 
                 story.status === 'voting' || story.status === 'pending'
             )
             setCurrentStory(activeStory || sessionStories[0] || null)
@@ -85,7 +86,7 @@ export default function SessionDashboard({ sessionId, onExit }: SessionDashboard
         return () => clearInterval(interval)
     }, [loadSessionData])
 
-    const handleStorySelect = (story: Story) => {
+    const handleStorySelect = (story: SessionStory) => {
         setCurrentStory(story)
         if (isDealer && story.status === 'pending') {
             // Auto-start voting when dealer selects a pending story
@@ -339,8 +340,11 @@ export default function SessionDashboard({ sessionId, onExit }: SessionDashboard
                 <main className="dashboard-main">
                     <VotingSession
                         sessionId={sessionId}
-                        currentStory={currentStory}
-                        isDealer={isDealer}
+                        currentStory={currentStory ? {
+                            ...currentStory,
+                            description: currentStory.description || ''
+                        } : null}
+                        isDealer={true}
                         onStoryComplete={handleStoryComplete}
                         onNextStory={handleNextStory}
                     />

@@ -2,11 +2,20 @@ import React, { useState, useEffect, useCallback } from 'react'
 import EstimationScale from './EstimationScale'
 import { VotingService } from '../services/VotingService'
 import { StoryService } from '../services/StoryService'
+import { ServiceNowDisplayValue, getValue, getDisplayValue } from '../types'
 import './VotingSession.css'
+
+interface Story {
+    sys_id: string
+    story_title: ServiceNowDisplayValue | string
+    description: ServiceNowDisplayValue | string
+    status: ServiceNowDisplayValue | string
+    session: ServiceNowDisplayValue | string
+}
 
 interface VotingSessionProps {
     sessionId: string
-    currentStory?: any
+    currentStory?: Story | null
     isDealer?: boolean
     onStoryComplete?: (storyId: string, finalEstimate: string) => void
     onNextStory?: () => void
@@ -19,6 +28,15 @@ interface VoteResult {
     voted_at: string
 }
 
+interface VotingStats {
+    totalVotes: number
+    consensus: boolean
+    consensusEstimate?: string | null
+    avgEstimate?: number
+    medianEstimate?: number
+    estimates: Record<string, number>
+}
+
 export default function VotingSession({ 
     sessionId, 
     currentStory, 
@@ -28,7 +46,7 @@ export default function VotingSession({
 }: VotingSessionProps) {
     const [userVote, setUserVote] = useState<string>('')
     const [allVotes, setAllVotes] = useState<VoteResult[]>([])
-    const [votingStats, setVotingStats] = useState<any>(null)
+    const [votingStats, setVotingStats] = useState<VotingStats | null>(null)
     const [isRevealed, setIsRevealed] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -153,14 +171,11 @@ export default function VotingSession({
         )
     }
 
-    const isVotingDisabled = isLoading || currentStory.status === 'completed'
+    const isVotingDisabled = isLoading || getValue(currentStory?.status) === 'completed'
     const hasVotes = allVotes.length > 0
-    const storyTitle = typeof currentStory.story_title === 'object' 
-        ? currentStory.story_title.display_value 
-        : currentStory.story_title
-    const storyDescription = typeof currentStory.description === 'object' 
-        ? currentStory.description.display_value 
-        : currentStory.description
+    const storyTitle = getDisplayValue(currentStory?.story_title)
+    const storyDescription = getDisplayValue(currentStory?.description)
+    const currentStatus = getValue(currentStory?.status)
 
     return (
         <div className="voting-session">
@@ -187,8 +202,8 @@ export default function VotingSession({
                 </div>
                 
                 <div className="story-status">
-                    <span className={`status-badge ${currentStory.status}`}>
-                        {currentStory.status?.toUpperCase()}
+                    <span className={`status-badge ${currentStatus}`}>
+                        {currentStatus?.toUpperCase()}
                     </span>
                 </div>
             </div>
@@ -301,7 +316,7 @@ export default function VotingSession({
                         {votingStats?.consensus && (
                             <button 
                                 className="finalize-button consensus"
-                                onClick={() => handleFinalizeStory(votingStats.consensusEstimate)}
+                                onClick={() => handleFinalizeStory(votingStats.consensusEstimate || '0')}
                                 disabled={isLoading}
                             >
                                 Accept Consensus ({votingStats.consensusEstimate})
