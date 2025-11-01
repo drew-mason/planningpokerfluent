@@ -1,5 +1,5 @@
 import '@servicenow/sdk/global'
-import { Table, StringColumn, DateTimeColumn, IntegerColumn, ReferenceColumn, BooleanColumn } from '@servicenow/sdk-core/db'
+import { Table, StringColumn, DateTimeColumn, IntegerColumn, ReferenceColumn, BooleanColumn } from '@servicenow/sdk/core'
 
 // Planning Session Table
 export const x_902080_planpoker_planning_session = Table({
@@ -161,7 +161,6 @@ export const x_902080_planpoker_planning_vote = Table({
         }),
         created_on: DateTimeColumn({
             label: 'Created On',
-            default: 'javascript:new GlideDateTime().getDisplayValue();',
         }),
     },
     accessible_from: 'public',
@@ -197,7 +196,6 @@ export const x_902080_planpoker_session_participant = Table({
         }),
         joined_at: DateTimeColumn({
             label: 'Joined At',
-            default: 'javascript:new GlideDateTime().getDisplayValue();',
         }),
         left_at: DateTimeColumn({
             label: 'Left At',

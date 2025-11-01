@@ -17,6 +17,14 @@ declare global {
                         table: 'sys_ui_page'
                         id: '2945ae40b4364f2f846ce6b0a2f07f60'
                     }
+                    session_defaults_br: {
+                        table: 'sys_script'
+                        id: 'cc0019200b4046a491420c6d9d02ba85'
+                    }
+                    'src_server_session-defaults_js': {
+                        table: 'sys_module'
+                        id: 'cbc110352721498a8e9233b35b80e588'
+                    }
                     'x_902080_planpoker/main': {
                         table: 'sys_ux_lib_asset'
                         id: '98287bc2178a420197fbf607b855ff08'

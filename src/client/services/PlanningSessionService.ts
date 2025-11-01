@@ -160,11 +160,38 @@ export class PlanningSessionService {
         }
     }
 
+    //Get current user sys_id
+    private async getCurrentUser() {
+        try {
+            const response = await fetch('/api/now/table/sys_user?sysparm_limit=1&sysparm_query=user_name=javascript:gs.getUserName()', {
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                    ...(window.g_ck && { 'X-UserToken': window.g_ck })
+                }
+            })
+
+            if (!response.ok) {
+                throw new Error('Failed to get current user')
+            }
+
+            const { result } = await response.json()
+            return result && result.length > 0 ? result[0].sys_id : null
+        } catch (error) {
+            console.error('Error getting current user:', error)
+            // Fallback - try to use a generic system user or return null
+            return null
+        }
+    }
+
     // Create a new planning session
     async create(data: any) {
         try {
             console.log('PlanningSessionService.create: Creating session with data:', data)
             console.log('PlanningSessionService.create: window.g_ck available:', !!window.g_ck)
+            
+            // Get current user for dealer field
+            const currentUser = await this.getCurrentUser()
             
             // Ensure required fields are present
             const sessionData = {
@@ -172,7 +199,7 @@ export class PlanningSessionService {
                 description: data.description || '',
                 session_code: data.session_code || this.generateSessionCode(),
                 status: data.status || 'pending',
-                dealer: data.dealer || 'javascript:gs.getUserID()', // Use current user as dealer
+                dealer: data.dealer || currentUser, // Use current user as dealer
                 timebox_minutes: data.timebox_minutes || 30,
                 total_stories: 0,
                 completed_stories: 0,
@@ -293,10 +320,13 @@ export class PlanningSessionService {
 
             const session = result[0]
 
+            // Get current user if not provided
+            const currentUser = userId || await this.getCurrentUser()
+
             // Add participant to session
             const participantData = {
                 session: session.sys_id,
-                user: userId || 'javascript:gs.getUserID()', // Use current user if not specified
+                user: currentUser,
                 role: 'participant'
             }
 

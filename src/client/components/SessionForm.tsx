@@ -15,7 +15,7 @@ export default function SessionForm({ session, onSubmit, onCancel }: SessionForm
     const [formData, setFormData] = useState({
         name: '',
         description: '',
-        status: 'draft',
+        status: 'pending',
         session_code: '',
     })
 
@@ -31,7 +31,7 @@ export default function SessionForm({ session, onSubmit, onCancel }: SessionForm
             setFormData({
                 name: name || '',
                 description: description || '',
-                status: status || 'draft',
+                status: status || 'pending',
                 session_code: sessionCode || '',
             })
         } else {
@@ -140,10 +140,10 @@ export default function SessionForm({ session, onSubmit, onCancel }: SessionForm
                                 data-no-autofill="true"
                                 data-form-type="other"
                             >
-                                <option value="draft">Draft</option>
+                                <option value="pending">Pending</option>
                                 <option value="active">Active</option>
-                                <option value="paused">Paused</option>
                                 <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
                             </select>
                         </div>
                     </div>
