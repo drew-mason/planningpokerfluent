@@ -1,367 +1,367 @@
-// Extend Window interface to include g_ck property
-declare global {
-    interface Window {
-        g_ck: string
-    }
-}
+import { 
+    PlanningSession, 
+    SessionParticipant, 
+    SessionStory, 
+    ServiceNowAPIError,
+    getValue 
+} from '../types'
+import { serviceUtils } from '../utils/serviceUtils'
 
 export class PlanningSessionService {
-    private readonly tableName: string
+    private readonly tableName = 'x_902080_planpoker_planning_session'
 
-    constructor() {
-        this.tableName = 'x_902080_planpoker_planning_session'
-    }
-
-    // Return all planning sessions for current user
-    async list() {
+    // List all planning sessions with pagination support
+    async list(params: {
+        limit?: number
+        offset?: number
+        orderBy?: string
+        filters?: Record<string, any>
+    } = {}): Promise<PlanningSession[]> {
         try {
-            console.log('PlanningSessionService.list: Starting to fetch sessions...')
-            console.log('PlanningSessionService.list: window.g_ck available:', !!window.g_ck)
+            console.log('PlanningSessionService.list: Fetching sessions...')
             
-            const searchParams = new URLSearchParams()
-            searchParams.set('sysparm_display_value', 'all')
-            searchParams.set('sysparm_fields', 'sys_id,name,description,status,session_code,dealer,total_stories,completed_stories,consensus_rate,sys_created_on')
-            searchParams.set('sysparm_query', 'ORDERBYDESCsys_created_on')
-
-            const url = `/api/now/table/${this.tableName}?${searchParams.toString()}`
-            console.log('PlanningSessionService.list: Fetching from URL:', url)
-
-            const headers = {
-                Accept: 'application/json',
-                ...(window.g_ck && { 'X-UserToken': window.g_ck })
-            }
-            console.log('PlanningSessionService.list: Request headers:', headers)
-
-            const response = await fetch(url, {
-                method: 'GET',
-                headers,
-            })
-
-            console.log('PlanningSessionService.list: Response status:', response.status)
-            console.log('PlanningSessionService.list: Response ok:', response.ok)
-
-            if (!response.ok) {
-                const errorData = await response.json()
-                console.error('PlanningSessionService.list: Error response:', errorData)
-                throw new Error(errorData.error?.message || `HTTP error ${response.status}`)
+            const queryParams = {
+                sysparm_limit: params.limit || 50,
+                sysparm_offset: params.offset || 0,
+                sysparm_query: this.buildQuery(params),
+                sysparm_fields: this.getSessionFields().join(',')
             }
 
-            const responseData = await response.json()
-            console.log('PlanningSessionService.list: Response data:', responseData)
-            
-            const result = responseData.result || []
-            console.log('PlanningSessionService.list: Returning sessions:', result.length, 'sessions')
-            return result
+            const response = await serviceUtils.get<{ result: PlanningSession[] }>(
+                this.tableName, 
+                queryParams
+            )
+
+            console.log(`PlanningSessionService.list: Retrieved ${response.result?.length || 0} sessions`)
+            return response.result || []
         } catch (error) {
-            console.error('PlanningSessionService.list: Error fetching planning sessions:', error)
-            throw error
+            console.error('PlanningSessionService.list: Error fetching sessions:', error)
+            throw new ServiceNowAPIError(
+                'Failed to fetch planning sessions',
+                0,
+                error
+            )
         }
     }
 
-    // Get a single planning session by sys_id with full details
-    async get(sysId: string) {
+    // Get a single planning session with full details
+    async get(sysId: string): Promise<PlanningSession> {
         try {
-            const searchParams = new URLSearchParams()
-            searchParams.set('sysparm_display_value', 'all')
-
-            const headers = {
-                Accept: 'application/json',
-                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            const queryParams = {
+                sysparm_fields: this.getSessionFields().join(',')
             }
 
-            const response = await fetch(`/api/now/table/${this.tableName}/${sysId}?${searchParams.toString()}`, {
-                method: 'GET',
-                headers,
-            })
+            const response = await serviceUtils.getById<{ result: PlanningSession }>(
+                this.tableName,
+                sysId,
+                queryParams
+            )
 
-            if (!response.ok) {
-                const errorData = await response.json()
-                throw new Error(errorData.error?.message || `HTTP error ${response.status}`)
+            if (!response.result) {
+                throw new ServiceNowAPIError('Session not found', 404)
             }
 
-            const { result } = await response.json()
-            
-            // Also fetch stories and participants
+            // Fetch related data in parallel
             const [stories, participants] = await Promise.all([
                 this.getSessionStories(sysId),
                 this.getSessionParticipants(sysId)
             ])
 
             return {
-                ...result,
+                ...response.result,
                 stories,
                 participants
             }
         } catch (error) {
-            console.error(`Error fetching planning session ${sysId}:`, error)
-            throw error
-        }
-    }
-
-    // Get stories for a session
-    async getSessionStories(sessionId: string) {
-        try {
-            const searchParams = new URLSearchParams()
-            searchParams.set('sysparm_display_value', 'all')
-            searchParams.set('sysparm_fields', 'sys_id,story_title,description,sequence_order,status,final_estimate,consensus_achieved')
-            searchParams.set('sysparm_query', `session=${sessionId}^ORDERBYsequence_order`)
-
-            const headers = {
-                Accept: 'application/json',
-                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            console.error(`PlanningSessionService.get: Error fetching session ${sysId}:`, error)
+            if (error instanceof ServiceNowAPIError) {
+                throw error
             }
-
-            const response = await fetch(`/api/now/table/x_902080_planpoker_session_stories?${searchParams.toString()}`, {
-                method: 'GET',
-                headers,
-            })
-
-            if (!response.ok) {
-                const errorData = await response.json()
-                throw new Error(errorData.error?.message || `HTTP error ${response.status}`)
-            }
-
-            const { result } = await response.json()
-            return result || []
-        } catch (error) {
-            console.error(`Error fetching session stories for ${sessionId}:`, error)
-            throw error
-        }
-    }
-
-    // Get participants for a session
-    async getSessionParticipants(sessionId: string) {
-        try {
-            const searchParams = new URLSearchParams()
-            searchParams.set('sysparm_display_value', 'all')
-            searchParams.set('sysparm_fields', 'sys_id,user,role,joined_at,left_at')
-            searchParams.set('sysparm_query', `session=${sessionId}^left_atISEMPTY`)
-
-            const headers = {
-                Accept: 'application/json',
-                ...(window.g_ck && { 'X-UserToken': window.g_ck })
-            }
-
-            const response = await fetch(`/api/now/table/x_902080_planpoker_session_participant?${searchParams.toString()}`, {
-                method: 'GET',
-                headers,
-            })
-
-            if (!response.ok) {
-                const errorData = await response.json()
-                throw new Error(errorData.error?.message || `HTTP error ${response.status}`)
-            }
-
-            const { result } = await response.json()
-            return result || []
-        } catch (error) {
-            console.error(`Error fetching session participants for ${sessionId}:`, error)
-            throw error
-        }
-    }
-
-    //Get current user sys_id
-    private async getCurrentUser() {
-        try {
-            const response = await fetch('/api/now/table/sys_user?sysparm_limit=1&sysparm_query=user_name=javascript:gs.getUserName()', {
-                method: 'GET',
-                headers: {
-                    Accept: 'application/json',
-                    ...(window.g_ck && { 'X-UserToken': window.g_ck })
-                }
-            })
-
-            if (!response.ok) {
-                throw new Error('Failed to get current user')
-            }
-
-            const { result } = await response.json()
-            return result && result.length > 0 ? result[0].sys_id : null
-        } catch (error) {
-            console.error('Error getting current user:', error)
-            // Fallback - try to use a generic system user or return null
-            return null
+            throw new ServiceNowAPIError('Failed to fetch session details', 0, error)
         }
     }
 
     // Create a new planning session
-    async create(data: any) {
+    async create(sessionData: Partial<PlanningSession>): Promise<{ result: PlanningSession }> {
         try {
-            console.log('PlanningSessionService.create: Creating session with data:', data)
-            console.log('PlanningSessionService.create: window.g_ck available:', !!window.g_ck)
+            console.log('PlanningSessionService.create: Creating session with data:', sessionData)
             
-            // Get current user for dealer field
-            const currentUser = await this.getCurrentUser()
-            
-            // Ensure required fields are present
-            const sessionData = {
-                name: data.name,
-                description: data.description || '',
-                session_code: data.session_code || this.generateSessionCode(),
-                status: data.status || 'pending',
-                dealer: data.dealer || currentUser, // Use current user as dealer
-                timebox_minutes: data.timebox_minutes || 30,
+            // Validate required fields
+            this.validateSessionData(sessionData)
+
+            // Prepare data with defaults
+            const data = {
+                name: serviceUtils.sanitizeInput(getValue(sessionData.name)),
+                description: serviceUtils.sanitizeInput(getValue(sessionData.description) || ''),
+                session_code: getValue(sessionData.session_code) || serviceUtils.generateSessionCode(),
+                status: getValue(sessionData.status) || 'pending',
+                dealer: getValue(sessionData.dealer) || serviceUtils.getCurrentUser().userID,
+                timebox_minutes: Number(getValue(sessionData.timebox_minutes)) || 30,
                 total_stories: 0,
                 completed_stories: 0,
                 consensus_rate: 0
             }
-            
-            console.log('PlanningSessionService.create: Processed session data:', sessionData)
 
-            const headers = {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-                ...(window.g_ck && { 'X-UserToken': window.g_ck })
-            }
-            console.log('PlanningSessionService.create: Request headers:', headers)
+            // Validate session code uniqueness
+            await this.validateUniqueSessionCode(data.session_code)
 
-            const response = await fetch(`/api/now/table/${this.tableName}`, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify(sessionData),
-            })
+            const response = await serviceUtils.create<{ result: PlanningSession }>(
+                this.tableName,
+                data
+            )
 
-            console.log('PlanningSessionService.create: Response status:', response.status)
-            console.log('PlanningSessionService.create: Response ok:', response.ok)
-
-            if (!response.ok) {
-                const errorData = await response.json()
-                console.error('PlanningSessionService.create: Error response:', errorData)
-                throw new Error(errorData.error?.message || `HTTP error ${response.status}`)
-            }
-
-            const responseData = await response.json()
-            console.log('PlanningSessionService.create: Created session:', responseData)
-            return responseData
+            console.log('PlanningSessionService.create: Session created successfully')
+            return response
         } catch (error) {
-            console.error('PlanningSessionService.create: Error creating planning session:', error)
-            throw error
+            console.error('PlanningSessionService.create: Error creating session:', error)
+            if (error instanceof ServiceNowAPIError) {
+                throw error
+            }
+            throw new ServiceNowAPIError('Failed to create planning session', 0, error)
         }
     }
 
     // Update a planning session
-    async update(sysId: string, data: any) {
+    async update(sysId: string, sessionData: Partial<PlanningSession>): Promise<{ result: PlanningSession }> {
         try {
-            const headers = {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            console.log(`PlanningSessionService.update: Updating session ${sysId}`)
+            
+            // Prepare update data
+            const data: Record<string, any> = {}
+            
+            if (sessionData.name !== undefined) {
+                data.name = serviceUtils.sanitizeInput(getValue(sessionData.name))
+            }
+            if (sessionData.description !== undefined) {
+                data.description = serviceUtils.sanitizeInput(getValue(sessionData.description) || '')
+            }
+            if (sessionData.status !== undefined) {
+                data.status = getValue(sessionData.status)
+            }
+            if (sessionData.timebox_minutes !== undefined) {
+                data.timebox_minutes = Number(getValue(sessionData.timebox_minutes))
             }
 
-            const response = await fetch(`/api/now/table/${this.tableName}/${sysId}`, {
-                method: 'PATCH',
-                headers,
-                body: JSON.stringify(data),
-            })
-
-            if (!response.ok) {
-                const errorData = await response.json()
-                throw new Error(errorData.error?.message || `HTTP error ${response.status}`)
+            // Handle status transitions
+            if (data.status) {
+                await this.handleStatusTransition(sysId, data.status)
             }
 
-            return response.json()
+            const response = await serviceUtils.update<{ result: PlanningSession }>(
+                this.tableName,
+                sysId,
+                data
+            )
+
+            console.log('PlanningSessionService.update: Session updated successfully')
+            return response
         } catch (error) {
-            console.error(`Error updating planning session ${sysId}:`, error)
-            throw error
+            console.error(`PlanningSessionService.update: Error updating session ${sysId}:`, error)
+            if (error instanceof ServiceNowAPIError) {
+                throw error
+            }
+            throw new ServiceNowAPIError('Failed to update planning session', 0, error)
         }
     }
 
     // Delete a planning session
     async delete(sysId: string): Promise<void> {
         try {
-            const headers = {
-                Accept: 'application/json',
-                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            console.log(`PlanningSessionService.delete: Deleting session ${sysId}`)
+            
+            // Check if session can be deleted (not active)
+            const session = await this.get(sysId)
+            const status = getValue(session.status)
+            
+            if (status === 'active') {
+                throw new ServiceNowAPIError('Cannot delete an active session', 400)
             }
 
-            const response = await fetch(`/api/now/table/${this.tableName}/${sysId}`, {
-                method: 'DELETE',
-                headers,
-            })
-
-            if (!response.ok) {
-                const errorData = await response.json()
-                throw new Error(errorData.error?.message || `HTTP error ${response.status}`)
-            }
-
-            // Return void for successful deletion
+            await serviceUtils.delete(this.tableName, sysId)
+            console.log('PlanningSessionService.delete: Session deleted successfully')
         } catch (error) {
-            console.error(`Error deleting planning session ${sysId}:`, error)
-            throw error
+            console.error(`PlanningSessionService.delete: Error deleting session ${sysId}:`, error)
+            if (error instanceof ServiceNowAPIError) {
+                throw error
+            }
+            throw new ServiceNowAPIError('Failed to delete planning session', 0, error)
         }
     }
 
     // Join a session using session code
-    async joinSession(sessionCode: string, userId?: string) {
+    async joinSession(sessionCode: string, userId?: string): Promise<PlanningSession> {
         try {
-            // First find the session by code
-            const searchParams = new URLSearchParams()
-            searchParams.set('sysparm_query', `session_code=${sessionCode}`)
-            searchParams.set('sysparm_fields', 'sys_id,name,status')
-
-            const sessionHeaders = {
-                Accept: 'application/json',
-                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            console.log(`PlanningSessionService.joinSession: Joining session with code ${sessionCode}`)
+            
+            // Validate session code format
+            if (!serviceUtils.validateSessionCode(sessionCode)) {
+                throw new ServiceNowAPIError('Invalid session code format', 400)
             }
 
-            const sessionResponse = await fetch(`/api/now/table/${this.tableName}?${searchParams.toString()}`, {
-                method: 'GET',
-                headers: sessionHeaders,
+            // Find session by code
+            const sessions = await this.list({
+                filters: { session_code: sessionCode }
             })
 
-            if (!sessionResponse.ok) {
-                throw new Error('Session not found')
+            if (sessions.length === 0) {
+                throw new ServiceNowAPIError('Session not found', 404)
             }
 
-            const { result } = await sessionResponse.json()
-            if (!result || result.length === 0) {
-                throw new Error('Invalid session code')
+            const session = sessions[0]
+            const sessionId = getValue(session.sys_id)
+            const currentUser = userId || serviceUtils.getCurrentUser().userID
+
+            // Check if user is already a participant
+            const existingParticipant = await this.checkParticipantExists(sessionId, currentUser)
+            
+            if (!existingParticipant) {
+                // Add participant to session
+                await this.addParticipant(sessionId, currentUser)
             }
 
-            const session = result[0]
-
-            // Get current user if not provided
-            const currentUser = userId || await this.getCurrentUser()
-
-            // Add participant to session
-            const participantData = {
-                session: session.sys_id,
-                user: currentUser,
-                role: 'participant'
-            }
-
-            const participantHeaders = {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-                ...(window.g_ck && { 'X-UserToken': window.g_ck })
-            }
-
-            const participantResponse = await fetch('/api/now/table/x_902080_planpoker_session_participant', {
-                method: 'POST',
-                headers: participantHeaders,
-                body: JSON.stringify(participantData),
-            })
-
-            if (!participantResponse.ok) {
-                const errorData = await participantResponse.json()
-                throw new Error(errorData.error?.message || 'Failed to join session')
-            }
-
-            // Return the full session details
-            return this.get(session.sys_id)
+            // Return full session details
+            return this.get(sessionId)
         } catch (error) {
-            console.error(`Error joining session with code ${sessionCode}:`, error)
-            throw error
+            console.error(`PlanningSessionService.joinSession: Error joining session:`, error)
+            if (error instanceof ServiceNowAPIError) {
+                throw error
+            }
+            throw new ServiceNowAPIError('Failed to join session', 0, error)
         }
     }
 
-    // Generate a unique session code
-    private generateSessionCode(): string {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-        let code = ''
-        for (let i = 0; i < 6; i++) {
-            code += chars.charAt(Math.floor(Math.random() * chars.length))
+    // Get session participants
+    async getSessionParticipants(sessionId: string): Promise<SessionParticipant[]> {
+        try {
+            const response = await serviceUtils.get<{ result: SessionParticipant[] }>(
+                'x_902080_planpoker_session_participant',
+                {
+                    sysparm_query: `session=${sessionId}^left_atISEMPTY`,
+                    sysparm_fields: 'sys_id,user,role,joined_at,left_at'
+                }
+            )
+
+            return response.result || []
+        } catch (error) {
+            console.error(`Error fetching participants for session ${sessionId}:`, error)
+            return []
         }
-        return code
+    }
+
+    // Get session stories
+    async getSessionStories(sessionId: string): Promise<SessionStory[]> {
+        try {
+            const response = await serviceUtils.get<{ result: SessionStory[] }>(
+                'x_902080_planpoker_session_stories',
+                {
+                    sysparm_query: `session=${sessionId}^ORDERBYsequence_order`,
+                    sysparm_fields: 'sys_id,story_title,description,sequence_order,status,final_estimate,consensus_achieved,sys_created_on'
+                }
+            )
+
+            return response.result || []
+        } catch (error) {
+            console.error(`Error fetching stories for session ${sessionId}:`, error)
+            return []
+        }
+    }
+
+    // Private helper methods
+    private getSessionFields(): string[] {
+        return [
+            'sys_id', 'name', 'description', 'status', 'session_code',
+            'dealer', 'total_stories', 'completed_stories', 'consensus_rate',
+            'started_at', 'completed_at', 'timebox_minutes', 'sys_created_on', 'sys_updated_on'
+        ]
+    }
+
+    private buildQuery(params: { orderBy?: string, filters?: Record<string, any> }): string {
+        let query = ''
+        
+        // Add filters
+        if (params.filters) {
+            query = serviceUtils.buildEncodedQuery(params.filters)
+        }
+        
+        // Add ordering
+        const orderBy = params.orderBy || 'ORDERBYDESCsys_created_on'
+        query = query ? `${query}^${orderBy}` : orderBy
+        
+        return query
+    }
+
+    private validateSessionData(data: Partial<PlanningSession>): void {
+        const name = getValue(data.name)
+        
+        if (!name || name.trim().length === 0) {
+            throw new ServiceNowAPIError('Session name is required', 400)
+        }
+        
+        if (name.trim().length > 100) {
+            throw new ServiceNowAPIError('Session name must be 100 characters or less', 400)
+        }
+
+        const description = getValue(data.description)
+        if (description && description.length > 1000) {
+            throw new ServiceNowAPIError('Description must be 1000 characters or less', 400)
+        }
+    }
+
+    private async validateUniqueSessionCode(sessionCode: string): Promise<void> {
+        const existingSessions = await this.list({
+            filters: { session_code: sessionCode }
+        })
+
+        if (existingSessions.length > 0) {
+            throw new ServiceNowAPIError('Session code already exists', 409)
+        }
+    }
+
+    private async handleStatusTransition(sessionId: string, newStatus: string): Promise<void> {
+        if (newStatus === 'active') {
+            // Set started_at timestamp
+            await serviceUtils.update(this.tableName, sessionId, {
+                started_at: new Date().toISOString()
+            })
+        } else if (newStatus === 'completed') {
+            // Set completed_at timestamp and calculate final stats
+            await this.completeSession(sessionId)
+        }
+    }
+
+    private async completeSession(sessionId: string): Promise<void> {
+        const stories = await this.getSessionStories(sessionId)
+        const totalStories = stories.length
+        const completedStories = stories.filter(story => getValue(story.status) === 'completed').length
+        const consensusStories = stories.filter(story => getValue(story.consensus_achieved)).length
+        const consensusRate = totalStories > 0 ? Math.round((consensusStories / totalStories) * 100) : 0
+
+        await serviceUtils.update(this.tableName, sessionId, {
+            completed_at: new Date().toISOString(),
+            total_stories: totalStories,
+            completed_stories: completedStories,
+            consensus_rate: consensusRate
+        })
+    }
+
+    private async checkParticipantExists(sessionId: string, userId: string): Promise<boolean> {
+        const response = await serviceUtils.get<{ result: SessionParticipant[] }>(
+            'x_902080_planpoker_session_participant',
+            {
+                sysparm_query: `session=${sessionId}^user=${userId}^left_atISEMPTY`,
+                sysparm_limit: 1
+            }
+        )
+
+        return (response.result?.length || 0) > 0
+    }
+
+    private async addParticipant(sessionId: string, userId: string, role: string = 'participant'): Promise<void> {
+        await serviceUtils.create('x_902080_planpoker_session_participant', {
+            session: sessionId,
+            user: userId,
+            role: role,
+            joined_at: new Date().toISOString()
+        })
     }
 }
