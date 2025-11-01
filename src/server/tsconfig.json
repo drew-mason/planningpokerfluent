@@ -13,7 +13,8 @@
         "noEmit": true
     },
     "include": [
-        "./**/*.ts"
+        "./**/*.tsx",
+        "./**/*.js"
     ],
     "exclude": [
         "**/*.now.ts"

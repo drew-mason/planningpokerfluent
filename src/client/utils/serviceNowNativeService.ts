@@ -204,6 +204,83 @@ export class ServiceNowNativeService {
     }
 
     /**
+     * Update a record using GlideRecord
+     */
+    async update(tableName: string, sysId: string, data: Record<string, any>): Promise<any> {
+        return new Promise((resolve, reject) => {
+            try {
+                console.log(`ServiceNowNativeService.update: Updating ${tableName} record ${sysId}:`, data);
+                
+                if (typeof window.GlideRecord === 'undefined') {
+                    reject(new Error('GlideRecord not available in this context'));
+                    return;
+                }
+
+                const gr = new window.GlideRecord(tableName);
+                gr.get(sysId, (result: any) => {
+                    if (result.isValid()) {
+                        // Set field values
+                        Object.entries(data).forEach(([field, value]) => {
+                            result.setValue(field, value);
+                        });
+
+                        result.update((updateResult: any) => {
+                            if (updateResult) {
+                                console.log('ServiceNowNativeService.update: Record updated successfully');
+                                resolve({ result: { sys_id: sysId } });
+                            } else {
+                                reject(new Error('Failed to update record'));
+                            }
+                        });
+                    } else {
+                        reject(new Error(`Record not found: ${sysId}`));
+                    }
+                });
+                
+            } catch (error) {
+                console.error('ServiceNowNativeService.update: Error:', error);
+                reject(error);
+            }
+        });
+    }
+
+    /**
+     * Delete a record using GlideRecord
+     */
+    async delete(tableName: string, sysId: string): Promise<void> {
+        return new Promise((resolve, reject) => {
+            try {
+                console.log(`ServiceNowNativeService.delete: Deleting ${tableName} record ${sysId}`);
+                
+                if (typeof window.GlideRecord === 'undefined') {
+                    reject(new Error('GlideRecord not available in this context'));
+                    return;
+                }
+
+                const gr = new window.GlideRecord(tableName);
+                gr.get(sysId, (result: any) => {
+                    if (result.isValid()) {
+                        result.deleteRecord((deleteResult: any) => {
+                            if (deleteResult) {
+                                console.log('ServiceNowNativeService.delete: Record deleted successfully');
+                                resolve();
+                            } else {
+                                reject(new Error('Failed to delete record'));
+                            }
+                        });
+                    } else {
+                        reject(new Error(`Record not found: ${sysId}`));
+                    }
+                });
+                
+            } catch (error) {
+                console.error('ServiceNowNativeService.delete: Error:', error);
+                reject(error);
+            }
+        });
+    }
+
+    /**
      * Check if native ServiceNow APIs are available
      */
     isNativeAPIAvailable(): boolean {

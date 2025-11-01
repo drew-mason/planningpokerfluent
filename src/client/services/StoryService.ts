@@ -1,3 +1,6 @@
+import { VotingService } from './VotingService'
+import { nativeService } from '../utils/serviceNowNativeService'
+
 export class StoryService {
     private readonly tableName: string
 
@@ -8,6 +11,26 @@ export class StoryService {
     // Get all stories for a session
     async getSessionStories(sessionId: string) {
         try {
+            // 🎯 TRY NATIVE SERVICENOW API FIRST
+            if (nativeService.isNativeAPIAvailable()) {
+                console.log('StoryService.getSessionStories: 🚀 Using ServiceNow Native GlideRecord API')
+                try {
+                    const nativeOptions = {
+                        filters: { session: sessionId },
+                        orderBy: 'sequence_order',
+                        fields: ['sys_id', 'story_title', 'description', 'sequence_order', 'status', 'final_estimate', 'consensus_achieved', 'sys_created_on']
+                    }
+                    
+                    const nativeResults = await nativeService.query(this.tableName, nativeOptions)
+                    console.log(`StoryService.getSessionStories: ✅ Native API returned ${nativeResults.length} stories`)
+                    return nativeResults || []
+                } catch (nativeError) {
+                    console.warn('StoryService.getSessionStories: Native API failed, falling back to REST:', nativeError)
+                }
+            }
+
+            // 🔄 FALLBACK TO REST API
+            console.log('StoryService.getSessionStories: Using REST API fallback')
             const searchParams = new URLSearchParams()
             searchParams.set('sysparm_display_value', 'all')
             searchParams.set('sysparm_fields', 'sys_id,story_title,description,sequence_order,status,final_estimate,consensus_achieved,sys_created_on')
@@ -210,7 +233,7 @@ export class StoryService {
     async resetStory(storyId: string) {
         try {
             // Clear all votes for this story first
-            const votingService = new (await import('./VotingService')).VotingService()
+            const votingService = new VotingService()
             await votingService.clearStoryVotes(storyId)
 
             // Reset story status and estimates

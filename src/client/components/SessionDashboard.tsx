@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import VotingSession from './VotingSession'
 import { PlanningSessionService } from '../services/PlanningSessionService'
 import { StoryService } from '../services/StoryService'
+import { SessionParticipant, getValue } from '../types'
 import './SessionDashboard.css'
 
 interface SessionDashboardProps {
@@ -30,7 +31,7 @@ interface SessionStory {
 export default function SessionDashboard({ sessionId, onExit }: SessionDashboardProps) {
     const [session, setSession] = useState<any>(null)
     const [stories, setStories] = useState<SessionStory[]>([])
-    const [participants, setParticipants] = useState<Participant[]>([])
+    const [participants, setParticipants] = useState<SessionParticipant[]>([])
     const [currentStory, setCurrentStory] = useState<SessionStory | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -257,15 +258,15 @@ export default function SessionDashboard({ sessionId, onExit }: SessionDashboard
                                     : participant.user
                                 
                                 return (
-                                    <div key={participant.sys_id} className="participant-item">
+                                    <div key={getValue(participant.sys_id)} className="participant-item">
                                         <div className="participant-avatar">
                                             {userName?.charAt(0)?.toUpperCase() || '?'}
                                         </div>
                                         <div className="participant-info">
                                             <div className="participant-name">{userName}</div>
                                             <div className="participant-role">
-                                                {participant.role === 'dealer' && '👑 '}
-                                                {participant.role}
+                                                {getValue(participant.role) === 'dealer' && '👑 '}
+                                                {getValue(participant.role)}
                                             </div>
                                         </div>
                                         <div className="participant-status online">●</div>

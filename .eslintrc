@@ -1,11 +1,58 @@
 {
   "env": {
-    "node": true
+    "node": true,
+    "browser": true,
+    "es2022": true
   },
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": "latest",
-    "sourceType": "module"
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
   },
-  "plugins": ["n","@servicenow/sdk-app-plugin"],
-  "extends": ["plugin:@servicenow/sdk-app-plugin/recommended"]
+  "plugins": [
+    "n",
+    "@servicenow/sdk-app-plugin",
+    "@typescript-eslint",
+    "react",
+    "react-hooks"
+  ],
+  "extends": [
+    "plugin:@servicenow/sdk-app-plugin/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended"
+  ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "rules": {
+    "@servicenow/sdk-app-plugin/file-extension-in-import": "off",
+    "@servicenow/sdk-app-plugin/no-unsupported-node-builtins": "warn",
+    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-namespace": "warn",
+    "react/react-in-jsx-scope": "off",
+    "react/prop-types": "warn",
+    "react-hooks/exhaustive-deps": "warn",
+    "no-console": "off",
+    "no-restricted-globals": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["*.js", "*.jsx"],
+      "parser": "espree",
+      "rules": {
+        "@typescript-eslint/no-var-requires": "off"
+      }
+    },
+    {
+      "files": ["*.ts", "*.tsx"],
+      "parser": "@typescript-eslint/parser"
+    }
+  ]
 }

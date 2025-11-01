@@ -4,6 +4,12 @@ declare module '*.scss' {
     export default content
 }
 
+// handles importing html as modules
+declare module '*.html' {
+    const content: string
+    export default content
+}
+
 // ServiceNow specific global types
 declare global {
     interface Window {

@@ -1,8 +1,10 @@
+import { nativeService } from '../utils/serviceNowNativeService'
+
 export class VotingService {
     private readonly tableName: string
 
     constructor() {
-        this.tableName = 'x_902080_planpoker_planning_vote'
+        this.tableName = 'x_902080_planpoker_vote'
     }
 
     // Submit a vote for a story
@@ -14,6 +16,20 @@ export class VotingService {
                 confidence: confidence || 'medium'
             }
 
+            // 🎯 TRY NATIVE SERVICENOW API FIRST
+            if (nativeService.isNativeAPIAvailable()) {
+                console.log('VotingService.submitVote: 🚀 Using ServiceNow Native GlideRecord API')
+                try {
+                    const nativeResult = await nativeService.create(this.tableName, voteData)
+                    console.log('VotingService.submitVote: ✅ Native API submitted vote successfully')
+                    return nativeResult
+                } catch (nativeError) {
+                    console.warn('VotingService.submitVote: Native API failed, falling back to REST:', nativeError)
+                }
+            }
+
+            // 🔄 FALLBACK TO REST API
+            console.log('VotingService.submitVote: Using REST API fallback')
             const headers = {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',

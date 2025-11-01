@@ -29,6 +29,7 @@ interface FormData {
 interface FormErrors {
     name?: string
     description?: string
+    status?: string
     session_code?: string
     timebox_minutes?: string
 }

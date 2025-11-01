@@ -2,8 +2,8 @@ import '@servicenow/sdk/global'
 import { Table, StringColumn, DateTimeColumn, IntegerColumn, ReferenceColumn, BooleanColumn } from '@servicenow/sdk/core'
 
 // Planning Session Table
-export const x_902080_planpoker_planning_session = Table({
-    name: 'x_902080_planpoker_planning_session',
+export const x_902080_planpoker_session = Table({
+    name: 'x_902080_planpoker_session',
     label: 'Planning Session',
     schema: {
         name: StringColumn({
@@ -73,7 +73,7 @@ export const x_902080_planpoker_session_stories = Table({
     schema: {
         session: ReferenceColumn({
             label: 'Session',
-            reference: 'x_902080_planpoker_planning_session',
+            reference: 'x_902080_planpoker_session',
             mandatory: true,
         }),
         story_title: StringColumn({
@@ -126,14 +126,14 @@ export const x_902080_planpoker_session_stories = Table({
     allow_web_service_access: true,
 })
 
-// Planning Votes Table
-export const x_902080_planpoker_planning_vote = Table({
-    name: 'x_902080_planpoker_planning_vote',
+//  Votes Table
+export const x_902080_planpoker_vote = Table({
+    name: 'x_902080_planpoker_vote',
     label: 'Planning Vote',
     schema: {
         session: ReferenceColumn({
             label: 'Session',
-            reference: 'x_902080_planpoker_planning_session',
+            reference: 'x_902080_planpoker_session',
             mandatory: true,
         }),
         story: ReferenceColumn({
@@ -176,7 +176,7 @@ export const x_902080_planpoker_session_participant = Table({
     schema: {
         session: ReferenceColumn({
             label: 'Session',
-            reference: 'x_902080_planpoker_planning_session',
+            reference: 'x_902080_planpoker_session',
             mandatory: true,
         }),
         user: ReferenceColumn({

@@ -5,8 +5,8 @@ import {
     ServiceNowAPIError,
     getValue 
 } from '../types'
-import { serviceUtils } from '../utils/serviceUtils'
 import { nativeService } from '../utils/serviceNowNativeService'
+import { PlanningPokerUtils } from '../utils/planningPokerUtils'
 
 export class PlanningSessionService {
     private readonly tableName = 'x_902080_planpoker_session'
@@ -19,110 +19,21 @@ export class PlanningSessionService {
         filters?: Record<string, any>
     } = {}): Promise<PlanningSession[]> {
         try {
-            console.log('PlanningSessionService.list: Fetching sessions...')
+            console.log('PlanningSessionService.list: Fetching sessions with native API...')
             console.log('PlanningSessionService.list: Params:', params)
             
-            // 🎯 TRY NATIVE SERVICENOW API FIRST
-            if (nativeService.isNativeAPIAvailable()) {
-                console.log('PlanningSessionService.list: 🚀 Using ServiceNow Native GlideRecord API')
-                try {
-                    const nativeOptions = {
-                        filters: params.filters,
-                        orderBy: params.orderBy || 'ORDERBYDESCsys_created_on',
-                        limit: params.limit || 50,
-                        fields: this.getSessionFields()
-                    }
-                    
-                    const nativeResults = await nativeService.query(this.tableName, nativeOptions)
-                    console.log(`PlanningSessionService.list: ✅ Native API returned ${nativeResults.length} sessions`)
-                    return nativeResults as PlanningSession[]
-                    
-                } catch (nativeError) {
-                    console.warn('PlanningSessionService.list: ⚠️ Native API failed, falling back to REST:', nativeError)
-                    // Fall through to REST API
-                }
-            } else {
-                console.log('PlanningSessionService.list: ℹ️ Native API not available, using REST API')
+            // Use only native ServiceNow API
+            const nativeOptions = {
+                filters: params.filters,
+                orderBy: params.orderBy || 'ORDERBYDESCsys_created_on',
+                limit: params.limit || 50,
+                fields: this.getSessionFields()
             }
             
-            // 🔄 FALLBACK TO REST API
-            const queryParams = {
-                sysparm_limit: params.limit || 50,
-                sysparm_offset: params.offset || 0,
-                sysparm_query: this.buildQuery(params),
-                sysparm_fields: this.getSessionFields().join(',')
-            }
-
-            console.log('PlanningSessionService.list: Query params:', queryParams)
-
-            const response = await serviceUtils.get<{ result: PlanningSession[] }>(
-                this.tableName, 
-                queryParams
-            )
-
-            console.log('PlanningSessionService.list: Raw response:', response)
-            console.log(`PlanningSessionService.list: Retrieved ${response.result?.length || 0} sessions`)
+            const nativeResults = await nativeService.query(this.tableName, nativeOptions)
+            console.log(`PlanningSessionService.list: ✅ Native API returned ${nativeResults.length} sessions`)
+            return nativeResults as PlanningSession[]
             
-            // Debug: also try a raw query without any filters
-            try {
-                const debugParams = {
-                    sysparm_limit: 10,
-                    sysparm_fields: 'sys_id,name,status,sys_created_on,dealer'
-                }
-                const debugResponse = await serviceUtils.get<{ result: any[] }>(
-                    this.tableName,
-                    debugParams
-                )
-                console.log('PlanningSessionService.list: Debug raw query (no filters):', debugResponse)
-                console.log(`PlanningSessionService.list: Debug found ${debugResponse.result?.length || 0} total records`)
-                
-                // Debug: try to fetch the most recently created session by sys_id if we know one exists
-                if (debugResponse.result && debugResponse.result.length > 0) {
-                    console.log('PlanningSessionService.list: Sample records found:', debugResponse.result.map(r => ({
-                        sys_id: r.sys_id,
-                        name: r.name,
-                        status: r.status,
-                        created: r.sys_created_on
-                    })))
-                } else {
-                    // Try a completely different approach - direct table access
-                    console.log('PlanningSessionService.list: Attempting direct table verification...')
-                    try {
-                        const directParams = {
-                            sysparm_limit: 1,
-                            sysparm_fields: 'sys_id,name'
-                        }
-                        const directResponse = await serviceUtils.get<{ result: any[] }>(
-                            'x_902080_planpoker_session',
-                            directParams
-                        )
-                        console.log('PlanningSessionService.list: Direct table access result:', directResponse)
-                        
-                        // CRITICAL TEST: Try to fetch a known session by sys_id from previous creation
-                        console.log('PlanningSessionService.list: Testing direct sys_id access vs list access...')
-                        
-                        // Try to query with a very basic filter
-                        const basicParams = {
-                            sysparm_limit: 5,
-                            sysparm_fields: 'sys_id,name,status',
-                            sysparm_query: 'status=pending'
-                        }
-                        const basicResponse = await serviceUtils.get<{ result: any[] }>(
-                            this.tableName,
-                            basicParams
-                        )
-                        console.log('PlanningSessionService.list: Basic status filter result:', basicResponse)
-                        
-                    } catch (directError) {
-                        console.error('PlanningSessionService.list: Direct table access failed:', directError)
-                        console.error('PlanningSessionService.list: This suggests an ACL (Access Control) issue with list queries')
-                    }
-                }
-            } catch (debugError) {
-                console.error('Debug query failed:', debugError)
-            }
-            
-            return response.result || []
         } catch (error) {
             console.error('PlanningSessionService.list: Error fetching sessions:', error)
             throw new ServiceNowAPIError(
@@ -133,123 +44,80 @@ export class PlanningSessionService {
         }
     }
 
-    // Get a single planning session with full details
+    // Get single planning session by ID
     async get(sysId: string): Promise<PlanningSession> {
         try {
-            const queryParams = {
-                sysparm_fields: this.getSessionFields().join(',')
-            }
-
-            const response = await serviceUtils.getById<{ result: PlanningSession }>(
-                this.tableName,
-                sysId,
-                queryParams
-            )
-
-            if (!response.result) {
-                throw new ServiceNowAPIError('Session not found', 404)
-            }
-
-            // Fetch related data in parallel
-            const [stories, participants] = await Promise.all([
-                this.getSessionStories(sysId),
-                this.getSessionParticipants(sysId)
-            ])
-
-            return {
-                ...response.result,
-                stories,
-                participants
-            }
+            console.log(`PlanningSessionService.get: Fetching session ${sysId}`)
+            
+            const record = await nativeService.getById(this.tableName, sysId)
+            console.log('PlanningSessionService.get: Session found:', record)
+            return record as PlanningSession
+            
         } catch (error) {
             console.error(`PlanningSessionService.get: Error fetching session ${sysId}:`, error)
-            if (error instanceof ServiceNowAPIError) {
-                throw error
-            }
-            throw new ServiceNowAPIError('Failed to fetch session details', 0, error)
+            throw new ServiceNowAPIError(
+                `Session not found: ${sysId}`,
+                404,
+                error
+            )
         }
     }
 
-    // Create a new planning session
-    async create(sessionData: Partial<PlanningSession>): Promise<{ result: PlanningSession }> {
+    // Create new planning session
+    async create(sessionData: Partial<PlanningSession>): Promise<PlanningSession> {
         try {
-            console.log('PlanningSessionService.create: Creating session with data:', sessionData)
+            console.log('PlanningSessionService.create: Creating new session:', sessionData)
             
             // Validate required fields
-            this.validateSessionData(sessionData)
+            if (!sessionData.name) {
+                throw new ServiceNowAPIError('Session name is required', 400)
+            }
 
-            // Prepare data with defaults
+            // Prepare data with sanitization
             const data = {
-                name: serviceUtils.sanitizeInput(getValue(sessionData.name)),
-                description: serviceUtils.sanitizeInput(getValue(sessionData.description) || ''),
-                session_code: getValue(sessionData.session_code) || serviceUtils.generateSessionCode(),
+                name: PlanningPokerUtils.sanitizeInput(getValue(sessionData.name)),
+                description: PlanningPokerUtils.sanitizeInput(getValue(sessionData.description) || ''),
+                session_code: getValue(sessionData.session_code) || PlanningPokerUtils.generateSessionCode(),
                 status: getValue(sessionData.status) || 'pending',
-                dealer: getValue(sessionData.dealer) || serviceUtils.getCurrentUser().userID,
-                timebox_minutes: Number(getValue(sessionData.timebox_minutes)) || 30,
-                total_stories: 0,
-                completed_stories: 0,
-                consensus_rate: 0
+                dealer: getValue(sessionData.dealer) || nativeService.getCurrentUser().userID,
+                total_stories: getValue(sessionData.total_stories) || 0,
+                completed_stories: getValue(sessionData.completed_stories) || 0,
+                consensus_rate: getValue(sessionData.consensus_rate) || 0,
+                timebox_minutes: getValue(sessionData.timebox_minutes) || 30
             }
 
-            console.log('PlanningSessionService.create: Sanitized data to be sent:', data)
-
-            // Validate session code uniqueness
-            await this.validateUniqueSessionCode(data.session_code)
-
-            const response = await serviceUtils.create<{ result: PlanningSession }>(
-                this.tableName,
-                data
-            )
-
-            console.log('PlanningSessionService.create: Server response:', response)
-
-            // Verify the session was actually created by trying to fetch it
-            if (response.result?.sys_id) {
-                const sysId = getValue(response.result.sys_id)
-                console.log('PlanningSessionService.create: Verifying creation by fetching sys_id:', sysId)
-                try {
-                    const verification = await this.get(sysId)
-                    console.log('PlanningSessionService.create: Verification successful, session exists:', verification)
-                    
-                    // CRITICAL ACL TEST: Try to list sessions that should include this one
-                    console.log('PlanningSessionService.create: TESTING ACL - Trying to list sessions immediately after creation...')
-                    try {
-                        const aclTestParams = {
-                            sysparm_limit: 10,
-                            sysparm_fields: 'sys_id,name,session_code',
-                            sysparm_query: `sys_id=${sysId}`
-                        }
-                        const aclTestResponse = await serviceUtils.get<{ result: any[] }>(
-                            this.tableName,
-                            aclTestParams
-                        )
-                        console.log('PlanningSessionService.create: ACL TEST - Direct sys_id query result:', aclTestResponse)
-                        
-                        if (aclTestResponse.result && aclTestResponse.result.length === 0) {
-                            console.error('🚨 ACL ISSUE CONFIRMED: Session exists but cannot be queried via list API!')
-                            console.error('This indicates the user has CREATE and READ access but NOT LIST access to the table')
-                        }
-                    } catch (aclError) {
-                        console.error('PlanningSessionService.create: ACL Test failed:', aclError)
-                    }
-                    
-                } catch (verifyError) {
-                    console.error('PlanningSessionService.create: CRITICAL - Session creation reported success but record not found!', verifyError)
-                    throw new ServiceNowAPIError('Session creation verification failed - record may not have been persisted', 0, verifyError)
-                }
-            } else {
-                console.error('PlanningSessionService.create: CRITICAL - No sys_id returned from creation!')
-                throw new ServiceNowAPIError('Session creation failed - no sys_id returned', 0)
-            }
-
-            console.log('PlanningSessionService.create: Session created and verified successfully')
-            return response
+            console.log('PlanningSessionService.create: Processed data:', data)
+            
+            const response = await nativeService.create(this.tableName, data)
+            console.log('PlanningSessionService.create: ✅ Session created with sys_id:', response.result.sys_id)
+            
+            // Return the created session
+            return await this.get(response.result.sys_id)
+            
         } catch (error) {
             console.error('PlanningSessionService.create: Error creating session:', error)
-            if (error instanceof ServiceNowAPIError) {
-                throw error
+            
+            // Enhanced error logging for debugging
+            if (error instanceof ServiceNowAPIError && error.statusCode === 400) {
+                console.error('PlanningSessionService.create: Validation failed - check required fields')
+            } else {
+                console.error('PlanningSessionService.create: Create operation failed')
+                
+                // Test if native API is available
+                try {
+                    if (nativeService.isNativeAPIAvailable()) {
+                        console.log('PlanningSessionService.create: Native API is available')
+                    }
+                } catch (debugError) {
+                    console.error('PlanningSessionService.create: Debug check failed:', debugError)
+                }
             }
-            throw new ServiceNowAPIError('Failed to create planning session', 0, error)
+            
+            throw new ServiceNowAPIError(
+                'Failed to create planning session',
+                500,
+                error
+            )
         }
     }
 
@@ -262,10 +130,10 @@ export class PlanningSessionService {
             const data: Record<string, any> = {}
             
             if (sessionData.name !== undefined) {
-                data.name = serviceUtils.sanitizeInput(getValue(sessionData.name))
+                data.name = PlanningPokerUtils.sanitizeInput(getValue(sessionData.name))
             }
             if (sessionData.description !== undefined) {
-                data.description = serviceUtils.sanitizeInput(getValue(sessionData.description) || '')
+                data.description = PlanningPokerUtils.sanitizeInput(getValue(sessionData.description) || '')
             }
             if (sessionData.status !== undefined) {
                 data.status = getValue(sessionData.status)
@@ -279,14 +147,13 @@ export class PlanningSessionService {
                 await this.handleStatusTransition(sysId, data.status)
             }
 
-            const response = await serviceUtils.update<{ result: PlanningSession }>(
-                this.tableName,
-                sysId,
-                data
-            )
-
+            await nativeService.update(this.tableName, sysId, data)
+            
             console.log('PlanningSessionService.update: Session updated successfully')
-            return response
+            
+            // Return the updated session
+            const updatedSession = await this.get(sysId)
+            return { result: updatedSession }
         } catch (error) {
             console.error(`PlanningSessionService.update: Error updating session ${sysId}:`, error)
             if (error instanceof ServiceNowAPIError) {
@@ -309,7 +176,7 @@ export class PlanningSessionService {
                 throw new ServiceNowAPIError('Cannot delete an active session', 400)
             }
 
-            await serviceUtils.delete(this.tableName, sysId)
+            await nativeService.delete(this.tableName, sysId)
             console.log('PlanningSessionService.delete: Session deleted successfully')
         } catch (error) {
             console.error(`PlanningSessionService.delete: Error deleting session ${sysId}:`, error)
@@ -326,7 +193,7 @@ export class PlanningSessionService {
             console.log(`PlanningSessionService.joinSession: Joining session with code ${sessionCode}`)
             
             // Validate session code format
-            if (!serviceUtils.validateSessionCode(sessionCode)) {
+            if (!PlanningPokerUtils.validateSessionCode(sessionCode)) {
                 throw new ServiceNowAPIError('Invalid session code format', 400)
             }
 
@@ -341,7 +208,7 @@ export class PlanningSessionService {
 
             const session = sessions[0]
             const sessionId = getValue(session.sys_id)
-            const currentUser = userId || serviceUtils.getCurrentUser().userID
+            const currentUser = userId || nativeService.getCurrentUser().userID
 
             // Check if user is already a participant
             const existingParticipant = await this.checkParticipantExists(sessionId, currentUser)
@@ -365,15 +232,15 @@ export class PlanningSessionService {
     // Get session participants
     async getSessionParticipants(sessionId: string): Promise<SessionParticipant[]> {
         try {
-            const response = await serviceUtils.get<{ result: SessionParticipant[] }>(
+            const participants = await nativeService.query(
                 'x_902080_planpoker_session_participant',
                 {
-                    sysparm_query: `session=${sessionId}^left_atISEMPTY`,
-                    sysparm_fields: 'sys_id,user,role,joined_at,left_at'
+                    filters: { session: sessionId, left_at: null },
+                    fields: ['sys_id', 'user', 'role', 'joined_at', 'left_at']
                 }
             )
 
-            return response.result || []
+            return participants as SessionParticipant[]
         } catch (error) {
             console.error(`Error fetching participants for session ${sessionId}:`, error)
             return []
@@ -383,15 +250,16 @@ export class PlanningSessionService {
     // Get session stories
     async getSessionStories(sessionId: string): Promise<SessionStory[]> {
         try {
-            const response = await serviceUtils.get<{ result: SessionStory[] }>(
+            const stories = await nativeService.query(
                 'x_902080_planpoker_session_stories',
                 {
-                    sysparm_query: `session=${sessionId}^ORDERBYsequence_order`,
-                    sysparm_fields: 'sys_id,story_title,description,sequence_order,status,final_estimate,consensus_achieved,sys_created_on'
+                    filters: { session: sessionId },
+                    orderBy: 'sequence_order',
+                    fields: ['sys_id', 'story_title', 'description', 'sequence_order', 'status', 'final_estimate', 'consensus_achieved', 'sys_created_on']
                 }
             )
 
-            return response.result || []
+            return stories as SessionStory[]
         } catch (error) {
             console.error(`Error fetching stories for session ${sessionId}:`, error)
             return []
@@ -410,9 +278,19 @@ export class PlanningSessionService {
     private buildQuery(params: { orderBy?: string, filters?: Record<string, any> }): string {
         let query = ''
         
-        // Add filters
+        // Add filters - for native service, we don't need to build encoded query
+        // The filters are passed directly as objects
         if (params.filters) {
-            query = serviceUtils.buildEncodedQuery(params.filters)
+            // This method is kept for backward compatibility but not used with native service
+            query = Object.entries(params.filters)
+                .filter(([_, value]) => value !== undefined && value !== null)
+                .map(([field, value]) => {
+                    if (Array.isArray(value)) {
+                        return `${field}IN${value.join(',')}`
+                    }
+                    return `${field}=${value}`
+                })
+                .join('^')
         }
         
         // Add ordering
@@ -452,7 +330,7 @@ export class PlanningSessionService {
     private async handleStatusTransition(sessionId: string, newStatus: string): Promise<void> {
         if (newStatus === 'active') {
             // Set started_at timestamp
-            await serviceUtils.update(this.tableName, sessionId, {
+            await nativeService.update(this.tableName, sessionId, {
                 started_at: new Date().toISOString()
             })
         } else if (newStatus === 'completed') {
@@ -468,7 +346,7 @@ export class PlanningSessionService {
         const consensusStories = stories.filter(story => getValue(story.consensus_achieved)).length
         const consensusRate = totalStories > 0 ? Math.round((consensusStories / totalStories) * 100) : 0
 
-        await serviceUtils.update(this.tableName, sessionId, {
+        await nativeService.update(this.tableName, sessionId, {
             completed_at: new Date().toISOString(),
             total_stories: totalStories,
             completed_stories: completedStories,
@@ -477,19 +355,19 @@ export class PlanningSessionService {
     }
 
     private async checkParticipantExists(sessionId: string, userId: string): Promise<boolean> {
-        const response = await serviceUtils.get<{ result: SessionParticipant[] }>(
+        const participants = await nativeService.query(
             'x_902080_planpoker_session_participant',
             {
-                sysparm_query: `session=${sessionId}^user=${userId}^left_atISEMPTY`,
-                sysparm_limit: 1
+                filters: { session: sessionId, user: userId, left_at: null },
+                limit: 1
             }
         )
 
-        return (response.result?.length || 0) > 0
+        return participants.length > 0
     }
 
     private async addParticipant(sessionId: string, userId: string, role: string = 'participant'): Promise<void> {
-        await serviceUtils.create('x_902080_planpoker_session_participant', {
+        await nativeService.create('x_902080_planpoker_session_participant', {
             session: sessionId,
             user: userId,
             role: role,
