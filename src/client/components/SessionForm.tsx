@@ -86,6 +86,9 @@ export default function SessionForm({ session, onSubmit, onCancel }: SessionForm
                             required
                             maxLength={100}
                             placeholder="Enter a descriptive name for your planning session"
+                            autoComplete="off"
+                            data-no-autofill="true"
+                            data-form-type="other"
                         />
                     </div>
 
@@ -99,6 +102,9 @@ export default function SessionForm({ session, onSubmit, onCancel }: SessionForm
                             rows={4}
                             maxLength={1000}
                             placeholder="Optional: Add details about this planning session"
+                            autoComplete="off"
+                            data-no-autofill="true"
+                            data-form-type="other"
                         />
                     </div>
 
@@ -114,6 +120,9 @@ export default function SessionForm({ session, onSubmit, onCancel }: SessionForm
                                 maxLength={10}
                                 placeholder="Auto-generated code"
                                 className="session-code-input"
+                                autoComplete="off"
+                                data-no-autofill="true"
+                                data-form-type="other"
                             />
                             <small className="help-text">
                                 Share this code with team members to join the session
@@ -122,7 +131,15 @@ export default function SessionForm({ session, onSubmit, onCancel }: SessionForm
 
                         <div className="form-group">
                             <label htmlFor="status">Status</label>
-                            <select id="status" name="status" value={formData.status} onChange={handleChange}>
+                            <select 
+                                id="status" 
+                                name="status" 
+                                value={formData.status} 
+                                onChange={handleChange}
+                                autoComplete="off"
+                                data-no-autofill="true"
+                                data-form-type="other"
+                            >
                                 <option value="draft">Draft</option>
                                 <option value="active">Active</option>
                                 <option value="paused">Paused</option>

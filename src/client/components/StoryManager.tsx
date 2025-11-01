@@ -375,6 +375,9 @@ export default function StoryManager({ sessionId, onClose, onStoriesUpdated }: S
                                         onChange={(e) => setEditForm(prev => ({ ...prev, title: e.target.value }))}
                                         placeholder="Enter story title"
                                         autoFocus
+                                        autoComplete="off"
+                                        data-no-autofill="true"
+                                        data-form-type="other"
                                     />
                                 </div>
                                 <div className="form-group">
@@ -385,6 +388,9 @@ export default function StoryManager({ sessionId, onClose, onStoriesUpdated }: S
                                         onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
                                         placeholder="Optional: Add story details"
                                         rows={4}
+                                        autoComplete="off"
+                                        data-no-autofill="true"
+                                        data-form-type="other"
                                     />
                                 </div>
                             </div>
@@ -441,6 +447,9 @@ Password Reset
 Profile Management|User can update their profile information`}
                                         rows={10}
                                         className="bulk-import-textarea"
+                                        autoComplete="off"
+                                        data-no-autofill="true"
+                                        data-form-type="other"
                                     />
                                 </div>
                                 <div className="import-preview">

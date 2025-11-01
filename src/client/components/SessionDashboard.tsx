@@ -374,6 +374,9 @@ export default function SessionDashboard({ sessionId, onExit }: SessionDashboard
                                     onChange={(e) => setNewStoryTitle(e.target.value)}
                                     placeholder="Enter story title"
                                     autoFocus
+                                    autoComplete="off"
+                                    data-no-autofill="true"
+                                    data-form-type="other"
                                 />
                             </div>
                             <div className="form-group">
@@ -384,6 +387,9 @@ export default function SessionDashboard({ sessionId, onExit }: SessionDashboard
                                     onChange={(e) => setNewStoryDescription(e.target.value)}
                                     placeholder="Optional: Add story details"
                                     rows={3}
+                                    autoComplete="off"
+                                    data-no-autofill="true"
+                                    data-form-type="other"
                                 />
                             </div>
                         </div>

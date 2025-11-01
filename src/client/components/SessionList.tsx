@@ -237,6 +237,9 @@ export default function SessionList({ sessions, onEdit, onRefresh, onJoinSession
                                 maxLength={10}
                                 className="join-code-input"
                                 autoFocus
+                                autoComplete="off"
+                                data-no-autofill="true"
+                                data-form-type="other"
                             />
                         </div>
                         <div className="join-modal-actions">
