@@ -1,0 +1,6 @@
+{
+  "scope": "x_902080_planpoker",
+  "scopeId": "052452f30ffcb2109e4b6dd530d1b26f",
+  "name": "Planning Poker",
+  "tsconfigPath": "./src/server/tsconfig.json"
+}
