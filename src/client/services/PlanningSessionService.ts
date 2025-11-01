@@ -123,6 +123,8 @@ export class PlanningSessionService {
                 consensus_rate: 0
             }
 
+            console.log('PlanningSessionService.create: Sanitized data to be sent:', data)
+
             // Validate session code uniqueness
             await this.validateUniqueSessionCode(data.session_code)
 
@@ -131,7 +133,25 @@ export class PlanningSessionService {
                 data
             )
 
-            console.log('PlanningSessionService.create: Session created successfully')
+            console.log('PlanningSessionService.create: Server response:', response)
+
+            // Verify the session was actually created by trying to fetch it
+            if (response.result?.sys_id) {
+                const sysId = getValue(response.result.sys_id)
+                console.log('PlanningSessionService.create: Verifying creation by fetching sys_id:', sysId)
+                try {
+                    const verification = await this.get(sysId)
+                    console.log('PlanningSessionService.create: Verification successful, session exists:', verification)
+                } catch (verifyError) {
+                    console.error('PlanningSessionService.create: CRITICAL - Session creation reported success but record not found!', verifyError)
+                    throw new ServiceNowAPIError('Session creation verification failed - record may not have been persisted', 0, verifyError)
+                }
+            } else {
+                console.error('PlanningSessionService.create: CRITICAL - No sys_id returned from creation!')
+                throw new ServiceNowAPIError('Session creation failed - no sys_id returned', 0)
+            }
+
+            console.log('PlanningSessionService.create: Session created and verified successfully')
             return response
         } catch (error) {
             console.error('PlanningSessionService.create: Error creating session:', error)

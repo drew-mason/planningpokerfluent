@@ -1,18 +1,58 @@
 // Aggressive extension error suppression - must be first
 if (typeof window !== 'undefined') {
+    // Override console.error to suppress extension errors
     const originalError = console.error
     console.error = (...args) => {
         const msg = String(args[0] || '').toLowerCase()
-        if (msg.includes('content_script') || msg.includes('cannot read properties of undefined') || 
-            msg.includes('control') || msg.includes('shouldoffercompletionlistforfield')) return
+        if (msg.includes('content_script') || 
+            msg.includes('cannot read properties of undefined') || 
+            msg.includes('control') || 
+            msg.includes('shouldoffercompletionlistforfield') ||
+            msg.includes('elementwasfocused') ||
+            msg.includes('focusineventhandler') ||
+            msg.includes('processinputevent') ||
+            msg.includes('uncaught typeerror')) {
+            // Silently suppress extension errors
+            return
+        }
         originalError.apply(console, args)
     }
     
+    // Override window.onerror to catch extension errors
     const originalOnError = window.onerror
     window.onerror = (msg, source, line, col, error) => {
-        if (String(msg).includes('content_script') || String(source).includes('content_script')) return true
+        const msgStr = String(msg || '').toLowerCase()
+        const srcStr = String(source || '').toLowerCase()
+        
+        if (msgStr.includes('content_script') || 
+            srcStr.includes('content_script') ||
+            msgStr.includes('cannot read properties of undefined') ||
+            msgStr.includes('control') ||
+            srcStr.includes('chrome-extension') ||
+            srcStr.includes('moz-extension')) {
+            return true // Suppress the error
+        }
         return originalOnError ? originalOnError(msg, source, line, col, error) : false
     }
+    
+    // Handle unhandled promise rejections from extensions  
+    const originalUnhandledRejection = window.onunhandledrejection
+    window.onunhandledrejection = (event) => {
+        const reason = event.reason
+        const message = String(reason?.message || reason || '').toLowerCase()
+        
+        if (message.includes('content_script') ||
+            message.includes('cannot read properties of undefined') ||
+            message.includes('control') ||
+            message.includes('shouldoffercompletionlistforfield')) {
+            event.preventDefault()
+            return true
+        }
+        
+        return originalUnhandledRejection ? originalUnhandledRejection.call(window, event) : false
+    }
+    
+    console.log('Extension error suppression activated')
 }
 
 import React from 'react'
