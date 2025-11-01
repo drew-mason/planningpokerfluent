@@ -5,42 +5,7 @@ import SessionForm from './components/SessionForm'
 import SessionDashboard from './components/SessionDashboard'
 import { AnalyticsDashboard } from './components/AnalyticsDashboard'
 import { formatApiError, handleAsyncOperation } from './utils/serviceUtils'
-import { isExtensionError, suppressExtensionErrors } from './utils/browserExtensionFix'
 import './app.css'
-
-// Initialize browser extension protection
-if (typeof window !== 'undefined') {
-    // Suppress extension-related console errors
-    suppressExtensionErrors()
-    
-    // Add global error handler for extension errors
-    const handleExtensionErrors = (event) => {
-        const error = event.error || event.reason
-        if (isExtensionError(error)) {
-            console.debug('Browser extension interference suppressed:', error.message)
-            event.preventDefault()
-            return true
-        }
-        return false
-    }
-    
-    window.addEventListener('error', handleExtensionErrors, true)
-    window.addEventListener('unhandledrejection', handleExtensionErrors, true)
-    
-    // Add meta tags to discourage extension interference
-    const addMetaTag = (name, content) => {
-        if (!document.querySelector(`meta[name="${name}"]`)) {
-            const meta = document.createElement('meta')
-            meta.name = name
-            meta.content = content
-            document.head.appendChild(meta)
-        }
-    }
-    
-    addMetaTag('no-password-suggestions', 'true')
-    addMetaTag('autocomplete', 'off')
-    addMetaTag('form-type', 'other')
-}
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component {
