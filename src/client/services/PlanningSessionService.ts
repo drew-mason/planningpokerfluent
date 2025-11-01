@@ -6,6 +6,7 @@ import {
     getValue 
 } from '../types'
 import { serviceUtils } from '../utils/serviceUtils'
+import { nativeService } from '../utils/serviceNowNativeService'
 
 export class PlanningSessionService {
     private readonly tableName = 'x_902080_planpoker_session'
@@ -21,6 +22,30 @@ export class PlanningSessionService {
             console.log('PlanningSessionService.list: Fetching sessions...')
             console.log('PlanningSessionService.list: Params:', params)
             
+            // 🎯 TRY NATIVE SERVICENOW API FIRST
+            if (nativeService.isNativeAPIAvailable()) {
+                console.log('PlanningSessionService.list: 🚀 Using ServiceNow Native GlideRecord API')
+                try {
+                    const nativeOptions = {
+                        filters: params.filters,
+                        orderBy: params.orderBy || 'ORDERBYDESCsys_created_on',
+                        limit: params.limit || 50,
+                        fields: this.getSessionFields()
+                    }
+                    
+                    const nativeResults = await nativeService.query(this.tableName, nativeOptions)
+                    console.log(`PlanningSessionService.list: ✅ Native API returned ${nativeResults.length} sessions`)
+                    return nativeResults as PlanningSession[]
+                    
+                } catch (nativeError) {
+                    console.warn('PlanningSessionService.list: ⚠️ Native API failed, falling back to REST:', nativeError)
+                    // Fall through to REST API
+                }
+            } else {
+                console.log('PlanningSessionService.list: ℹ️ Native API not available, using REST API')
+            }
+            
+            // 🔄 FALLBACK TO REST API
             const queryParams = {
                 sysparm_limit: params.limit || 50,
                 sysparm_offset: params.offset || 0,
