@@ -14,13 +14,15 @@ export class VotingService {
                 confidence: confidence || 'medium'
             }
 
+            const headers = {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            }
+
             const response = await fetch(`/api/now/table/${this.tableName}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                    'X-UserToken': window.g_ck,
-                },
+                headers,
                 body: JSON.stringify(voteData),
             })
 
@@ -44,13 +46,15 @@ export class VotingService {
                 confidence: confidence || 'medium'
             }
 
+            const headers = {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            }
+
             const response = await fetch(`/api/now/table/${this.tableName}/${voteId}`, {
                 method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                    'X-UserToken': window.g_ck,
-                },
+                headers,
                 body: JSON.stringify(voteData),
             })
 
@@ -74,12 +78,14 @@ export class VotingService {
             searchParams.set('sysparm_fields', 'sys_id,voter,estimate,confidence,voted_at')
             searchParams.set('sysparm_query', `story=${storyId}`)
 
+            const headers = {
+                Accept: 'application/json',
+                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            }
+
             const response = await fetch(`/api/now/table/${this.tableName}?${searchParams.toString()}`, {
                 method: 'GET',
-                headers: {
-                    Accept: 'application/json',
-                    'X-UserToken': window.g_ck,
-                },
+                headers,
             })
 
             if (!response.ok) {
@@ -106,12 +112,14 @@ export class VotingService {
             const userQuery = userId ? `voter=${userId}` : `voter=javascript:gs.getUserID()`
             searchParams.set('sysparm_query', `story=${storyId}^${userQuery}`)
 
+            const headers = {
+                Accept: 'application/json',
+                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            }
+
             const response = await fetch(`/api/now/table/${this.tableName}?${searchParams.toString()}`, {
                 method: 'GET',
-                headers: {
-                    Accept: 'application/json',
-                    'X-UserToken': window.g_ck,
-                },
+                headers,
             })
 
             if (!response.ok) {
@@ -219,15 +227,16 @@ export class VotingService {
             const votes = await this.getStoryVotes(storyId)
             
             // Delete each vote
-            const deletePromises = votes.map((vote: any) => 
-                fetch(`/api/now/table/${this.tableName}/${vote.sys_id}`, {
+            const deletePromises = votes.map((vote: any) => {
+                const headers = {
+                    Accept: 'application/json',
+                    ...(window.g_ck && { 'X-UserToken': window.g_ck })
+                }
+                return fetch(`/api/now/table/${this.tableName}/${vote.sys_id}`, {
                     method: 'DELETE',
-                    headers: {
-                        Accept: 'application/json',
-                        'X-UserToken': window.g_ck,
-                    },
+                    headers,
                 })
-            )
+            })
 
             await Promise.all(deletePromises)
             return true
@@ -240,13 +249,15 @@ export class VotingService {
     // Finalize voting for a story (set consensus estimate)
     async finalizeStoryVoting(storyId: string, finalEstimate: string) {
         try {
+            const headers = {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            }
+
             const response = await fetch(`/api/now/table/x_902080_planpoker_session_stories/${storyId}`, {
                 method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                    'X-UserToken': window.g_ck,
-                },
+                headers,
                 body: JSON.stringify({
                     final_estimate: finalEstimate,
                     status: 'completed',

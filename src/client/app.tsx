@@ -61,12 +61,15 @@ export default function App() {
 
     const refreshSessions = async () => {
         try {
+            console.log('App.refreshSessions: Starting to refresh sessions...')
             setLoading(true)
             setError(null)
             const data = await sessionService.list()
+            console.log('App.refreshSessions: Retrieved sessions:', data)
             setSessions(data)
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+            console.error('App.refreshSessions: Error loading sessions:', err)
             setError('Failed to load planning sessions: ' + errorMessage)
             console.error(err)
         } finally {
@@ -96,19 +99,25 @@ export default function App() {
     const handleFormSubmit = async (sessionData: Partial<PlanningSession>) => {
         setLoading(true)
         try {
+            console.log('App.handleFormSubmit: Submitting session data:', sessionData)
             if (selectedSession) {
                 const sysId =
                     typeof selectedSession.sys_id === 'object'
                         ? selectedSession.sys_id.value
                         : selectedSession.sys_id
+                console.log('App.handleFormSubmit: Updating session:', sysId)
                 await sessionService.update(sysId, sessionData)
             } else {
-                await sessionService.create(sessionData)
+                console.log('App.handleFormSubmit: Creating new session')
+                const result = await sessionService.create(sessionData)
+                console.log('App.handleFormSubmit: Created session result:', result)
             }
             setShowForm(false)
+            console.log('App.handleFormSubmit: Refreshing sessions after create/update')
             await refreshSessions()
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+            console.error('App.handleFormSubmit: Error saving session:', err)
             setError('Failed to save planning session: ' + errorMessage)
             console.error(err)
         } finally {

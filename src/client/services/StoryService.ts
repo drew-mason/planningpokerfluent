@@ -13,12 +13,14 @@ export class StoryService {
             searchParams.set('sysparm_fields', 'sys_id,story_title,description,sequence_order,status,final_estimate,consensus_achieved,sys_created_on')
             searchParams.set('sysparm_query', `session=${sessionId}^ORDERBYsequence_order`)
 
+            const headers = {
+                Accept: 'application/json',
+                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            }
+
             const response = await fetch(`/api/now/table/${this.tableName}?${searchParams.toString()}`, {
                 method: 'GET',
-                headers: {
-                    Accept: 'application/json',
-                    'X-UserToken': window.g_ck,
-                },
+                headers,
             })
 
             if (!response.ok) {
@@ -40,12 +42,14 @@ export class StoryService {
             const searchParams = new URLSearchParams()
             searchParams.set('sysparm_display_value', 'all')
 
+            const headers = {
+                Accept: 'application/json',
+                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            }
+
             const response = await fetch(`/api/now/table/${this.tableName}/${storyId}?${searchParams.toString()}`, {
                 method: 'GET',
-                headers: {
-                    Accept: 'application/json',
-                    'X-UserToken': window.g_ck,
-                },
+                headers,
             })
 
             if (!response.ok) {
@@ -80,13 +84,15 @@ export class StoryService {
                 status: 'pending'
             }
 
+            const headers = {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            }
+
             const response = await fetch(`/api/now/table/${this.tableName}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                    'X-UserToken': window.g_ck,
-                },
+                headers,
                 body: JSON.stringify(data),
             })
 
@@ -112,13 +118,15 @@ export class StoryService {
         consensus_achieved?: boolean
     }) {
         try {
+            const headers = {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            }
+
             const response = await fetch(`/api/now/table/${this.tableName}/${storyId}`, {
                 method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                    'X-UserToken': window.g_ck,
-                },
+                headers,
                 body: JSON.stringify(updates),
             })
 
@@ -137,12 +145,14 @@ export class StoryService {
     // Delete a story
     async deleteStory(storyId: string) {
         try {
+            const headers = {
+                Accept: 'application/json',
+                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            }
+
             const response = await fetch(`/api/now/table/${this.tableName}/${storyId}`, {
                 method: 'DELETE',
-                headers: {
-                    Accept: 'application/json',
-                    'X-UserToken': window.g_ck,
-                },
+                headers,
             })
 
             if (!response.ok) {

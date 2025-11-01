@@ -15,28 +15,45 @@ export class PlanningSessionService {
     // Return all planning sessions for current user
     async list() {
         try {
+            console.log('PlanningSessionService.list: Starting to fetch sessions...')
+            console.log('PlanningSessionService.list: window.g_ck available:', !!window.g_ck)
+            
             const searchParams = new URLSearchParams()
             searchParams.set('sysparm_display_value', 'all')
             searchParams.set('sysparm_fields', 'sys_id,name,description,status,session_code,dealer,total_stories,completed_stories,consensus_rate,sys_created_on')
             searchParams.set('sysparm_query', 'ORDERBYDESCsys_created_on')
 
-            const response = await fetch(`/api/now/table/${this.tableName}?${searchParams.toString()}`, {
+            const url = `/api/now/table/${this.tableName}?${searchParams.toString()}`
+            console.log('PlanningSessionService.list: Fetching from URL:', url)
+
+            const headers = {
+                Accept: 'application/json',
+                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            }
+            console.log('PlanningSessionService.list: Request headers:', headers)
+
+            const response = await fetch(url, {
                 method: 'GET',
-                headers: {
-                    Accept: 'application/json',
-                    'X-UserToken': window.g_ck,
-                },
+                headers,
             })
+
+            console.log('PlanningSessionService.list: Response status:', response.status)
+            console.log('PlanningSessionService.list: Response ok:', response.ok)
 
             if (!response.ok) {
                 const errorData = await response.json()
+                console.error('PlanningSessionService.list: Error response:', errorData)
                 throw new Error(errorData.error?.message || `HTTP error ${response.status}`)
             }
 
-            const { result } = await response.json()
-            return result || []
+            const responseData = await response.json()
+            console.log('PlanningSessionService.list: Response data:', responseData)
+            
+            const result = responseData.result || []
+            console.log('PlanningSessionService.list: Returning sessions:', result.length, 'sessions')
+            return result
         } catch (error) {
-            console.error('Error fetching planning sessions:', error)
+            console.error('PlanningSessionService.list: Error fetching planning sessions:', error)
             throw error
         }
     }
@@ -47,12 +64,14 @@ export class PlanningSessionService {
             const searchParams = new URLSearchParams()
             searchParams.set('sysparm_display_value', 'all')
 
+            const headers = {
+                Accept: 'application/json',
+                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            }
+
             const response = await fetch(`/api/now/table/${this.tableName}/${sysId}?${searchParams.toString()}`, {
                 method: 'GET',
-                headers: {
-                    Accept: 'application/json',
-                    'X-UserToken': window.g_ck,
-                },
+                headers,
             })
 
             if (!response.ok) {
@@ -87,12 +106,14 @@ export class PlanningSessionService {
             searchParams.set('sysparm_fields', 'sys_id,story_title,description,sequence_order,status,final_estimate,consensus_achieved')
             searchParams.set('sysparm_query', `session=${sessionId}^ORDERBYsequence_order`)
 
+            const headers = {
+                Accept: 'application/json',
+                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            }
+
             const response = await fetch(`/api/now/table/x_902080_planpoker_session_stories?${searchParams.toString()}`, {
                 method: 'GET',
-                headers: {
-                    Accept: 'application/json',
-                    'X-UserToken': window.g_ck,
-                },
+                headers,
             })
 
             if (!response.ok) {
@@ -116,12 +137,14 @@ export class PlanningSessionService {
             searchParams.set('sysparm_fields', 'sys_id,user,role,joined_at,left_at')
             searchParams.set('sysparm_query', `session=${sessionId}^left_atISEMPTY`)
 
+            const headers = {
+                Accept: 'application/json',
+                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            }
+
             const response = await fetch(`/api/now/table/x_902080_planpoker_session_participant?${searchParams.toString()}`, {
                 method: 'GET',
-                headers: {
-                    Accept: 'application/json',
-                    'X-UserToken': window.g_ck,
-                },
+                headers,
             })
 
             if (!response.ok) {
@@ -140,24 +163,51 @@ export class PlanningSessionService {
     // Create a new planning session
     async create(data: any) {
         try {
+            console.log('PlanningSessionService.create: Creating session with data:', data)
+            console.log('PlanningSessionService.create: window.g_ck available:', !!window.g_ck)
+            
+            // Ensure required fields are present
+            const sessionData = {
+                name: data.name,
+                description: data.description || '',
+                session_code: data.session_code || this.generateSessionCode(),
+                status: data.status || 'pending',
+                dealer: data.dealer || 'javascript:gs.getUserID()', // Use current user as dealer
+                timebox_minutes: data.timebox_minutes || 30,
+                total_stories: 0,
+                completed_stories: 0,
+                consensus_rate: 0
+            }
+            
+            console.log('PlanningSessionService.create: Processed session data:', sessionData)
+
+            const headers = {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            }
+            console.log('PlanningSessionService.create: Request headers:', headers)
+
             const response = await fetch(`/api/now/table/${this.tableName}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                    'X-UserToken': window.g_ck,
-                },
-                body: JSON.stringify(data),
+                headers,
+                body: JSON.stringify(sessionData),
             })
+
+            console.log('PlanningSessionService.create: Response status:', response.status)
+            console.log('PlanningSessionService.create: Response ok:', response.ok)
 
             if (!response.ok) {
                 const errorData = await response.json()
+                console.error('PlanningSessionService.create: Error response:', errorData)
                 throw new Error(errorData.error?.message || `HTTP error ${response.status}`)
             }
 
-            return response.json()
+            const responseData = await response.json()
+            console.log('PlanningSessionService.create: Created session:', responseData)
+            return responseData
         } catch (error) {
-            console.error('Error creating planning session:', error)
+            console.error('PlanningSessionService.create: Error creating planning session:', error)
             throw error
         }
     }
@@ -165,13 +215,15 @@ export class PlanningSessionService {
     // Update a planning session
     async update(sysId: string, data: any) {
         try {
+            const headers = {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            }
+
             const response = await fetch(`/api/now/table/${this.tableName}/${sysId}`, {
                 method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                    'X-UserToken': window.g_ck,
-                },
+                headers,
                 body: JSON.stringify(data),
             })
 
@@ -190,12 +242,14 @@ export class PlanningSessionService {
     // Delete a planning session
     async delete(sysId: string): Promise<void> {
         try {
+            const headers = {
+                Accept: 'application/json',
+                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            }
+
             const response = await fetch(`/api/now/table/${this.tableName}/${sysId}`, {
                 method: 'DELETE',
-                headers: {
-                    Accept: 'application/json',
-                    'X-UserToken': window.g_ck,
-                },
+                headers,
             })
 
             if (!response.ok) {
@@ -218,12 +272,14 @@ export class PlanningSessionService {
             searchParams.set('sysparm_query', `session_code=${sessionCode}`)
             searchParams.set('sysparm_fields', 'sys_id,name,status')
 
+            const sessionHeaders = {
+                Accept: 'application/json',
+                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            }
+
             const sessionResponse = await fetch(`/api/now/table/${this.tableName}?${searchParams.toString()}`, {
                 method: 'GET',
-                headers: {
-                    Accept: 'application/json',
-                    'X-UserToken': window.g_ck,
-                },
+                headers: sessionHeaders,
             })
 
             if (!sessionResponse.ok) {
@@ -244,13 +300,15 @@ export class PlanningSessionService {
                 role: 'participant'
             }
 
+            const participantHeaders = {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                ...(window.g_ck && { 'X-UserToken': window.g_ck })
+            }
+
             const participantResponse = await fetch('/api/now/table/x_902080_planpoker_session_participant', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                    'X-UserToken': window.g_ck,
-                },
+                headers: participantHeaders,
                 body: JSON.stringify(participantData),
             })
 
