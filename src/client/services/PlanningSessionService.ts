@@ -8,7 +8,7 @@ import {
 import { serviceUtils } from '../utils/serviceUtils'
 
 export class PlanningSessionService {
-    private readonly tableName = 'x_902080_planpoker_planning_session'
+    private readonly tableName = 'x_902080_planpoker_session'
 
     // List all planning sessions with pagination support
     async list(params: {

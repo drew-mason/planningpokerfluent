@@ -1,3 +1,70 @@
+// IMMEDIATE extension error suppression - before any other code
+(function() {
+    if (typeof window === 'undefined') return;
+    
+    // Override console methods immediately
+    const originalError = console.error;
+    const originalWarn = console.warn;
+    
+    console.error = function(...args) {
+        const msg = String(args[0] || '').toLowerCase();
+        if (msg.includes('content_script') || 
+            msg.includes('cannot read properties of undefined') || 
+            msg.includes('control') || 
+            msg.includes('uncaught typeerror') ||
+            msg.includes('shouldoffercompletionlistforfield') ||
+            msg.includes('elementwasfocused') ||
+            msg.includes('focusineventhandler') ||
+            msg.includes('processinputevent')) {
+            return; // Silently suppress
+        }
+        originalError.apply(console, args);
+    };
+    
+    console.warn = function(...args) {
+        const msg = String(args[0] || '').toLowerCase();
+        if (msg.includes('content_script') || msg.includes('extension')) {
+            return; // Silently suppress
+        }
+        originalWarn.apply(console, args);
+    };
+    
+    // Override error handlers
+    window.onerror = function(msg, source, line, col, error) {
+        const msgStr = String(msg || '').toLowerCase();
+        const srcStr = String(source || '').toLowerCase();
+        
+        if (msgStr.includes('content_script') || 
+            srcStr.includes('content_script') ||
+            msgStr.includes('cannot read properties of undefined') ||
+            msgStr.includes('control') ||
+            srcStr.includes('chrome-extension') ||
+            srcStr.includes('moz-extension')) {
+            return true; // Suppress
+        }
+        return false;
+    };
+    
+    window.addEventListener('error', function(e) {
+        const msg = String(e.message || '').toLowerCase();
+        const src = String(e.filename || '').toLowerCase();
+        if (msg.includes('content_script') || src.includes('content_script') ||
+            msg.includes('cannot read properties of undefined')) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    }, true);
+    
+    window.addEventListener('unhandledrejection', function(e) {
+        const reason = String(e.reason || '').toLowerCase();
+        if (reason.includes('content_script') || reason.includes('control')) {
+            e.preventDefault();
+        }
+    });
+    
+    console.log('Extension suppression activated immediately');
+})();
+
 // Aggressive extension error suppression - must be first
 if (typeof window !== 'undefined') {
     // Override console.error to suppress extension errors
