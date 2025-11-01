@@ -137,7 +137,7 @@ export interface NotificationState {
 export interface PlanningSessionService {
     list(): Promise<PlanningSession[]>
     get(sysId: string): Promise<PlanningSession>
-    create(sessionData: Partial<PlanningSession>): Promise<{ result: PlanningSession }>
+    create(sessionData: Partial<PlanningSession>): Promise<PlanningSession>
     update(sysId: string, sessionData: Partial<PlanningSession>): Promise<{ result: PlanningSession }>
     delete(sysId: string): Promise<void>
     joinSession(sessionCode: string, userId?: string): Promise<PlanningSession>
