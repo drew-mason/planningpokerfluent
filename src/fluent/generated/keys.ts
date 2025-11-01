@@ -9,13 +9,13 @@ declare global {
                         table: 'sys_module'
                         id: '7cd03c545a70406fb942c0149de6c513'
                     }
-                    'planning-poker-page': {
-                        table: 'sys_ui_page'
-                        id: '2945ae40b4364f2f846ce6b0a2f07f60'
-                    }
                     package_json: {
                         table: 'sys_module'
                         id: '7f9914375e7c428082cbe8f4561f94fb'
+                    }
+                    'planning-poker-page': {
+                        table: 'sys_ui_page'
+                        id: '2945ae40b4364f2f846ce6b0a2f07f60'
                     }
                     'x_902080_planpoker/main': {
                         table: 'sys_ux_lib_asset'
