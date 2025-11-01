@@ -72,8 +72,25 @@ export class PlanningSessionService {
                             directParams
                         )
                         console.log('PlanningSessionService.list: Direct table access result:', directResponse)
+                        
+                        // CRITICAL TEST: Try to fetch a known session by sys_id from previous creation
+                        console.log('PlanningSessionService.list: Testing direct sys_id access vs list access...')
+                        
+                        // Try to query with a very basic filter
+                        const basicParams = {
+                            sysparm_limit: 5,
+                            sysparm_fields: 'sys_id,name,status',
+                            sysparm_query: 'status=pending'
+                        }
+                        const basicResponse = await serviceUtils.get<{ result: any[] }>(
+                            this.tableName,
+                            basicParams
+                        )
+                        console.log('PlanningSessionService.list: Basic status filter result:', basicResponse)
+                        
                     } catch (directError) {
                         console.error('PlanningSessionService.list: Direct table access failed:', directError)
+                        console.error('PlanningSessionService.list: This suggests an ACL (Access Control) issue with list queries')
                     }
                 }
             } catch (debugError) {
@@ -168,6 +185,29 @@ export class PlanningSessionService {
                 try {
                     const verification = await this.get(sysId)
                     console.log('PlanningSessionService.create: Verification successful, session exists:', verification)
+                    
+                    // CRITICAL ACL TEST: Try to list sessions that should include this one
+                    console.log('PlanningSessionService.create: TESTING ACL - Trying to list sessions immediately after creation...')
+                    try {
+                        const aclTestParams = {
+                            sysparm_limit: 10,
+                            sysparm_fields: 'sys_id,name,session_code',
+                            sysparm_query: `sys_id=${sysId}`
+                        }
+                        const aclTestResponse = await serviceUtils.get<{ result: any[] }>(
+                            this.tableName,
+                            aclTestParams
+                        )
+                        console.log('PlanningSessionService.create: ACL TEST - Direct sys_id query result:', aclTestResponse)
+                        
+                        if (aclTestResponse.result && aclTestResponse.result.length === 0) {
+                            console.error('🚨 ACL ISSUE CONFIRMED: Session exists but cannot be queried via list API!')
+                            console.error('This indicates the user has CREATE and READ access but NOT LIST access to the table')
+                        }
+                    } catch (aclError) {
+                        console.error('PlanningSessionService.create: ACL Test failed:', aclError)
+                    }
+                    
                 } catch (verifyError) {
                     console.error('PlanningSessionService.create: CRITICAL - Session creation reported success but record not found!', verifyError)
                     throw new ServiceNowAPIError('Session creation verification failed - record may not have been persisted', 0, verifyError)
