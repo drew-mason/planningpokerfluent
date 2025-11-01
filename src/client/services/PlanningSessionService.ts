@@ -22,40 +22,39 @@ export class PlanningSessionService {
             console.log('PlanningSessionService.list: Fetching sessions with native API...')
             console.log('PlanningSessionService.list: Params:', params)
             
-            // First try a very simple query to see if it's a parameter issue
-            console.log('PlanningSessionService.list: Trying basic query without complex parameters...')
-            
-            const basicOptions = {
+            // Use the basic query approach that works!
+            // We know this works from the diagnostic logs
+            const workingOptions = {
                 limit: params.limit || 50,
-                fields: ['sys_id', 'name', 'description', 'status', 'session_code', 'sys_created_on']
+                fields: ['sys_id', 'name', 'description', 'status', 'session_code', 'sys_created_on'],
+                filters: params.filters
+                // Skip orderBy for now since that's what breaks it
             }
             
-            const basicResults = await nativeService.query(this.tableName, basicOptions)
-            console.log(`PlanningSessionService.list: Basic query returned ${basicResults.length} sessions`)
+            console.log('PlanningSessionService.list: Using working basic query approach...')
+            const results = await nativeService.query(this.tableName, workingOptions)
+            console.log(`PlanningSessionService.list: ✅ Retrieved ${results.length} sessions`)
             
-            if (basicResults.length > 0) {
-                console.log('PlanningSessionService.list: Basic query worked! Now trying with full parameters...')
+            // Sort manually if needed (since ORDERBY was causing issues)
+            if (params.orderBy && results.length > 0) {
+                const orderField = params.orderBy.replace(/^ORDERBY(DESC)?/, '') || 'sys_created_on'
+                const isDesc = params.orderBy?.includes('DESC') || true // Default to newest first
                 
-                // If basic query works, try with full parameters
-                const fullOptions = {
-                    filters: params.filters,
-                    orderBy: params.orderBy || 'sys_created_on', // Remove DESC for now
-                    limit: params.limit || 50,
-                    fields: this.getSessionFields()
-                }
+                results.sort((a, b) => {
+                    const aVal = a[orderField]?.value || a[orderField] || ''
+                    const bVal = b[orderField]?.value || b[orderField] || ''
+                    
+                    if (isDesc) {
+                        return bVal.localeCompare(aVal)
+                    } else {
+                        return aVal.localeCompare(bVal)
+                    }
+                })
                 
-                const fullResults = await nativeService.query(this.tableName, fullOptions)
-                console.log(`PlanningSessionService.list: Full query returned ${fullResults.length} sessions`)
-                return fullResults as PlanningSession[]
-            } else {
-                console.log('PlanningSessionService.list: Even basic query returned 0 results. Trying direct table access...')
-                
-                // Try the most minimal query possible
-                const minimalResults = await nativeService.query(this.tableName, { limit: 10 })
-                console.log(`PlanningSessionService.list: Minimal query returned ${minimalResults.length} sessions`)
-                
-                return minimalResults as PlanningSession[]
+                console.log('PlanningSessionService.list: ✅ Results sorted manually')
             }
+            
+            return results as PlanningSession[]
             
         } catch (error) {
             console.error('PlanningSessionService.list: Error fetching sessions:', error)
