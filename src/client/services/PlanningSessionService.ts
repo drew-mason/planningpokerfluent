@@ -19,6 +19,7 @@ export class PlanningSessionService {
     } = {}): Promise<PlanningSession[]> {
         try {
             console.log('PlanningSessionService.list: Fetching sessions...')
+            console.log('PlanningSessionService.list: Params:', params)
             
             const queryParams = {
                 sysparm_limit: params.limit || 50,
@@ -27,12 +28,32 @@ export class PlanningSessionService {
                 sysparm_fields: this.getSessionFields().join(',')
             }
 
+            console.log('PlanningSessionService.list: Query params:', queryParams)
+
             const response = await serviceUtils.get<{ result: PlanningSession[] }>(
                 this.tableName, 
                 queryParams
             )
 
+            console.log('PlanningSessionService.list: Raw response:', response)
             console.log(`PlanningSessionService.list: Retrieved ${response.result?.length || 0} sessions`)
+            
+            // Debug: also try a raw query without any filters
+            try {
+                const debugParams = {
+                    sysparm_limit: 10,
+                    sysparm_fields: 'sys_id,name,status,sys_created_on,dealer'
+                }
+                const debugResponse = await serviceUtils.get<{ result: any[] }>(
+                    this.tableName,
+                    debugParams
+                )
+                console.log('PlanningSessionService.list: Debug raw query (no filters):', debugResponse)
+                console.log(`PlanningSessionService.list: Debug found ${debugResponse.result?.length || 0} total records`)
+            } catch (debugError) {
+                console.error('Debug query failed:', debugError)
+            }
+            
             return response.result || []
         } catch (error) {
             console.error('PlanningSessionService.list: Error fetching sessions:', error)

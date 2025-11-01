@@ -1,3 +1,20 @@
+// Aggressive extension error suppression - must be first
+if (typeof window !== 'undefined') {
+    const originalError = console.error
+    console.error = (...args) => {
+        const msg = String(args[0] || '').toLowerCase()
+        if (msg.includes('content_script') || msg.includes('cannot read properties of undefined') || 
+            msg.includes('control') || msg.includes('shouldoffercompletionlistforfield')) return
+        originalError.apply(console, args)
+    }
+    
+    const originalOnError = window.onerror
+    window.onerror = (msg, source, line, col, error) => {
+        if (String(msg).includes('content_script') || String(source).includes('content_script')) return true
+        return originalOnError ? originalOnError(msg, source, line, col, error) : false
+    }
+}
+
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './app.jsx'
