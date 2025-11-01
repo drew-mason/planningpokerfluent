@@ -3,9 +3,10 @@ import { PlanningSessionService } from './services/PlanningSessionService'
 import SessionList from './components/SessionList'
 import SessionForm from './components/SessionForm'
 import SessionDashboard from './components/SessionDashboard'
+import { AnalyticsDashboard } from './components/AnalyticsDashboard'
 import './app.css'
 
-type ViewMode = 'list' | 'dashboard'
+type ViewMode = 'list' | 'dashboard' | 'analytics'
 
 export default function App() {
     const [sessions, setSessions] = useState([])
@@ -115,6 +116,29 @@ export default function App() {
         )
     }
 
+    // Analytics view
+    if (viewMode === 'analytics') {
+        return (
+            <div className="planning-app">
+                <header className="app-header">
+                    <div className="header-content">
+                        <div className="header-title">
+                            <h1>📊 Planning Poker Analytics</h1>
+                            <p>Session insights and team performance</p>
+                        </div>
+                        <button 
+                            className="create-button secondary" 
+                            onClick={() => setViewMode('list')}
+                        >
+                            ← Back to Sessions
+                        </button>
+                    </div>
+                </header>
+                <AnalyticsDashboard />
+            </div>
+        )
+    }
+
     // Main session list view
     return (
         <div className="planning-app">
@@ -124,9 +148,17 @@ export default function App() {
                         <h1>🃏 Planning Poker</h1>
                         <p>Collaborative estimation made easy</p>
                     </div>
-                    <button className="create-button" onClick={handleCreateClick}>
-                        Create New Session
-                    </button>
+                    <div className="header-actions">
+                        <button 
+                            className="analytics-button" 
+                            onClick={() => setViewMode('analytics')}
+                        >
+                            📊 Analytics
+                        </button>
+                        <button className="create-button" onClick={handleCreateClick}>
+                            Create New Session
+                        </button>
+                    </div>
                 </div>
             </header>
 

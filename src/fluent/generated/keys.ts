@@ -9,7 +9,7 @@ declare global {
                         table: 'sys_module'
                         id: '7cd03c545a70406fb942c0149de6c513'
                     }
-                    'incident-manager-page': {
+                    'planning-poker-page': {
                         table: 'sys_ui_page'
                         id: '2945ae40b4364f2f846ce6b0a2f07f60'
                     }
