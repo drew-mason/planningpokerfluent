@@ -8,7 +8,48 @@ import './app.css'
 
 type ViewMode = 'list' | 'dashboard' | 'analytics'
 
+// Error Boundary Component
+class ErrorBoundary extends React.Component<
+    { children: React.ReactNode }, 
+    { hasError: boolean; error?: Error }
+> {
+    constructor(props: { children: React.ReactNode }) {
+        super(props)
+        this.state = { hasError: false }
+    }
+
+    static getDerivedStateFromError(error: Error) {
+        return { hasError: true, error }
+    }
+
+    componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+        console.error('Planning Poker App Error:', error, errorInfo)
+    }
+
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div className="error-boundary">
+                    <h2>Planning Poker Application Error</h2>
+                    <p>Something went wrong with the application.</p>
+                    <details>
+                        <summary>Error Details</summary>
+                        <pre>{this.state.error?.message}</pre>
+                    </details>
+                    <button onClick={() => window.location.reload()}>
+                        Reload Application
+                    </button>
+                </div>
+            )
+        }
+
+        return this.props.children
+    }
+}
+
 export default function App() {
+    console.log('Planning Poker App: Component mounting')
+    
     const [sessions, setSessions] = useState([])
     const [loading, setLoading] = useState(true)
     const [showForm, setShowForm] = useState(false)
