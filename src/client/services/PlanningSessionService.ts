@@ -50,6 +50,32 @@ export class PlanningSessionService {
                 )
                 console.log('PlanningSessionService.list: Debug raw query (no filters):', debugResponse)
                 console.log(`PlanningSessionService.list: Debug found ${debugResponse.result?.length || 0} total records`)
+                
+                // Debug: try to fetch the most recently created session by sys_id if we know one exists
+                if (debugResponse.result && debugResponse.result.length > 0) {
+                    console.log('PlanningSessionService.list: Sample records found:', debugResponse.result.map(r => ({
+                        sys_id: r.sys_id,
+                        name: r.name,
+                        status: r.status,
+                        created: r.sys_created_on
+                    })))
+                } else {
+                    // Try a completely different approach - direct table access
+                    console.log('PlanningSessionService.list: Attempting direct table verification...')
+                    try {
+                        const directParams = {
+                            sysparm_limit: 1,
+                            sysparm_fields: 'sys_id,name'
+                        }
+                        const directResponse = await serviceUtils.get<{ result: any[] }>(
+                            'x_902080_planpoker_session',
+                            directParams
+                        )
+                        console.log('PlanningSessionService.list: Direct table access result:', directResponse)
+                    } catch (directError) {
+                        console.error('PlanningSessionService.list: Direct table access failed:', directError)
+                    }
+                }
             } catch (debugError) {
                 console.error('Debug query failed:', debugError)
             }
