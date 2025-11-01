@@ -22,17 +22,40 @@ export class PlanningSessionService {
             console.log('PlanningSessionService.list: Fetching sessions with native API...')
             console.log('PlanningSessionService.list: Params:', params)
             
-            // Use only native ServiceNow API
-            const nativeOptions = {
-                filters: params.filters,
-                orderBy: params.orderBy || 'ORDERBYDESCsys_created_on',
+            // First try a very simple query to see if it's a parameter issue
+            console.log('PlanningSessionService.list: Trying basic query without complex parameters...')
+            
+            const basicOptions = {
                 limit: params.limit || 50,
-                fields: this.getSessionFields()
+                fields: ['sys_id', 'name', 'description', 'status', 'session_code', 'sys_created_on']
             }
             
-            const nativeResults = await nativeService.query(this.tableName, nativeOptions)
-            console.log(`PlanningSessionService.list: ✅ Native API returned ${nativeResults.length} sessions`)
-            return nativeResults as PlanningSession[]
+            const basicResults = await nativeService.query(this.tableName, basicOptions)
+            console.log(`PlanningSessionService.list: Basic query returned ${basicResults.length} sessions`)
+            
+            if (basicResults.length > 0) {
+                console.log('PlanningSessionService.list: Basic query worked! Now trying with full parameters...')
+                
+                // If basic query works, try with full parameters
+                const fullOptions = {
+                    filters: params.filters,
+                    orderBy: params.orderBy || 'sys_created_on', // Remove DESC for now
+                    limit: params.limit || 50,
+                    fields: this.getSessionFields()
+                }
+                
+                const fullResults = await nativeService.query(this.tableName, fullOptions)
+                console.log(`PlanningSessionService.list: Full query returned ${fullResults.length} sessions`)
+                return fullResults as PlanningSession[]
+            } else {
+                console.log('PlanningSessionService.list: Even basic query returned 0 results. Trying direct table access...')
+                
+                // Try the most minimal query possible
+                const minimalResults = await nativeService.query(this.tableName, { limit: 10 })
+                console.log(`PlanningSessionService.list: Minimal query returned ${minimalResults.length} sessions`)
+                
+                return minimalResults as PlanningSession[]
+            }
             
         } catch (error) {
             console.error('PlanningSessionService.list: Error fetching sessions:', error)

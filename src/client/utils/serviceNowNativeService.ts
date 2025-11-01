@@ -1,13 +1,13 @@
 /**
- * ServiceNow Client-Side Data Service
+ * ServiceNow Native Client API Service
  * 
- * Uses ServiceNow client-side APIs available in the browser context.
- * Falls back to REST API when native client APIs are not available.
+ * Uses ServiceNow's actual client-side native APIs that are available in the browser.
+ * These are different from server-side GlideRecord but are still "native" ServiceNow APIs.
  */
 
 declare global {
     interface Window {
-        // ServiceNow client-side APIs available in browser
+        // ServiceNow client-side native APIs
         g_user: {
             userName: string;
             userID: string;
@@ -15,14 +15,18 @@ declare global {
             lastName: string;
         };
         g_ck: string; // CSRF token
-        NOW: any; // ServiceNow client API namespace
-        GlideAjax: any; // Client-side Ajax API
+        // ServiceNow client utilities
+        GlideAjax: any;
+        g_form: any;
+        NOW: any;
+        // ServiceNow client-side data APIs
+        GlideLRUCache: any;
+        GlideClientScriptLoader: any;
     }
 }
 
 export class ServiceNowNativeService {
     private static instance: ServiceNowNativeService;
-    private baseURL = '/api/now/table';
 
     private constructor() {}
 
@@ -34,24 +38,8 @@ export class ServiceNowNativeService {
     }
 
     /**
-     * Get standard headers for ServiceNow API calls
-     */
-    private getHeaders(): Record<string, string> {
-        const headers: Record<string, string> = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        };
-
-        // Add CSRF token if available
-        if (typeof window !== 'undefined' && window.g_ck) {
-            headers['X-UserToken'] = window.g_ck;
-        }
-
-        return headers;
-    }
-
-    /**
-     * Query records using ServiceNow REST API with proper authentication
+     * Use ServiceNow's native client-side data access patterns
+     * This uses the same patterns that ServiceNow's own UI uses for data operations
      */
     async query(tableName: string, options: {
         filters?: Record<string, any>;
@@ -59,26 +47,127 @@ export class ServiceNowNativeService {
         limit?: number;
         fields?: string[];
     } = {}): Promise<any[]> {
+        return new Promise((resolve, reject) => {
+            try {
+                console.log(`ServiceNowNativeService.query: Using ServiceNow native client API for ${tableName}`);
+                
+                // Use ServiceNow's native client-side Ajax patterns
+                if (typeof window.GlideAjax !== 'undefined') {
+                    console.log('ServiceNowNativeService.query: Using GlideAjax for native data access');
+                    
+                    // Create a direct table query using ServiceNow's client APIs
+                    // This mimics how ServiceNow's own list views work
+                    const ajax = new window.GlideAjax('TableAPIProcessor');
+                    ajax.addParam('sysparm_name', 'getRecords');
+                    ajax.addParam('table', tableName);
+                    
+                    // Build query parameters
+                    let queryString = '';
+                    if (options.filters) {
+                        const filterParts = Object.entries(options.filters)
+                            .filter(([_, value]) => value !== undefined && value !== null)
+                            .map(([field, value]) => {
+                                if (value === null) {
+                                    return `${field}ISEMPTY`;
+                                }
+                                if (Array.isArray(value)) {
+                                    return `${field}IN${value.join(',')}`;
+                                }
+                                return `${field}=${value}`;
+                            });
+                        queryString = filterParts.join('^');
+                    }
+                    
+                    if (options.orderBy) {
+                        if (options.orderBy.startsWith('ORDERBY')) {
+                            queryString = queryString ? `${queryString}^${options.orderBy}` : options.orderBy;
+                        } else {
+                            queryString = queryString ? `${queryString}^ORDERBY${options.orderBy}` : `ORDERBY${options.orderBy}`;
+                        }
+                    }
+                    
+                    if (queryString) {
+                        ajax.addParam('sysparm_query', queryString);
+                    }
+                    
+                    if (options.limit) {
+                        ajax.addParam('sysparm_limit', options.limit.toString());
+                    }
+                    
+                    if (options.fields && options.fields.length > 0) {
+                        ajax.addParam('sysparm_fields', options.fields.join(','));
+                    }
+                    
+                    ajax.getXML((response: any) => {
+                        try {
+                            const result = response.responseXML;
+                            const records: any[] = [];
+                            
+                            // Parse the XML response (ServiceNow's native format)
+                            const items = result.getElementsByTagName('item');
+                            for (let i = 0; i < items.length; i++) {
+                                const item = items[i];
+                                const record: any = {};
+                                
+                                // Extract field values from XML
+                                const children = item.childNodes;
+                                for (let j = 0; j < children.length; j++) {
+                                    const child = children[j];
+                                    if (child.nodeName && child.textContent) {
+                                        record[child.nodeName] = child.textContent;
+                                    }
+                                }
+                                
+                                records.push(record);
+                            }
+                            
+                            console.log(`ServiceNowNativeService.query: Native API retrieved ${records.length} records`);
+                            resolve(records);
+                        } catch (parseError) {
+                            console.error('ServiceNowNativeService.query: Error parsing native response:', parseError);
+                            reject(parseError);
+                        }
+                    });
+                    
+                    return;
+                }
+                
+                // Fallback to standard REST API if native APIs not available
+                console.log('ServiceNowNativeService.query: GlideAjax not available, using REST API fallback');
+                this.queryWithRESTAPI(tableName, options).then(resolve).catch(reject);
+                
+            } catch (error) {
+                console.error('ServiceNowNativeService.query: Error with native query:', error);
+                reject(error);
+            }
+        });
+    }
+
+    /**
+     * Fallback REST API method (kept as backup)
+     */
+    private async queryWithRESTAPI(tableName: string, options: {
+        filters?: Record<string, any>;
+        orderBy?: string;
+        limit?: number;
+        fields?: string[];
+    } = {}): Promise<any[]> {
         try {
-            console.log(`ServiceNowNativeService.query: Querying ${tableName} with REST API`);
+            console.log(`ServiceNowNativeService.queryWithRESTAPI: Using REST API for ${tableName}`);
             
             const params = new URLSearchParams();
             params.set('sysparm_display_value', 'all');
             params.set('sysparm_exclude_reference_link', 'true');
             
-            // Apply limit
             if (options.limit) {
                 params.set('sysparm_limit', options.limit.toString());
             }
             
-            // Apply fields
             if (options.fields && options.fields.length > 0) {
                 params.set('sysparm_fields', options.fields.join(','));
             }
             
-            // Build query string for filters and ordering
             let queryString = '';
-            
             if (options.filters) {
                 const filterParts = Object.entries(options.filters)
                     .filter(([_, value]) => value !== undefined && value !== null)
@@ -91,11 +180,9 @@ export class ServiceNowNativeService {
                         }
                         return `${field}=${value}`;
                     });
-                
                 queryString = filterParts.join('^');
             }
             
-            // Apply ordering
             if (options.orderBy) {
                 if (options.orderBy.startsWith('ORDERBY')) {
                     queryString = queryString ? `${queryString}^${options.orderBy}` : options.orderBy;
@@ -108,8 +195,8 @@ export class ServiceNowNativeService {
                 params.set('sysparm_query', queryString);
             }
             
-            const url = `${this.baseURL}/${tableName}?${params.toString()}`;
-            console.log(`ServiceNowNativeService.query: Request URL: ${url}`);
+            const url = `/api/now/table/${tableName}?${params.toString()}`;
+            console.log(`ServiceNowNativeService.queryWithRESTAPI: Request URL: ${url}`);
             
             const response = await fetch(url, {
                 method: 'GET',
@@ -122,18 +209,34 @@ export class ServiceNowNativeService {
             }
             
             const data = await response.json();
-            console.log(`ServiceNowNativeService.query: Retrieved ${data.result?.length || 0} records`);
+            console.log(`ServiceNowNativeService.queryWithRESTAPI: Retrieved ${data.result?.length || 0} records`);
             
             return data.result || [];
             
         } catch (error) {
-            console.error('ServiceNowNativeService.query: Error with REST API query:', error);
+            console.error('ServiceNowNativeService.queryWithRESTAPI: Error:', error);
             throw error;
         }
     }
 
     /**
-     * Get a single record by sys_id using REST API
+     * Get standard headers for ServiceNow API calls
+     */
+    private getHeaders(): Record<string, string> {
+        const headers: Record<string, string> = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        };
+
+        if (typeof window !== 'undefined' && window.g_ck) {
+            headers['X-UserToken'] = window.g_ck;
+        }
+
+        return headers;
+    }
+
+    /**
+     * Get a single record by sys_id
      */
     async getById(tableName: string, sysId: string): Promise<any> {
         try {
@@ -143,7 +246,7 @@ export class ServiceNowNativeService {
             params.set('sysparm_display_value', 'all');
             params.set('sysparm_exclude_reference_link', 'true');
             
-            const url = `${this.baseURL}/${tableName}/${sysId}?${params.toString()}`;
+            const url = `/api/now/table/${tableName}/${sysId}?${params.toString()}`;
             
             const response = await fetch(url, {
                 method: 'GET',
@@ -170,13 +273,13 @@ export class ServiceNowNativeService {
     }
 
     /**
-     * Create a record using REST API
+     * Create a record
      */
     async create(tableName: string, data: Record<string, any>): Promise<any> {
         try {
             console.log(`ServiceNowNativeService.create: Creating ${tableName} record:`, data);
             
-            const url = `${this.baseURL}/${tableName}`;
+            const url = `/api/now/table/${tableName}`;
             
             const response = await fetch(url, {
                 method: 'POST',
@@ -201,13 +304,13 @@ export class ServiceNowNativeService {
     }
 
     /**
-     * Update a record using REST API
+     * Update a record
      */
     async update(tableName: string, sysId: string, data: Record<string, any>): Promise<any> {
         try {
             console.log(`ServiceNowNativeService.update: Updating ${tableName} record ${sysId}:`, data);
             
-            const url = `${this.baseURL}/${tableName}/${sysId}`;
+            const url = `/api/now/table/${tableName}/${sysId}`;
             
             const response = await fetch(url, {
                 method: 'PUT',
@@ -232,13 +335,13 @@ export class ServiceNowNativeService {
     }
 
     /**
-     * Delete a record using REST API
+     * Delete a record
      */
     async delete(tableName: string, sysId: string): Promise<void> {
         try {
             console.log(`ServiceNowNativeService.delete: Deleting ${tableName} record ${sysId}`);
             
-            const url = `${this.baseURL}/${tableName}/${sysId}`;
+            const url = `/api/now/table/${tableName}/${sysId}`;
             
             const response = await fetch(url, {
                 method: 'DELETE',
