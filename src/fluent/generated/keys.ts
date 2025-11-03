@@ -25,6 +25,10 @@ declare global {
                         table: 'sys_module'
                         id: 'cbc110352721498a8e9233b35b80e588'
                     }
+                    'src_server_syslog-debug_js': {
+                        table: 'sys_module'
+                        id: '6f1eda70562e410d8e5e14f4c14cbd87'
+                    }
                     'x_902080_planpoker/main': {
                         table: 'sys_ux_lib_asset'
                         id: '98287bc2178a420197fbf607b855ff08'

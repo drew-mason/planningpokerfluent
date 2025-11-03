@@ -71,7 +71,8 @@ export class PlanningSessionService {
         try {
             console.log(`PlanningSessionService.get: Fetching session ${sysId}`)
             
-            const record = await nativeService.getById(this.tableName, sysId)
+            const fields = this.getSessionFields()
+            const record = await nativeService.getById(this.tableName, sysId, fields)
             console.log('PlanningSessionService.get: Session found:', record)
             return record as PlanningSession
             

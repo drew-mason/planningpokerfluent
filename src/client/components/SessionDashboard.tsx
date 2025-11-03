@@ -48,11 +48,17 @@ export default function SessionDashboard({ sessionId, onExit }: SessionDashboard
             setIsLoading(true)
             setError(null)
             
+            console.log('SessionDashboard.loadSessionData: Starting to load session data for:', sessionId)
             const [sessionData, sessionStories, sessionParticipants] = await Promise.all([
                 sessionService.get(sessionId),
                 storyService.getSessionStories(sessionId),
                 sessionService.getSessionParticipants(sessionId)
             ])
+            
+            console.log('SessionDashboard.loadSessionData: Session data received:', sessionData)
+            console.log('SessionDashboard.loadSessionData: Session name:', sessionData?.name)
+            console.log('SessionDashboard.loadSessionData: Stories:', sessionStories?.length || 0)
+            console.log('SessionDashboard.loadSessionData: Participants:', sessionParticipants?.length || 0)
             
             setSession(sessionData)
             setStories(sessionStories)
@@ -71,8 +77,11 @@ export default function SessionDashboard({ sessionId, onExit }: SessionDashboard
                 : sessionData.dealer
             setIsDealer(currentUserId === dealerId)
             
+            console.log('SessionDashboard.loadSessionData: Session data loaded successfully')
+            
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to load session data'
+            console.error('SessionDashboard.loadSessionData: Error loading session data:', err)
             setError(errorMessage)
         } finally {
             setIsLoading(false)

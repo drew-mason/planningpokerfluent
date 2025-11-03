@@ -186,13 +186,18 @@ export class ServiceNowNativeService {
     /**
      * Get a single record by sys_id
      */
-    async getById(tableName: string, sysId: string): Promise<any> {
+    async getById(tableName: string, sysId: string, fields?: string[]): Promise<any> {
         try {
             console.log(`ServiceNowNativeService.getById: Fetching ${tableName} record ${sysId}`);
             
             const params = new URLSearchParams();
             params.set('sysparm_display_value', 'all');
             params.set('sysparm_exclude_reference_link', 'true');
+            
+            if (fields && fields.length > 0) {
+                params.set('sysparm_fields', fields.join(','));
+                console.log(`ServiceNowNativeService.getById: Requesting fields: ${fields.join(',')}`);
+            }
             
             const url = `/api/now/table/${tableName}/${sysId}?${params.toString()}`;
             
