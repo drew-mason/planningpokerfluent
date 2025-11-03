@@ -39,7 +39,7 @@ export class ServiceNowNativeService {
 
     /**
      * Use ServiceNow's native client-side data access patterns
-     * This uses the same patterns that ServiceNow's own UI uses for data operations
+     * This uses GlideAjax to call server-side Script Includes
      */
     async query(tableName: string, options: {
         filters?: Record<string, any>;
@@ -48,18 +48,56 @@ export class ServiceNowNativeService {
         fields?: string[];
     } = {}): Promise<any[]> {
         try {
-            console.log(`ServiceNowNativeService.query: Using ServiceNow native client API for ${tableName}`);
+            console.log(`ServiceNowNativeService.query: Using GlideAjax for ${tableName}`);
             
-            // Skip GlideAjax for now since we need a proper Script Include
-            // TODO: Create proper Script Include for GlideAjax integration
-            console.log('ServiceNowNativeService.query: Skipping GlideAjax, using REST API directly');
+            // For planning poker sessions, use the Script Include
+            if (tableName === 'x_902080_planpoker_session') {
+                return await this.querySessionsViaAjax(options);
+            }
             
+            // For other tables, fall back to REST API
             return await this.queryWithRESTAPI(tableName, options);
             
         } catch (error) {
             console.error('ServiceNowNativeService.query: Error with query:', error);
             throw error;
         }
+    }
+
+    /**
+     * Query planning poker sessions using GlideAjax
+     */
+    private async querySessionsViaAjax(options: {
+        filters?: Record<string, any>;
+        orderBy?: string;
+        limit?: number;
+        fields?: string[];
+    } = {}): Promise<any[]> {
+        return new Promise((resolve, reject) => {
+            try {
+                console.log('ServiceNowNativeService.querySessionsViaAjax: Calling PlanningPokerSessionAjax.getSessions');
+                
+                const ajax = new window.GlideAjax('PlanningPokerSessionAjax');
+                ajax.addParam('sysparm_name', 'getSessions');
+                ajax.addParam('sysparm_options', JSON.stringify(options));
+                
+                ajax.getXML((response: any) => {
+                    try {
+                        const answer = response.responseXML.documentElement.getAttribute('answer');
+                        const sessions = JSON.parse(answer);
+                        console.log(`ServiceNowNativeService.querySessionsViaAjax: Retrieved ${sessions.length} sessions`);
+                        resolve(sessions);
+                    } catch (parseError) {
+                        console.error('ServiceNowNativeService.querySessionsViaAjax: Failed to parse response:', parseError);
+                        reject(parseError);
+                    }
+                });
+                
+            } catch (error) {
+                console.error('ServiceNowNativeService.querySessionsViaAjax: Error:', error);
+                reject(error);
+            }
+        });
     }
 
     /**
@@ -190,13 +228,65 @@ export class ServiceNowNativeService {
         try {
             console.log(`ServiceNowNativeService.getById: Fetching ${tableName} record ${sysId}`);
             
+            // For planning poker sessions, use GlideAjax
+            if (tableName === 'x_902080_planpoker_session') {
+                return await this.getSessionByIdViaAjax(sysId);
+            }
+            
+            // For other tables, use REST API
+            return await this.getByIdWithRESTAPI(tableName, sysId, fields);
+            
+        } catch (error) {
+            console.error('ServiceNowNativeService.getById: Error:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get session by ID using GlideAjax
+     */
+    private async getSessionByIdViaAjax(sysId: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            try {
+                console.log(`ServiceNowNativeService.getSessionByIdViaAjax: Fetching session ${sysId}`);
+                
+                const ajax = new window.GlideAjax('PlanningPokerSessionAjax');
+                ajax.addParam('sysparm_name', 'getSession');
+                ajax.addParam('sysparm_sys_id', sysId);
+                
+                ajax.getXML((response: any) => {
+                    try {
+                        const answer = response.responseXML.documentElement.getAttribute('answer');
+                        const session = JSON.parse(answer);
+                        console.log('ServiceNowNativeService.getSessionByIdViaAjax: Session found:', session);
+                        resolve(session);
+                    } catch (parseError) {
+                        console.error('ServiceNowNativeService.getSessionByIdViaAjax: Failed to parse response:', parseError);
+                        reject(parseError);
+                    }
+                });
+                
+            } catch (error) {
+                console.error('ServiceNowNativeService.getSessionByIdViaAjax: Error:', error);
+                reject(error);
+            }
+        });
+    }
+
+    /**
+     * Fallback getById with REST API
+     */
+    private async getByIdWithRESTAPI(tableName: string, sysId: string, fields?: string[]): Promise<any> {
+        try {
+            console.log(`ServiceNowNativeService.getByIdWithRESTAPI: Fetching ${tableName} record ${sysId}`);
+            
             const params = new URLSearchParams();
             params.set('sysparm_display_value', 'all');
             params.set('sysparm_exclude_reference_link', 'true');
             
             if (fields && fields.length > 0) {
                 params.set('sysparm_fields', fields.join(','));
-                console.log(`ServiceNowNativeService.getById: Requesting fields: ${fields.join(',')}`);
+                console.log(`ServiceNowNativeService.getByIdWithRESTAPI: Requesting fields: ${fields.join(',')}`);
             }
             
             const url = `/api/now/table/${tableName}/${sysId}?${params.toString()}`;
@@ -215,12 +305,12 @@ export class ServiceNowNativeService {
             }
             
             const data = await response.json();
-            console.log('ServiceNowNativeService.getById: Record found:', data.result);
+            console.log('ServiceNowNativeService.getByIdWithRESTAPI: Record found:', data.result);
             
             return data.result;
             
         } catch (error) {
-            console.error('ServiceNowNativeService.getById: Error:', error);
+            console.error('ServiceNowNativeService.getByIdWithRESTAPI: Error:', error);
             throw error;
         }
     }
@@ -231,6 +321,58 @@ export class ServiceNowNativeService {
     async create(tableName: string, data: Record<string, any>): Promise<any> {
         try {
             console.log(`ServiceNowNativeService.create: Creating ${tableName} record:`, data);
+            
+            // For planning poker sessions, use GlideAjax
+            if (tableName === 'x_902080_planpoker_session') {
+                return await this.createSessionViaAjax(data);
+            }
+            
+            // For other tables, use REST API
+            return await this.createWithRESTAPI(tableName, data);
+            
+        } catch (error) {
+            console.error('ServiceNowNativeService.create: Error:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Create session using GlideAjax
+     */
+    private async createSessionViaAjax(data: Record<string, any>): Promise<any> {
+        return new Promise((resolve, reject) => {
+            try {
+                console.log('ServiceNowNativeService.createSessionViaAjax: Creating session:', data);
+                
+                const ajax = new window.GlideAjax('PlanningPokerSessionAjax');
+                ajax.addParam('sysparm_name', 'createSession');
+                ajax.addParam('sysparm_session_data', JSON.stringify(data));
+                
+                ajax.getXML((response: any) => {
+                    try {
+                        const answer = response.responseXML.documentElement.getAttribute('answer');
+                        const session = JSON.parse(answer);
+                        console.log('ServiceNowNativeService.createSessionViaAjax: Session created:', session);
+                        resolve({ result: session });
+                    } catch (parseError) {
+                        console.error('ServiceNowNativeService.createSessionViaAjax: Failed to parse response:', parseError);
+                        reject(parseError);
+                    }
+                });
+                
+            } catch (error) {
+                console.error('ServiceNowNativeService.createSessionViaAjax: Error:', error);
+                reject(error);
+            }
+        });
+    }
+
+    /**
+     * Fallback create with REST API
+     */
+    private async createWithRESTAPI(tableName: string, data: Record<string, any>): Promise<any> {
+        try {
+            console.log(`ServiceNowNativeService.createWithRESTAPI: Creating ${tableName} record:`, data);
             
             const url = `/api/now/table/${tableName}`;
             
@@ -246,12 +388,12 @@ export class ServiceNowNativeService {
             }
             
             const result = await response.json();
-            console.log('ServiceNowNativeService.create: Record created:', result.result);
+            console.log('ServiceNowNativeService.createWithRESTAPI: Record created:', result.result);
             
             return result;
             
         } catch (error) {
-            console.error('ServiceNowNativeService.create: Error:', error);
+            console.error('ServiceNowNativeService.createWithRESTAPI: Error:', error);
             throw error;
         }
     }

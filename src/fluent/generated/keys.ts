@@ -13,6 +13,10 @@ declare global {
                         table: 'sys_module'
                         id: '7f9914375e7c428082cbe8f4561f94fb'
                     }
+                    planning_poker_session_ajax: {
+                        table: 'sys_script_include'
+                        id: 'e1abd0e573904e20a7f2e952047d3286'
+                    }
                     'planning-poker-page': {
                         table: 'sys_ui_page'
                         id: '2945ae40b4364f2f846ce6b0a2f07f60'
@@ -20,6 +24,10 @@ declare global {
                     session_defaults_br: {
                         table: 'sys_script'
                         id: 'cc0019200b4046a491420c6d9d02ba85'
+                    }
+                    'src_server_planning-poker-session-ajax_js': {
+                        table: 'sys_module'
+                        id: '4253755231d143b38b77afab68eeba28'
                     }
                     'src_server_session-defaults_js': {
                         table: 'sys_module'
