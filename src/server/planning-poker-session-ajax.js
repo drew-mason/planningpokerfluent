@@ -8,7 +8,7 @@ PlanningPokerSessionAjax.prototype = Object.extendsObject(global.AbstractAjaxPro
     getSessions: function(options) {
         gs.info('PlanningPokerSessionAjax.getSessions: Starting session query');
 
-        var gr = new GlideRecord('x_902080_planpoker_session');
+        var gr = new GlideRecord('x_902080_ppoker_session');
         gr.addEncodedQuery('ORDERBYDESCsys_created_on');
 
         if (options && options.limit) {
@@ -46,7 +46,7 @@ PlanningPokerSessionAjax.prototype = Object.extendsObject(global.AbstractAjaxPro
     getSession: function(sysId) {
         gs.info('PlanningPokerSessionAjax.getSession: Fetching session ' + sysId);
 
-        var gr = new GlideRecord('x_902080_planpoker_session');
+        var gr = new GlideRecord('x_902080_ppoker_session');
         if (gr.get(sysId)) {
             return {
                 sys_id: gr.getValue('sys_id'),
@@ -73,7 +73,7 @@ PlanningPokerSessionAjax.prototype = Object.extendsObject(global.AbstractAjaxPro
     createSession: function(sessionData) {
         gs.info('PlanningPokerSessionAjax.createSession: Creating new session');
 
-        var gr = new GlideRecord('x_902080_planpoker_session');
+        var gr = new GlideRecord('x_902080_ppoker_session');
 
         // Set required fields
         gr.setValue('name', sessionData.name);
@@ -100,7 +100,7 @@ PlanningPokerSessionAjax.prototype = Object.extendsObject(global.AbstractAjaxPro
     updateSession: function(sysId, sessionData) {
         gs.info('PlanningPokerSessionAjax.updateSession: Updating session ' + sysId);
 
-        var gr = new GlideRecord('x_902080_planpoker_session');
+        var gr = new GlideRecord('x_902080_ppoker_session');
         if (!gr.get(sysId)) {
             gs.warn('PlanningPokerSessionAjax.updateSession: Session not found - ' + sysId);
             return null;
@@ -141,7 +141,7 @@ PlanningPokerSessionAjax.prototype = Object.extendsObject(global.AbstractAjaxPro
     deleteSession: function(sysId) {
         gs.info('PlanningPokerSessionAjax.deleteSession: Deleting session ' + sysId);
 
-        var gr = new GlideRecord('x_902080_planpoker_session');
+        var gr = new GlideRecord('x_902080_ppoker_session');
         if (!gr.get(sysId)) {
             gs.warn('PlanningPokerSessionAjax.deleteSession: Session not found - ' + sysId);
             return false;
@@ -166,7 +166,7 @@ PlanningPokerSessionAjax.prototype = Object.extendsObject(global.AbstractAjaxPro
         gs.info('PlanningPokerSessionAjax.joinSession: Joining session with code ' + sessionCode);
 
         // Find session by code
-        var gr = new GlideRecord('x_902080_planpoker_session');
+        var gr = new GlideRecord('x_902080_ppoker_session');
         gr.addQuery('session_code', sessionCode);
         gr.query();
 
@@ -196,7 +196,7 @@ PlanningPokerSessionAjax.prototype = Object.extendsObject(global.AbstractAjaxPro
     },
 
     checkParticipantExists: function(sessionId, userId) {
-        var gr = new GlideRecord('x_902080_planpoker_session_participant');
+        var gr = new GlideRecord('x_902080_ppoker_session_participant');
         gr.addQuery('session', sessionId);
         gr.addQuery('user', userId);
         gr.addNullQuery('left_at');
@@ -206,7 +206,7 @@ PlanningPokerSessionAjax.prototype = Object.extendsObject(global.AbstractAjaxPro
 
     addParticipant: function(sessionId, userId, role) {
         role = role || 'participant';
-        var gr = new GlideRecord('x_902080_planpoker_session_participant');
+        var gr = new GlideRecord('x_902080_ppoker_session_participant');
         gr.setValue('session', sessionId);
         gr.setValue('user', userId);
         gr.setValue('role', role);
@@ -217,13 +217,13 @@ PlanningPokerSessionAjax.prototype = Object.extendsObject(global.AbstractAjaxPro
     completeSession: function(sessionId) {
         gs.info('PlanningPokerSessionAjax.completeSession: Completing session ' + sessionId);
 
-        var gr = new GlideRecord('x_902080_planpoker_session');
+        var gr = new GlideRecord('x_902080_ppoker_session');
         if (!gr.get(sessionId)) {
             return false;
         }
 
         // Get story statistics
-        var storyGr = new GlideRecord('x_902080_planpoker_session_stories');
+        var storyGr = new GlideRecord('x_902080_ppoker_session_stories');
         storyGr.addQuery('session', sessionId);
         storyGr.query();
 

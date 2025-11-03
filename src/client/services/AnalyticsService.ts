@@ -47,7 +47,7 @@ export interface ParticipantAnalytics {
 }
 
 export class AnalyticsService {
-  private static readonly API_BASE = '/api/x_902080_planpoker';
+  private static readonly API_BASE = '/api/x_902080_ppoker';
 
   /**
    * Get comprehensive session metrics for the specified time range
