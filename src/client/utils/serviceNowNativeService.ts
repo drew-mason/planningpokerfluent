@@ -217,18 +217,13 @@ export class ServiceNowNativeService {
     }
 
     /**
-     * Get a single record by sys_id
+     * Get a single record by sys_id using REST API
      */
     async getById(tableName: string, sysId: string, fields?: string[]): Promise<any> {
         try {
             console.log(`ServiceNowNativeService.getById: Fetching ${tableName} record ${sysId}`);
             
-            // For planning poker sessions, use GlideAjax
-            if (tableName === 'x_1860782_msm_pl_0_session') {
-                return await this.getSessionByIdViaAjax(sysId);
-            }
-            
-            // For other tables, use REST API
+            // Use REST API for all tables
             return await this.getByIdWithRESTAPI(tableName, sysId, fields);
             
         } catch (error) {
@@ -311,18 +306,13 @@ export class ServiceNowNativeService {
     }
 
     /**
-     * Create a record
+     * Create a record using REST API
      */
     async create(tableName: string, data: Record<string, any>): Promise<any> {
         try {
             console.log(`ServiceNowNativeService.create: Creating ${tableName} record:`, data);
             
-            // For planning poker sessions, use GlideAjax
-            if (tableName === 'x_1860782_msm_pl_0_session') {
-                return await this.createSessionViaAjax(data);
-            }
-            
-            // For other tables, use REST API
+            // Use REST API for all tables
             return await this.createWithRESTAPI(tableName, data);
             
         } catch (error) {
