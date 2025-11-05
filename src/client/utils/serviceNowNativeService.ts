@@ -38,8 +38,8 @@ export class ServiceNowNativeService {
     }
 
     /**
-     * Use ServiceNow's native client-side data access patterns
-     * This uses GlideAjax to call server-side Script Includes
+     * Use ServiceNow's REST API for all data access
+     * Direct REST API calls work reliably in Fluent applications
      */
     async query(tableName: string, options: {
         filters?: Record<string, any>;
@@ -48,14 +48,9 @@ export class ServiceNowNativeService {
         fields?: string[];
     } = {}): Promise<any[]> {
         try {
-            console.log(`ServiceNowNativeService.query: Using GlideAjax for ${tableName}`);
+            console.log(`ServiceNowNativeService.query: Using REST API for ${tableName}`);
             
-            // For planning poker sessions, use the Script Include
-            if (tableName === 'x_1860782_msm_pl_0_session') {
-                return await this.querySessionsViaAjax(options);
-            }
-            
-            // For other tables, fall back to REST API
+            // Use REST API for all tables
             return await this.queryWithRESTAPI(tableName, options);
             
         } catch (error) {
