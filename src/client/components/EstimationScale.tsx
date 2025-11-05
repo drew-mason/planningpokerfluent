@@ -90,7 +90,7 @@ export default function EstimationScale({
                             value={value}
                             isSelected={selectedValue === value}
                             isRevealed={isRevealed}
-                            onClick={handleVote}
+                            onClick={() => handleVote(value)}
                             disabled={disabled}
                             variant={variant}
                         />

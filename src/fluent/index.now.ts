@@ -3,6 +3,11 @@
 // Export Planning Poker tables
 export * from './tables/planning-poker.now'
 
+// Export Script Includes
+export * from './script-includes/planning-poker-session.now'
+export * from './script-includes/voting-ajax.now'
+export * from './script-includes/story-ajax.now'
+
 // Export Business Rules
 export * from './business-rules/session-defaults.now'
 

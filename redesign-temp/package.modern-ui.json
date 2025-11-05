@@ -1,0 +1,87 @@
+{
+  "name": "planning-poker-modern-ui",
+  "version": "2.0.0",
+  "description": "Ultra modern Planning Poker UI with dark/neon and light/glass themes",
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "typescript": "^5.5.4"
+  },
+  "scripts": {
+    "build": "npm run build",
+    "dev": "npm run dev"
+  },
+  "modernUIComponents": {
+    "theme": {
+      "files": [
+        "theme.config.ts",
+        "ThemeProvider.tsx"
+      ],
+      "description": "Theme system with dark/neon and light/glass modes"
+    },
+    "components": {
+      "files": [
+        "StyledComponents.tsx",
+        "SessionCard.tsx",
+        "VotingCard.tsx",
+        "ModernHeader.tsx",
+        "AnalyticsDashboard.tsx"
+      ],
+      "description": "Modern UI components with animations"
+    },
+    "styles": {
+      "files": [
+        "modern-styles.css"
+      ],
+      "description": "Global styles, animations, and utilities"
+    },
+    "demo": {
+      "files": [
+        "ModernPlanningPokerApp.tsx"
+      ],
+      "description": "Complete demo implementation"
+    }
+  },
+  "features": [
+    "🌓 Dual theme system (dark/neon + light/glass)",
+    "✨ Smooth animations with cubic bezier easing",
+    "🎴 Animated voting cards with 3D effects",
+    "📇 Glassmorphism session cards",
+    "🎨 Neon glow effects in dark mode",
+    "📊 Modern analytics dashboard",
+    "🎯 Responsive design for mobile/tablet",
+    "♿ Accessible components with ARIA",
+    "🎭 60+ utility animation classes",
+    "🚀 Polaris design system alignment"
+  ],
+  "colorPalette": {
+    "dark": {
+      "primary": "#00d9ff (Cyan)",
+      "secondary": "#7b61ff (Purple)",
+      "accent": "#ff006e (Pink)",
+      "success": "#00ff88 (Green)",
+      "background": "#0a0a0f (Deep Black)"
+    },
+    "light": {
+      "primary": "#0066cc (Blue)",
+      "secondary": "#6366f1 (Indigo)",
+      "accent": "#ec4899 (Pink)",
+      "success": "#10b981 (Green)",
+      "background": "#f5f7fa (Light Gray)"
+    }
+  },
+  "integration": {
+    "servicenow": {
+      "scope": "x_902080_ppoker",
+      "compatible": true,
+      "fluent": "NowSDK 4.0.2+",
+      "zurich": "Compatible with Zurich release"
+    }
+  }
+}

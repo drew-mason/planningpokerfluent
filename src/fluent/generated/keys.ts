@@ -17,6 +17,14 @@ declare global {
                         table: 'sys_script_include'
                         id: 'e1abd0e573904e20a7f2e952047d3286'
                     }
+                    planning_poker_story_ajax: {
+                        table: 'sys_script_include'
+                        id: '4747ac0dc5d74ced98ba0e3b5718fe3b'
+                    }
+                    planning_poker_voting_ajax: {
+                        table: 'sys_script_include'
+                        id: 'e408b328822d444396deb2982cc5a74e'
+                    }
                     'planning-poker-page': {
                         table: 'sys_ui_page'
                         id: '2945ae40b4364f2f846ce6b0a2f07f60'
