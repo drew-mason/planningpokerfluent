@@ -269,20 +269,20 @@ const status = getValue(session.status);
 - **`AGENT_UPDATE.md`** - Complete migration history (November 2025) and architectural decisions
 - **`AGENT_INSTRUCTIONS.md`** - Comprehensive development guide for Fluent architecture
 - **`PHASE_2_3_COMPLETION_SUMMARY.md`** - T-shirt sizing implementation and deployment status
-- **`.github/copilot-instructions.md`** - Critical patterns and DO/DON'T rules
+- **`.claude/copilot-instructions.md`** - Critical patterns and DO/DON'T rules
 - **`TESTING_GUIDE.md`** - Testing procedures and manual test flows
 - **`DEPLOYMENT_GUIDE.md`** - Deployment instructions
 
 ### Multi-Agent System Documentation
-- **`.github/agents/README.md`** - Agent system overview and architecture
-- **`.github/agents/QUICK_REFERENCE.md`** - One-page quick reference card
-- **`.github/agents/ARCHITECTURE_DIAGRAM.md`** - Visual architecture diagrams
-- **`.github/agents/coordinator-agent.md`** - Orchestration and coordination
-- **`.github/agents/fluent-backend-agent.md`** - Backend development patterns
-- **`.github/agents/react-frontend-agent.md`** - Frontend development patterns
-- **`.github/agents/api-integration-agent.md`** - API integration patterns
-- **`.github/agents/build-deploy-agent.md`** - Build and deployment procedures
-- **`.github/agents/testing-qa-agent.md`** - Testing and QA procedures
+- **`.claude/README.md`** - Agent system overview and architecture
+- **`.claude/QUICK_REFERENCE.md`** - One-page quick reference card
+- **`.claude/ARCHITECTURE_DIAGRAM.md`** - Visual architecture diagrams
+- **`.claude/agents/planning-poker-coordinator.md`** - Orchestration and coordination
+- **`.claude/agents/fluent-backend-dev.md`** - Backend development patterns
+- **`.claude/agents/react-frontend-specialist.md`** - Frontend development patterns
+- **`.claude/agents/api-service-layer.md`** - API integration patterns
+- **`.claude/agents/build-deploy-specialist.md`** - Build and deployment procedures
+- **`.claude/agents/testing-qa-specialist.md`** - Testing and QA procedures
 
 ## Multi-Agent Development System
 
@@ -290,57 +290,57 @@ This project uses a **specialized multi-agent system** for coordinated developme
 
 ### Available Agents
 
-1. **Coordinator Agent** (`.github/agents/coordinator-agent.md`)
+1. **Planning Poker Coordinator** (`.claude/agents/planning-poker-coordinator.md`)
    - Lead orchestrator and architecture guardian
    - Use for: New features, architectural decisions, multi-agent coordination
 
-2. **Fluent Backend Agent** (`.github/agents/fluent-backend-agent.md`)
+2. **Fluent Backend Developer** (`.claude/agents/fluent-backend-dev.md`)
    - ServiceNow backend specialist
    - Use for: Tables, business rules, Script Includes, GlideRecord operations
 
-3. **React Frontend Agent** (`.github/agents/react-frontend-agent.md`)
+3. **React Frontend Specialist** (`.claude/agents/react-frontend-specialist.md`)
    - UI/UX and React development specialist
    - Use for: Components, CSS, state management, responsive design
 
-4. **API Integration Agent** (`.github/agents/api-integration-agent.md`)
+4. **API Service Layer** (`.claude/agents/api-service-layer.md`)
    - Service layer and API integration specialist
    - Use for: Service methods, REST API, authentication, data transformation
 
-5. **Build & Deployment Agent** (`.github/agents/build-deploy-agent.md`)
+5. **Build & Deploy Specialist** (`.claude/agents/build-deploy-specialist.md`)
    - Build system and deployment specialist
    - Use for: Build failures, deployment issues, configuration, dependencies
 
-6. **Testing & QA Agent** (`.github/agents/testing-qa-agent.md`)
+6. **Testing & QA Specialist** (`.claude/agents/testing-qa-specialist.md`)
    - Quality assurance and testing specialist
    - Use for: Test execution, bug reporting, performance, security
 
 ### Quick Reference
-See `.github/agents/QUICK_REFERENCE.md` for a one-page reference card showing which agent to consult for each task.
+See `.claude/QUICK_REFERENCE.md` for a one-page reference card showing which agent to consult for each task.
 
 ### Agent Workflow Examples
 
 **Adding a New Feature:**
-1. **Coordinator Agent** → Review requirements and plan architecture
-2. **Backend Agent** → Design database schema (if needed)
-3. **API Agent** → Design service layer methods
-4. **Frontend Agent** → Design UI components
-5. **Build Agent** → Deploy changes
-6. **QA Agent** → Test functionality
+1. **Planning Poker Coordinator** → Review requirements and plan architecture
+2. **Fluent Backend Developer** → Design database schema (if needed)
+3. **API Service Layer** → Design service layer methods
+4. **React Frontend Specialist** → Design UI components
+5. **Build & Deploy Specialist** → Deploy changes
+6. **Testing & QA Specialist** → Test functionality
 
 **Fixing a Bug:**
-1. **QA Agent** → Report bug with details
-2. **Coordinator Agent** → Analyze and assign to specialist
+1. **Testing & QA Specialist** → Report bug with details
+2. **Planning Poker Coordinator** → Analyze and assign to specialist
 3. **Specialist Agent** → Implement fix
-4. **Build Agent** → Deploy fix
-5. **QA Agent** → Verify fix
+4. **Build & Deploy Specialist** → Deploy fix
+5. **Testing & QA Specialist** → Verify fix
 
 **Quick Task Reference:**
-- "How do I add a table field?" → **Backend Agent**
-- "How do I create a React component?" → **Frontend Agent**
-- "API call not working?" → **API Agent**
-- "Build failing?" → **Build Agent**
-- "Need to test this?" → **QA Agent**
-- "Should we refactor?" → **Coordinator Agent**
+- "How do I add a table field?" → **Fluent Backend Developer**
+- "How do I create a React component?" → **React Frontend Specialist**
+- "API call not working?" → **API Service Layer**
+- "Build failing?" → **Build & Deploy Specialist**
+- "Need to test this?" → **Testing & QA Specialist**
+- "Should we refactor?" → **Planning Poker Coordinator**
 
 ## Domain Model
 
