@@ -26,8 +26,8 @@ Backend specialist for ServiceNow Fluent SDK development, focusing on database s
 ```typescript
 import { Table, StringColumn, ReferenceColumn, IntegerColumn } from '@servicenow/sdk-core/db'
 
-export const x_902080_planpoker_session = Table({
-  name: 'x_902080_planpoker_session',
+export const x_1860782_msm_pl_0_session = Table({
+  name: 'x_1860782_msm_pl_0_session',
   schema: {
     name: StringColumn({ maxLength: 100 }),
     session_code: StringColumn({ unique: true, maxLength: 10 }),
@@ -54,7 +54,7 @@ import { BusinessRule } from '@servicenow/sdk-core'
 
 export const sessionDefaults = BusinessRule({
   name: 'Session Defaults',
-  table: 'x_902080_planpoker_session',
+  table: 'x_1860782_msm_pl_0_session',
   when: 'before',
   insert: true,
   script: function() {
@@ -85,7 +85,7 @@ export const PlanningPokerSession = ScriptInclude({
     var PlanningPokerSession = Class.create();
     PlanningPokerSession.prototype = Object.extendsObject(AbstractAjaxProcessor, {
       getActiveSessions: function() {
-        var gr = new GlideRecord('x_902080_planpoker_session');
+        var gr = new GlideRecord('x_1860782_msm_pl_0_session');
         gr.addQuery('status', 'active');
         gr.query();
         var results = [];
@@ -133,10 +133,10 @@ export const PlanningPokerSession = ScriptInclude({
 ## Database Schema Reference
 
 ### Current Tables:
-1. **x_902080_planpoker_session** - Main planning sessions
-2. **x_902080_planpoker_session_stories** - Stories to estimate
-3. **x_902080_planpoker_vote** - Individual votes
-4. **x_902080_planpoker_session_participant** - Session membership
+1. **x_1860782_msm_pl_0_session** - Main planning sessions
+2. **x_1860782_msm_pl_0_session_stories** - Stories to estimate
+3. **x_1860782_msm_pl_0_vote** - Individual votes
+4. **x_1860782_msm_pl_0_session_participant** - Session membership
 
 ### Summary Fields to Maintain:
 - `total_stories` - Count of stories in session
@@ -196,7 +196,7 @@ npm run check-all
 - Use `@servicenow/sdk-core/db` not `@servicenow/sdk/core`
 
 **Table not found:**
-- Check table name matches exactly (x_902080_planpoker_*)
+- Check table name matches exactly (x_1860782_msm_pl_0_*)
 - Ensure table is exported from index.now.ts
 - Run `npm run build && npm run deploy`
 

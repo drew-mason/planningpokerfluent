@@ -85,11 +85,11 @@ npm run deploy    # Deploy to ServiceNow
 **Configuration (`now.config.json`):**
 ```json
 {
-  "scope": "x_902080_planpoker",
+  "scope": "x_1860782_msm_pl_0",
   "name": "Planning Poker",
   "staticContentPath": "staticContent",
   "tsconfigPath": "./src/server/tsconfig.json",
-  "instanceUrl": "https://dev353895.service-now.com",
+  "instanceUrl": "https://dev313212.service-now.com",
   "credentials": {
     "type": "basic",
     "username": "admin",
@@ -291,7 +291,7 @@ npm run deploy
 ```json
 // now.config.json
 {
-  "scope": "x_902080_planpoker",
+  "scope": "x_1860782_msm_pl_0",
   "name": "Planning Poker",
   "instanceUrl": "${INSTANCE_URL}",  // From environment
   "credentials": {
@@ -305,7 +305,7 @@ npm run deploy
 ### Environment Variables:
 ```bash
 # .env file (not committed)
-INSTANCE_URL=https://dev353895.service-now.com
+INSTANCE_URL=https://dev313212.service-now.com
 CLIENT_ID=your_client_id
 CLIENT_SECRET=your_client_secret
 ```

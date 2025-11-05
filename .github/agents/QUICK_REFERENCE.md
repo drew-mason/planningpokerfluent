@@ -192,10 +192,10 @@ After Deploy:
 ## 🎨 Planning Poker Specifics
 
 ### Tables (Backend Agent)
-- x_902080_planpoker_session
-- x_902080_planpoker_session_stories
-- x_902080_planpoker_vote
-- x_902080_planpoker_session_participant
+- x_1860782_msm_pl_0_session
+- x_1860782_msm_pl_0_session_stories
+- x_1860782_msm_pl_0_vote
+- x_1860782_msm_pl_0_session_participant
 
 ### Services (API Agent)
 - PlanningSessionService

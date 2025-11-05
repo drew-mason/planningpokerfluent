@@ -1,9 +1,9 @@
 # Planning Poker Fluent - AI Agent Instructions
 
 ## Project Overview
-ServiceNow Planning Poker application built with **NowSDK 4.0.2**, React 19, TypeScript 5.5, and ServiceNow Fluent framework. Enables agile teams to perform collaborative story point estimation with real-time voting and analytics.
+**MSM Planning Poker** - ServiceNow application built with **NowSDK 4.0.2**, React 19, TypeScript 5.5, and ServiceNow Fluent framework. Enables agile teams to perform collaborative story point estimation with real-time voting and analytics.
 
-**Key Context:** This project underwent a critical migration (Nov 2025) from server-side GlideRecord to client-side REST APIs. Understanding the client/server API boundary is essential.
+**Key Context:** This project underwent a critical migration (Nov 2025) from server-side GlideRecord to client-side REST APIs. Understanding the client/server API boundary is essential. All GlideAjax calls have been removed - Fluent framework requires pure REST API usage.
 
 ## Architecture
 
@@ -21,13 +21,15 @@ src/
 ```
 
 ### Data Model
-7 ServiceNow tables with scope `x_902080_planpoker`:
+4 ServiceNow tables with scope `x_1860782_msm_pl_0`:
 - `session` - Planning sessions with dealer, status, metrics
 - `session_stories` - User stories with voting status, consensus tracking
 - `vote` - Individual votes with versioning
 - `session_participant` - Session membership and roles
 
 Planning Poker scales (T-shirt sizing): XS, S, M, L, XL, XXL, ?, ☕
+
+**Important:** Current instance is `dev313212.service-now.com` (fresh install with ServiceNow-generated scope)
 
 ## Critical Development Patterns
 

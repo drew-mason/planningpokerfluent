@@ -30,7 +30,7 @@ import { PlanningSession } from '../types'
 import { getValue } from '../utils/serviceUtils'
 
 export class PlanningSessionService {
-  private readonly tableName = 'x_902080_planpoker_session'
+  private readonly tableName = 'x_1860782_msm_pl_0_session'
 
   async list(params?: {
     filters?: Record<string, any>
@@ -120,7 +120,7 @@ export class PlanningSessionService {
       const sessionId = getValue(session.sys_id)
       
       // Add user as participant
-      await nativeService.create('x_902080_planpoker_session_participant', {
+      await nativeService.create('x_1860782_msm_pl_0_session_participant', {
         session: sessionId,
         user: nativeService.getCurrentUser().userID,
         role: 'participant',
@@ -292,7 +292,7 @@ const activeSessions = await sessionService.list({
 ### Complex Queries:
 ```typescript
 // Get votes for a story
-const votes = await nativeService.query('x_902080_planpoker_vote', {
+const votes = await nativeService.query('x_1860782_msm_pl_0_vote', {
   filters: { 
     story: storyId,
     'session.status': 'active'  // Dot-walk filtering

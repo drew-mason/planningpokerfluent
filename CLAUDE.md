@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **Planning Poker application** built for ServiceNow using the **NowSDK (Fluent API)**. It enables agile teams to conduct collaborative story estimation sessions directly within ServiceNow.
+This is **MSM Planning Poker** - a ServiceNow application built with **NowSDK 4.0.2 (Fluent API)**. It enables agile teams to conduct collaborative story estimation sessions directly within ServiceNow.
 
-**Scope**: `x_902080_ppoker` (also referenced as `x_902080_planpoker` in some files)
-**Architecture**: React/TypeScript frontend + ServiceNow Fluent backend
-**Instance**: dev353895.service-now.com
+**Scope**: `x_1860782_msm_pl_0` (ServiceNow-generated on fresh install)
+**Architecture**: React 19/TypeScript 5.5 frontend + ServiceNow Fluent backend
+**Instance**: dev313212.service-now.com (fresh installation)
 
 ## ⚠️ CRITICAL: Client/Server API Boundary
 
@@ -19,6 +19,7 @@ This is a **Planning Poker application** built for ServiceNow using the **NowSDK
 - ✅ **USE:** `window.g_ck` for session token
 - ✅ **USE:** `credentials: 'same-origin'`
 - ❌ **NEVER:** GlideRecord, GlideAjax, or any server-side APIs
+- **IMPORTANT:** All GlideAjax calls have been removed - Fluent requires pure REST API
 
 ### Server-Side Code (`src/fluent/`)
 - ✅ **USE:** GlideRecord for database operations
@@ -71,10 +72,10 @@ npm run check-all               # Runs lint:errors-only + build
 ### ServiceNow Fluent Backend (`src/fluent/`)
 
 **Tables** (`tables/planning-poker.now.ts`):
-- `x_902080_ppoker_session` - Planning sessions with status, dealer, consensus tracking
-- `x_902080_ppoker_session_stories` - Stories to be estimated (sequenced, votable)
-- `x_902080_ppoker_vote` - Individual votes with versioning support
-- `x_902080_ppoker_session_participant` - Session membership tracking
+- `x_1860782_msm_pl_0_session` - Planning sessions with status, dealer, consensus tracking
+- `x_1860782_msm_pl_0_session_stories` - Stories to be estimated (sequenced, votable)
+- `x_1860782_msm_pl_0_vote` - Individual votes with versioning support
+- `x_1860782_msm_pl_0_session_participant` - Session membership tracking
 
 **Script Include** (`script-includes/planning-poker-session.now.ts`):
 - `PlanningPokerSessionAjax` - Server-side GlideAjax processor for session CRUD operations
@@ -139,9 +140,9 @@ npm run check-all               # Runs lint:errors-only + build
 6. Dealer sets final estimate → story status becomes `completed`
 
 **ServiceNow Integration**:
-- Uses ServiceNow REST API (`/api/now/table/`) for most operations
-- Falls back to GlideAjax for specific operations (configured per table)
-- Authentication via `window.g_ck` session token
+- Uses ServiceNow REST API (`/api/now/table/`) exclusively for all operations
+- **No GlideAjax** - Fluent framework requires pure REST API usage
+- Authentication via `window.g_ck` session token in `X-UserToken` header
 - Display values retrieved with `sysparm_display_value=all`
 
 ## Critical Implementation Details
@@ -225,8 +226,9 @@ const status = getValue(session.status);
 ### Session Creation Issues
 - Check browser console for `PlanningSessionService.create` logs
 - Verify `window.g_ck` is available (refresh page if null)
-- Check Network tab for POST `/api/now/table/x_902080_ppoker_session`
+- Check Network tab for POST `/api/now/table/x_1860782_msm_pl_0_session`
 - Verify table permissions in ServiceNow ACLs
+- **If you see xmlhttp.do 404 errors** - GlideAjax code still present, must use REST API only
 
 ### Voting Issues
 - Votes use version tracking - check `is_current` flag
@@ -382,13 +384,14 @@ See `.github/agents/QUICK_REFERENCE.md` for a one-page reference card showing wh
 ## Quick Reference: Critical DO/DON'T Rules
 
 ### ❌ NEVER
-- Use GlideRecord in `src/client/` code (browser context)
+- Use GlideRecord or GlideAjax in `src/client/` code (browser context)
 - Import React in `src/fluent/` or `src/server/` code
 - Use `ORDERBY` in REST API encoded queries
 - Skip authentication headers (`X-UserToken`) on REST API calls
-- Modify table names without updating all service files
+- Modify table names (all use `x_1860782_msm_pl_0_*` prefix)
 - Use `any` types (use proper interfaces from `types/index.ts`)
 - Deploy from Codespaces/headless environments (use local machine)
+- Use GlideAjax (causes xmlhttp.do 404 errors in Fluent)
 
 ### ✅ ALWAYS
 - Check `AGENT_UPDATE.md` for migration context before major changes

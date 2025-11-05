@@ -127,7 +127,7 @@ Step 1 (Coordinator): Parse requirements
 - Display in analytics dashboard
 
 Step 2 (Backend Agent):
-- Add table: x_902080_planpoker_story_history
+- Add table: x_1860782_msm_pl_0_story_history
 - Fields: story, session, estimate, changed_at, changed_by
 - Business rule: Log estimate changes
 
