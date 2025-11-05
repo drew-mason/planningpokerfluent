@@ -45,6 +45,14 @@ declare global {
                         table: 'sys_module'
                         id: '6f1eda70562e410d8e5e14f4c14cbd87'
                     }
+                    update_session_summary_br: {
+                        table: 'sys_script'
+                        id: 'a6a3991beb4e4d15a5c40a1bc001eaf4'
+                    }
+                    update_vote_count_br: {
+                        table: 'sys_script'
+                        id: '0b27000af3914726954f94b0c9e95e01'
+                    }
                     'x_902080_planpoker/main': {
                         table: 'sys_ux_lib_asset'
                         id: '98287bc2178a420197fbf607b855ff08'

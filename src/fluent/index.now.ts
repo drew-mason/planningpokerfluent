@@ -10,6 +10,8 @@ export * from './script-includes/story-ajax.now'
 
 // Export Business Rules
 export * from './business-rules/session-defaults.now'
+export * from './business-rules/update-session-summary.now'
+export * from './business-rules/update-vote-count.now'
 
 // Export UI Pages 
 export * from './ui-pages/planning-poker-app.now'
