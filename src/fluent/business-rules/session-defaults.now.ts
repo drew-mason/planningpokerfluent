@@ -4,7 +4,7 @@ import { BusinessRule } from '@servicenow/sdk/core'
 BusinessRule({
     $id: Now.ID['session_defaults_br'],
     name: 'Set Session Defaults',
-    table: 'x_snc_msm_ppoker_session',
+    table: 'x_1860782_msm_pl_0_session',
     when: 'before',
     action: ['insert', 'update'],
     script: `

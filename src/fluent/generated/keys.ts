@@ -53,6 +53,14 @@ declare global {
                         table: 'sys_script'
                         id: '0b27000af3914726954f94b0c9e95e01'
                     }
+                    'x_1860782_msm_pl_0/main': {
+                        table: 'sys_ux_lib_asset'
+                        id: '32916e3fb34b4414a2f68ecf4404aaef'
+                    }
+                    'x_1860782_msm_pl_0/main.js.map': {
+                        table: 'sys_ux_lib_asset'
+                        id: 'd941f9600f594e0e9de81e0162929c60'
+                    }
                     'x_902080_planpoker/main': {
                         table: 'sys_ux_lib_asset'
                         id: '98287bc2178a420197fbf607b855ff08'
@@ -62,14 +70,6 @@ declare global {
                         table: 'sys_ux_lib_asset'
                         id: '243b012df7ae4a5d817f492dbf6ebced'
                         deleted: true
-                    }
-                    'x_snc_msm_ppoker/main': {
-                        table: 'sys_ux_lib_asset'
-                        id: '32916e3fb34b4414a2f68ecf4404aaef'
-                    }
-                    'x_snc_msm_ppoker/main.js.map': {
-                        table: 'sys_ux_lib_asset'
-                        id: 'd941f9600f594e0e9de81e0162929c60'
                     }
                 }
                 composite: [
@@ -86,7 +86,7 @@ declare global {
                         table: 'sys_choice'
                         id: '01772f1136454c91a73cb4e910c786d8'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'status'
                             value: 'completed'
                         }
@@ -144,7 +144,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: '0b34cfa075a346948d95be397b400ece'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'description'
                         }
                     },
@@ -162,7 +162,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '0e813de60a0748ef93eb0d5398956e55'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'completed_stories'
                             language: 'en'
                         }
@@ -181,7 +181,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '107c65d27a094fc0b8aacdcf44e83c87'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'description'
                             language: 'en'
                         }
@@ -190,7 +190,7 @@ declare global {
                         table: 'sys_choice'
                         id: '11e66b74e32c42679b292fad1f7b1ad3'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'status'
                             value: 'active'
                         }
@@ -217,14 +217,14 @@ declare global {
                         table: 'ua_table_licensing_config'
                         id: '1658a8f1f11b434b96b83b29e9fd341b'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                         }
                     },
                     {
                         table: 'sys_dictionary'
                         id: '18dd2233a74c469db60f43c6c13b9693'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_participant'
+                            name: 'x_1860782_msm_pl_0_session_participant'
                             element: 'role'
                         }
                     },
@@ -242,7 +242,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '19af059418134890b25ce840cf1e9c22'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'dealer'
                             language: 'en'
                         }
@@ -251,7 +251,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: '19c57849e07b40f0825da7c1f2b71d91'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'consensus_achieved'
                         }
                     },
@@ -277,7 +277,7 @@ declare global {
                         table: 'sys_db_object'
                         id: '1cf62033b36b4459a2afeda874b4dff3'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                         }
                     },
                     {
@@ -293,7 +293,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: '211eea0196564c99b1cd8fed3c7ad843'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'final_estimate'
                         }
                     },
@@ -311,7 +311,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '245fd776484c4669ae9382b251cc6c37'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'voting_started'
                             language: 'en'
                         }
@@ -329,7 +329,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '26bdbbc9a6124b71902d80575b2c7839'
                         key: {
-                            name: 'x_snc_msm_ppoker_vote'
+                            name: 'x_1860782_msm_pl_0_vote'
                             element: 'voter'
                             language: 'en'
                         }
@@ -338,7 +338,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '26cc78f37d0f43429d9e237b0ace1dad'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_participant'
+                            name: 'x_1860782_msm_pl_0_session_participant'
                             element: 'user'
                             language: 'en'
                         }
@@ -357,7 +357,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '2826e7300c1b4282b8c72c763c269c15'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'timebox_minutes'
                             language: 'en'
                         }
@@ -375,14 +375,14 @@ declare global {
                         table: 'sys_db_object'
                         id: '29cfe386351f43b4b69ed51a039e50a1'
                         key: {
-                            name: 'x_snc_msm_ppoker_vote'
+                            name: 'x_1860782_msm_pl_0_vote'
                         }
                     },
                     {
                         table: 'sys_documentation'
                         id: '2c9d2314bbd84d349a6b1ff8c0fd5dc1'
                         key: {
-                            name: 'x_snc_msm_ppoker_vote'
+                            name: 'x_1860782_msm_pl_0_vote'
                             element: 'story'
                             language: 'en'
                         }
@@ -391,7 +391,7 @@ declare global {
                         table: 'sys_choice'
                         id: '2df3d2d05f0143f6bdd096cb28733062'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'status'
                             value: 'cancelled'
                         }
@@ -447,7 +447,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '34181737f36c4dd5bae69ea1dd7ea22a'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'sequence_order'
                             language: 'en'
                         }
@@ -456,7 +456,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: '36d9ee71f41f49a9bd3b301a95d0518c'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_participant'
+                            name: 'x_1860782_msm_pl_0_session_participant'
                             element: 'NULL'
                         }
                     },
@@ -539,7 +539,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '3c56434ee0814e15854c81ee5dad55fa'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_participant'
+                            name: 'x_1860782_msm_pl_0_session_participant'
                             element: 'session'
                             language: 'en'
                         }
@@ -595,7 +595,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: '42b8d8333c28460ba0b3490bfd96802e'
                         key: {
-                            name: 'x_snc_msm_ppoker_vote'
+                            name: 'x_1860782_msm_pl_0_vote'
                             element: 'session'
                         }
                     },
@@ -603,7 +603,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: '42d5c8c0b1004aeab61fff23897f822d'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'session_code'
                         }
                     },
@@ -611,7 +611,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: '43cb1a708d8c42c4a514e892ab131948'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'NULL'
                         }
                     },
@@ -637,7 +637,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: '4b3e97c7c3774322b9d93c22539b84eb'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_participant'
+                            name: 'x_1860782_msm_pl_0_session_participant'
                             element: 'user'
                         }
                     },
@@ -645,7 +645,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '4b8606e369f94abdac713af5c5f90cb6'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'status'
                             language: 'en'
                         }
@@ -654,7 +654,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '4d5e1f456d9242509b994d62c2a2b572'
                         key: {
-                            name: 'x_snc_msm_ppoker_vote'
+                            name: 'x_1860782_msm_pl_0_vote'
                             element: 'created_on'
                             language: 'en'
                         }
@@ -693,7 +693,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '5097a9fdf6c84f589823357d0127b6f9'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'status'
                             language: 'en'
                         }
@@ -712,7 +712,7 @@ declare global {
                         table: 'sys_choice'
                         id: '5245c1aceaaf46d98a3531296bc12d6f'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'status'
                             value: 'completed'
                         }
@@ -721,7 +721,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: '52c62f84da27406eb931648a40bc9e53'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'NULL'
                         }
                     },
@@ -739,7 +739,7 @@ declare global {
                         table: 'sys_choice'
                         id: '53c0912f10f9453cb3aa56dc3871f59d'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'status'
                             value: 'pending'
                         }
@@ -748,7 +748,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: '546ff86efb9e4f34b3c550aed2115e36'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'sequence_order'
                         }
                     },
@@ -865,7 +865,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: '61d46796f4f74ecd95d8303221d579cc'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'story_title'
                         }
                     },
@@ -902,7 +902,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '64dbdd6af98d45d9bbe8e181399814eb'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_participant'
+                            name: 'x_1860782_msm_pl_0_session_participant'
                             element: 'left_at'
                             language: 'en'
                         }
@@ -920,7 +920,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: '670b3c8a9524437da460a7aa9c9ae7cb'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'consensus_rate'
                         }
                     },
@@ -928,7 +928,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: '677e127cde7345dab703db0fa35c5ebd'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'session'
                         }
                     },
@@ -936,7 +936,7 @@ declare global {
                         table: 'sys_choice'
                         id: '67e19f5a0a784288910fddfa88977980'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'status'
                             value: 'pending'
                         }
@@ -954,7 +954,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '699caf1d9e564dcda938c5a380d95e8d'
                         key: {
-                            name: 'x_snc_msm_ppoker_vote'
+                            name: 'x_1860782_msm_pl_0_vote'
                             element: 'version'
                             language: 'en'
                         }
@@ -1003,7 +1003,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '6fbd1e9799f74581b21cc32d61846d2d'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'consensus_achieved'
                             language: 'en'
                         }
@@ -1088,7 +1088,7 @@ declare global {
                         table: 'sys_choice'
                         id: '76ea0672508c4f9b88987dbe3dce447d'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'status'
                             value: 'voting'
                         }
@@ -1097,7 +1097,7 @@ declare global {
                         table: 'sys_choice'
                         id: '79178f6c29a64b66ade97b3cdab9abb8'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_participant'
+                            name: 'x_1860782_msm_pl_0_session_participant'
                             element: 'role'
                             value: 'observer'
                         }
@@ -1116,7 +1116,7 @@ declare global {
                         table: 'sys_db_object'
                         id: '7bd7cdd950f44dcb8d439916feede1dd'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_participant'
+                            name: 'x_1860782_msm_pl_0_session_participant'
                         }
                     },
                     {
@@ -1133,7 +1133,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: '7d50fb40426c4a07b163dbc037112533'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'description'
                         }
                     },
@@ -1141,7 +1141,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '7e0245a55cee4a679af33c0cbee8ceac'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'total_stories'
                             language: 'en'
                         }
@@ -1177,7 +1177,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '822080d36948400992d6872e4dc8bbf4'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'NULL'
                             language: 'en'
                         }
@@ -1283,7 +1283,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '89ccd81810cd4e25b86eaac2f1e4eed0'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'description'
                             language: 'en'
                         }
@@ -1301,7 +1301,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '8eb95eed068f4bb4a29ad5aed2a99e98'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'completed_on'
                             language: 'en'
                         }
@@ -1356,7 +1356,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: '944c65ef1da74dd3bb5f198cf875df52'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'name'
                         }
                     },
@@ -1364,7 +1364,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: '94aed87149834785ad23e13e57010d0c'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'started_at'
                         }
                     },
@@ -1372,7 +1372,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: '95dc661db7264f69aed0916129b54654'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'status'
                         }
                     },
@@ -1380,7 +1380,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '9826f43b48c84683b3644d42ab978d38'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'session_code'
                             language: 'en'
                         }
@@ -1389,7 +1389,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '9a203059cece4b6cbd677144da49771d'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'final_estimate'
                             language: 'en'
                         }
@@ -1416,7 +1416,7 @@ declare global {
                         table: 'sys_choice'
                         id: '9c851dcb06184dc78e9db9c553bcaba0'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_participant'
+                            name: 'x_1860782_msm_pl_0_session_participant'
                             element: 'role'
                             value: 'dealer'
                         }
@@ -1425,7 +1425,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: '9cd0ad4f04e946bfa7e5a01b42fdadb6'
                         key: {
-                            name: 'x_snc_msm_ppoker_vote'
+                            name: 'x_1860782_msm_pl_0_vote'
                             element: 'version'
                         }
                     },
@@ -1433,7 +1433,7 @@ declare global {
                         table: 'sys_documentation'
                         id: '9d200d3fa69744c99f924bf50579c2a6'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'name'
                             language: 'en'
                         }
@@ -1480,7 +1480,7 @@ declare global {
                         table: 'sys_documentation'
                         id: 'a4523073f46c4a1686befc59dad27259'
                         key: {
-                            name: 'x_snc_msm_ppoker_vote'
+                            name: 'x_1860782_msm_pl_0_vote'
                             element: 'NULL'
                             language: 'en'
                         }
@@ -1525,7 +1525,7 @@ declare global {
                         table: 'sys_documentation'
                         id: 'ab57d77267094a09b9735b2a6e13646d'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'consensus_rate'
                             language: 'en'
                         }
@@ -1534,7 +1534,7 @@ declare global {
                         table: 'sys_documentation'
                         id: 'ac2a57bb2d75462d824e7a84b8403655'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_participant'
+                            name: 'x_1860782_msm_pl_0_session_participant'
                             element: 'NULL'
                             language: 'en'
                         }
@@ -1543,7 +1543,7 @@ declare global {
                         table: 'sys_documentation'
                         id: 'ad51793552a14e79834369608e383659'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'completed_at'
                             language: 'en'
                         }
@@ -1581,7 +1581,7 @@ declare global {
                         table: 'sys_documentation'
                         id: 'b081954a16c74aa09f32a28810b65c5e'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_participant'
+                            name: 'x_1860782_msm_pl_0_session_participant'
                             element: 'joined_at'
                             language: 'en'
                         }
@@ -1590,7 +1590,7 @@ declare global {
                         table: 'sys_documentation'
                         id: 'b08d2b1532374e3fa16022e985fff1b5'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'vote_summary'
                             language: 'en'
                         }
@@ -1637,7 +1637,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: 'bb8839317b93406c8ac9bdf6355fb3fc'
                         key: {
-                            name: 'x_snc_msm_ppoker_vote'
+                            name: 'x_1860782_msm_pl_0_vote'
                             element: 'NULL'
                         }
                     },
@@ -1673,7 +1673,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: 'bd433d108db44b7893d1bf5c1afa2712'
                         key: {
-                            name: 'x_snc_msm_ppoker_vote'
+                            name: 'x_1860782_msm_pl_0_vote'
                             element: 'created_on'
                         }
                     },
@@ -1681,7 +1681,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: 'be95c57a04514b99b2e9d9140af57a3f'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'voting_started'
                         }
                     },
@@ -1707,7 +1707,7 @@ declare global {
                         table: 'sys_choice'
                         id: 'c0ed8c0d989646fc854b0e567a601589'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_participant'
+                            name: 'x_1860782_msm_pl_0_session_participant'
                             element: 'role'
                             value: 'participant'
                         }
@@ -1716,7 +1716,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: 'c180392ef3ba434392daa8b2a4f264b7'
                         key: {
-                            name: 'x_snc_msm_ppoker_vote'
+                            name: 'x_1860782_msm_pl_0_vote'
                             element: 'vote_value'
                         }
                     },
@@ -1724,7 +1724,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: 'c313ceb1a8aa45db8c3abae1c0e79aaf'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_participant'
+                            name: 'x_1860782_msm_pl_0_session_participant'
                             element: 'joined_at'
                         }
                     },
@@ -1761,7 +1761,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: 'c50af3ae176d4586b410b30eedc0e392'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'timebox_minutes'
                         }
                     },
@@ -1808,14 +1808,14 @@ declare global {
                         table: 'sys_db_object'
                         id: 'c721c0e06ffa48759308f48d9e274805'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                         }
                     },
                     {
                         table: 'sys_documentation'
                         id: 'c820adff042043df8f9f3ba01f1e3c88'
                         key: {
-                            name: 'x_snc_msm_ppoker_vote'
+                            name: 'x_1860782_msm_pl_0_vote'
                             element: 'is_current'
                             language: 'en'
                         }
@@ -1824,7 +1824,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: 'c8fb018259f946688ec2180092369eef'
                         key: {
-                            name: 'x_snc_msm_ppoker_vote'
+                            name: 'x_1860782_msm_pl_0_vote'
                             element: 'story'
                         }
                     },
@@ -1832,7 +1832,7 @@ declare global {
                         table: 'sys_documentation'
                         id: 'c99a4941fa40408f9f2533ff52d47cd5'
                         key: {
-                            name: 'x_snc_msm_ppoker_vote'
+                            name: 'x_1860782_msm_pl_0_vote'
                             element: 'session'
                             language: 'en'
                         }
@@ -1860,7 +1860,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: 'cf0e448417e34c4298ddcf7ed82501d7'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'dealer'
                         }
                     },
@@ -1868,14 +1868,14 @@ declare global {
                         table: 'ua_table_licensing_config'
                         id: 'cf885f459711430f8a5f97b7cb6f988f'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_participant'
+                            name: 'x_1860782_msm_pl_0_session_participant'
                         }
                     },
                     {
                         table: 'sys_documentation'
                         id: 'cfce758b421c4c878d4fa9b104205141'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'story_title'
                             language: 'en'
                         }
@@ -1884,7 +1884,7 @@ declare global {
                         table: 'sys_documentation'
                         id: 'd1d4b0ed449f4edfa674471eaf7441b5'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'NULL'
                             language: 'en'
                         }
@@ -1902,7 +1902,7 @@ declare global {
                         table: 'ua_table_licensing_config'
                         id: 'd55c61b927aa44cba8013947c9eb895c'
                         key: {
-                            name: 'x_snc_msm_ppoker_vote'
+                            name: 'x_1860782_msm_pl_0_vote'
                         }
                     },
                     {
@@ -1918,7 +1918,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: 'd6c7353f264d479b80fb945e1d723013'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'completed_stories'
                         }
                     },
@@ -1944,7 +1944,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: 'da537eb7cb064eb69e04d4cc0881304f'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_participant'
+                            name: 'x_1860782_msm_pl_0_session_participant'
                             element: 'session'
                         }
                     },
@@ -1952,7 +1952,7 @@ declare global {
                         table: 'sys_documentation'
                         id: 'da71ec7a8962447d8935a44683101ffd'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'session'
                             language: 'en'
                         }
@@ -1961,7 +1961,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: 'dbe631ba2427461ba2be61d3a4b87e7b'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_participant'
+                            name: 'x_1860782_msm_pl_0_session_participant'
                             element: 'left_at'
                         }
                     },
@@ -1979,7 +1979,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: 'de93e87e57cd4259a60994070f63c7cb'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'completed_at'
                         }
                     },
@@ -1996,7 +1996,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: 'e34b1da5de1242339b1d3c84f7fd3eb5'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'vote_summary'
                         }
                     },
@@ -2034,7 +2034,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: 'e6de2799932746b2bb902dd41b3e7b15'
                         key: {
-                            name: 'x_snc_msm_ppoker_vote'
+                            name: 'x_1860782_msm_pl_0_vote'
                             element: 'is_current'
                         }
                     },
@@ -2042,7 +2042,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: 'e714ba5ed4394c398918d767fcd830eb'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'total_stories'
                         }
                     },
@@ -2050,7 +2050,7 @@ declare global {
                         table: 'sys_documentation'
                         id: 'ea0d48e14b1741f09021c96a93de5c5e'
                         key: {
-                            name: 'x_snc_msm_ppoker_vote'
+                            name: 'x_1860782_msm_pl_0_vote'
                             element: 'vote_value'
                             language: 'en'
                         }
@@ -2068,7 +2068,7 @@ declare global {
                         table: 'sys_choice'
                         id: 'ee3a256c01cc45d786477c5733918d8f'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'status'
                             value: 'skipped'
                         }
@@ -2087,14 +2087,14 @@ declare global {
                         table: 'ua_table_licensing_config'
                         id: 'f2c4f28e79f646c9b95522258f98d6f8'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                         }
                     },
                     {
                         table: 'sys_documentation'
                         id: 'f3c4c74094d94aa0b362711779ffc648'
                         key: {
-                            name: 'x_snc_msm_ppoker_session'
+                            name: 'x_1860782_msm_pl_0_session'
                             element: 'started_at'
                             language: 'en'
                         }
@@ -2130,7 +2130,7 @@ declare global {
                         table: 'sys_documentation'
                         id: 'f767f0860b7b4ba9a6aa42bfdeb9e8e7'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_participant'
+                            name: 'x_1860782_msm_pl_0_session_participant'
                             element: 'role'
                             language: 'en'
                         }
@@ -2139,7 +2139,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: 'f9295bbcf2f5497396619a39854cf6bb'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'completed_on'
                         }
                     },
@@ -2147,7 +2147,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: 'f96ef79faa9a41c0b96816fcc245b702'
                         key: {
-                            name: 'x_snc_msm_ppoker_vote'
+                            name: 'x_1860782_msm_pl_0_vote'
                             element: 'voter'
                         }
                     },
@@ -2164,7 +2164,7 @@ declare global {
                         table: 'sys_dictionary'
                         id: 'fc91a61c0bf641ba872e4c5faad18f7d'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'status'
                         }
                     },
@@ -2200,7 +2200,7 @@ declare global {
                         table: 'sys_choice'
                         id: 'ff9a49bde90b4f3884048d641911355c'
                         key: {
-                            name: 'x_snc_msm_ppoker_session_stories'
+                            name: 'x_1860782_msm_pl_0_session_stories'
                             element: 'status'
                             value: 'revealed'
                         }

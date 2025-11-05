@@ -2,8 +2,8 @@ import '@servicenow/sdk/global'
 import { Table, StringColumn, DateTimeColumn, IntegerColumn, ReferenceColumn, BooleanColumn } from '@servicenow/sdk/core'
 
 // Planning Session Table
-export const x_snc_msm_ppoker_session = Table({
-    name: 'x_snc_msm_ppoker_session',
+export const x_1860782_msm_pl_0_session = Table({
+    name: 'x_1860782_msm_pl_0_session',
     label: 'Planning Session',
     schema: {
         name: StringColumn({
@@ -67,13 +67,13 @@ export const x_snc_msm_ppoker_session = Table({
 })
 
 // Session Stories Table
-export const x_snc_msm_ppoker_session_stories = Table({
-    name: 'x_snc_msm_ppoker_session_stories',
+export const x_1860782_msm_pl_0_session_stories = Table({
+    name: 'x_1860782_msm_pl_0_session_stories',
     label: 'Session Stories',
     schema: {
         session: ReferenceColumn({
             label: 'Session',
-            reference: 'x_snc_msm_ppoker_session',
+            reference: 'x_1860782_msm_pl_0_session',
             mandatory: true,
         }),
         story_title: StringColumn({
@@ -127,18 +127,18 @@ export const x_snc_msm_ppoker_session_stories = Table({
 })
 
 //  Votes Table
-export const x_snc_msm_ppoker_vote = Table({
-    name: 'x_snc_msm_ppoker_vote',
+export const x_1860782_msm_pl_0_vote = Table({
+    name: 'x_1860782_msm_pl_0_vote',
     label: 'Planning Vote',
     schema: {
         session: ReferenceColumn({
             label: 'Session',
-            reference: 'x_snc_msm_ppoker_session',
+            reference: 'x_1860782_msm_pl_0_session',
             mandatory: true,
         }),
         story: ReferenceColumn({
             label: 'Story',
-            reference: 'x_snc_msm_ppoker_session_stories',
+            reference: 'x_1860782_msm_pl_0_session_stories',
             mandatory: true,
         }),
         voter: ReferenceColumn({
@@ -170,13 +170,13 @@ export const x_snc_msm_ppoker_vote = Table({
 })
 
 // Session Participants Table
-export const x_snc_msm_ppoker_session_participant = Table({
-    name: 'x_snc_msm_ppoker_session_participant',
+export const x_1860782_msm_pl_0_session_participant = Table({
+    name: 'x_1860782_msm_pl_0_session_participant',
     label: 'Session Participant',
     schema: {
         session: ReferenceColumn({
             label: 'Session',
-            reference: 'x_snc_msm_ppoker_session',
+            reference: 'x_1860782_msm_pl_0_session',
             mandatory: true,
         }),
         user: ReferenceColumn({

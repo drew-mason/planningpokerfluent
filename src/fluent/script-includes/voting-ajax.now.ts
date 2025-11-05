@@ -19,7 +19,7 @@ PlanningPokerVotingAjax.prototype = Object.extendsObject(AbstractAjaxProcessor, 
 
         try {
             // Check if user already voted on this story
-            var existingVote = new GlideRecord('x_snc_msm_ppoker_vote');
+            var existingVote = new GlideRecord('x_1860782_msm_pl_0_vote');
             existingVote.addQuery('session', sessionId);
             existingVote.addQuery('story', storyId);
             existingVote.addQuery('voter', userId);
@@ -35,7 +35,7 @@ PlanningPokerVotingAjax.prototype = Object.extendsObject(AbstractAjaxProcessor, 
                 existingVote.update();
 
                 // Create new vote with incremented version
-                var newVote = new GlideRecord('x_snc_msm_ppoker_vote');
+                var newVote = new GlideRecord('x_1860782_msm_pl_0_vote');
                 newVote.initialize();
                 newVote.setValue('session', sessionId);
                 newVote.setValue('story', storyId);
@@ -60,7 +60,7 @@ PlanningPokerVotingAjax.prototype = Object.extendsObject(AbstractAjaxProcessor, 
                 // Create new vote
                 gs.info('PlanningPokerVotingAjax.castVote: Creating new vote');
                 
-                var vote = new GlideRecord('x_snc_msm_ppoker_vote');
+                var vote = new GlideRecord('x_1860782_msm_pl_0_vote');
                 vote.initialize();
                 vote.setValue('session', sessionId);
                 vote.setValue('story', storyId);
@@ -100,7 +100,7 @@ PlanningPokerVotingAjax.prototype = Object.extendsObject(AbstractAjaxProcessor, 
         gs.info('PlanningPokerVotingAjax.getStoryVotes: Fetching votes for story ' + storyId);
 
         try {
-            var gr = new GlideRecord('x_snc_msm_ppoker_vote');
+            var gr = new GlideRecord('x_1860782_msm_pl_0_vote');
             gr.addQuery('story', storyId);
             
             if (!includeHistory) {
@@ -140,7 +140,7 @@ PlanningPokerVotingAjax.prototype = Object.extendsObject(AbstractAjaxProcessor, 
 
         try {
             // Get all current votes
-            var gr = new GlideRecord('x_snc_msm_ppoker_vote');
+            var gr = new GlideRecord('x_1860782_msm_pl_0_vote');
             gr.addQuery('story', storyId);
             gr.addQuery('is_current', true);
             gr.query();
@@ -227,7 +227,7 @@ PlanningPokerVotingAjax.prototype = Object.extendsObject(AbstractAjaxProcessor, 
         gs.info('PlanningPokerVotingAjax.clearStoryVotes: Clearing votes for story ' + storyId);
 
         try {
-            var gr = new GlideRecord('x_snc_msm_ppoker_vote');
+            var gr = new GlideRecord('x_1860782_msm_pl_0_vote');
             gr.addQuery('story', storyId);
             gr.deleteMultiple();
 
