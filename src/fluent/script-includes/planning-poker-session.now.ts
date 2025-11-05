@@ -11,7 +11,7 @@ PlanningPokerSessionAjax.prototype = Object.extendsObject(AbstractAjaxProcessor,
     getSessions: function() {
         gs.info('PlanningPokerSessionAjax.getSessions: Starting session query');
 
-        var gr = new GlideRecord('x_902080_ppoker_session');
+        var gr = new GlideRecord('x_snc_msm_pp_session');
         gr.addEncodedQuery('ORDERBYDESCsys_created_on');
         gr.setLimit(50);
 
@@ -45,7 +45,7 @@ PlanningPokerSessionAjax.prototype = Object.extendsObject(AbstractAjaxProcessor,
         var sysId = this.getParameter('sysparm_sys_id');
         gs.info('PlanningPokerSessionAjax.getSession: Fetching session ' + sysId);
 
-        var gr = new GlideRecord('x_902080_ppoker_session');
+        var gr = new GlideRecord('x_snc_msm_pp_session');
         if (gr.get(sysId)) {
             var result = {
                 sys_id: gr.getValue('sys_id'),
@@ -74,7 +74,7 @@ PlanningPokerSessionAjax.prototype = Object.extendsObject(AbstractAjaxProcessor,
         var sessionData = JSON.parse(this.getParameter('sysparm_session_data'));
         gs.info('PlanningPokerSessionAjax.createSession: Creating new session');
 
-        var gr = new GlideRecord('x_902080_ppoker_session');
+        var gr = new GlideRecord('x_snc_msm_pp_session');
 
         // Set required fields
         gr.setValue('name', sessionData.name);
@@ -99,7 +99,7 @@ PlanningPokerSessionAjax.prototype = Object.extendsObject(AbstractAjaxProcessor,
     },
 
     getSessionById: function(sysId) {
-        var gr = new GlideRecord('x_902080_ppoker_session');
+        var gr = new GlideRecord('x_snc_msm_pp_session');
         if (gr.get(sysId)) {
             var result = {
                 sys_id: gr.getValue('sys_id'),

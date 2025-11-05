@@ -1,6 +1,6 @@
 {
-  "scope": "x_902080_ppoker",
-  "scopeId": "1234567890abcdef1234567890abcdef",
+  "scope": "x_snc_msm_pp",
+  "scopeId": "abcdef1234567890abcdef1234567890",
   "name": "MSM Planning Poker",
   "tsconfigPath": "./src/server/tsconfig.json"
 }
