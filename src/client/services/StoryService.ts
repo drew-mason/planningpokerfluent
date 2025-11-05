@@ -5,7 +5,7 @@ export class StoryService {
     private readonly tableName: string
 
     constructor() {
-        this.tableName = 'x_snc_msm_pp_session_stories'
+        this.tableName = 'x_snc_msm_ppoker_session_stories'
     }
 
     // Get all stories for a session

@@ -9,7 +9,7 @@ import { nativeService } from '../utils/serviceNowNativeService'
 import { PlanningPokerUtils } from '../utils/planningPokerUtils'
 
 export class PlanningSessionService {
-    private readonly tableName = 'x_snc_msm_pp_session'
+    private readonly tableName = 'x_snc_msm_ppoker_session'
 
     // List all planning sessions with pagination support
     async list(params: {
@@ -256,7 +256,7 @@ export class PlanningSessionService {
     async getSessionParticipants(sessionId: string): Promise<SessionParticipant[]> {
         try {
             const participants = await nativeService.query(
-                'x_snc_msm_pp_session_participant',
+                'x_snc_msm_ppoker_session_participant',
                 {
                     filters: { session: sessionId },
                     fields: ['sys_id', 'user', 'role', 'joined_at', 'left_at']
@@ -279,7 +279,7 @@ export class PlanningSessionService {
     async getSessionStories(sessionId: string): Promise<SessionStory[]> {
         try {
             const stories = await nativeService.query(
-                'x_snc_msm_pp_session_stories',
+                'x_snc_msm_ppoker_session_stories',
                 {
                     filters: { session: sessionId },
                     fields: ['sys_id', 'story_title', 'description', 'sequence_order', 'status', 'final_estimate', 'consensus_achieved', 'sys_created_on']
@@ -390,7 +390,7 @@ export class PlanningSessionService {
 
     private async checkParticipantExists(sessionId: string, userId: string): Promise<boolean> {
         const participants = await nativeService.query(
-            'x_snc_msm_pp_session_participant',
+            'x_snc_msm_ppoker_session_participant',
             {
                 filters: { session: sessionId, user: userId, left_at: null },
                 limit: 1
@@ -401,7 +401,7 @@ export class PlanningSessionService {
     }
 
     private async addParticipant(sessionId: string, userId: string, role: string = 'participant'): Promise<void> {
-        await nativeService.create('x_snc_msm_pp_session_participant', {
+        await nativeService.create('x_snc_msm_ppoker_session_participant', {
             session: sessionId,
             user: userId,
             role: role,

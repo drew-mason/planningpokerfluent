@@ -4,7 +4,7 @@ import { BusinessRule } from '@servicenow/sdk/core'
 BusinessRule({
     $id: Now.ID['update_vote_count_br'],
     name: 'Update Vote Count',
-    table: 'x_snc_msm_pp_vote',
+    table: 'x_snc_msm_ppoker_vote',
     when: 'after',
     action: ['insert', 'update', 'delete'],
     script: `
@@ -21,7 +21,7 @@ BusinessRule({
             try {
                 // Count current votes for this story
                 var voteCount = 0;
-                var gr = new GlideAggregate('x_snc_msm_pp_vote');
+                var gr = new GlideAggregate('x_snc_msm_ppoker_vote');
                 gr.addQuery('story', storyId);
                 gr.addQuery('is_current', true);
                 gr.addAggregate('COUNT');
@@ -32,13 +32,13 @@ BusinessRule({
                 }
                 
                 // Get total participants in the session
-                var story = new GlideRecord('x_snc_msm_pp_session_stories');
+                var story = new GlideRecord('x_snc_msm_ppoker_session_stories');
                 if (story.get(storyId)) {
                     var sessionId = story.getValue('session');
                     
                     // Count active participants (not left)
                     var participantCount = 0;
-                    var participantGr = new GlideAggregate('x_snc_msm_pp_session_participant');
+                    var participantGr = new GlideAggregate('x_snc_msm_ppoker_session_participant');
                     participantGr.addQuery('session', sessionId);
                     participantGr.addNullQuery('left_at');
                     participantGr.addAggregate('COUNT');

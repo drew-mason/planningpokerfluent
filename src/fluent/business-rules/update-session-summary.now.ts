@@ -4,7 +4,7 @@ import { BusinessRule } from '@servicenow/sdk/core'
 BusinessRule({
     $id: Now.ID['update_session_summary_br'],
     name: 'Update Session Summary',
-    table: 'x_snc_msm_pp_session_stories',
+    table: 'x_snc_msm_ppoker_session_stories',
     when: 'after',
     action: ['insert', 'update', 'delete'],
     script: `
@@ -30,7 +30,7 @@ BusinessRule({
                     consensus: 0
                 };
                 
-                var gr = new GlideRecord('x_snc_msm_pp_session_stories');
+                var gr = new GlideRecord('x_snc_msm_ppoker_session_stories');
                 gr.addQuery('session', sessionId);
                 gr.query();
                 
@@ -55,7 +55,7 @@ BusinessRule({
                     : 0;
                 
                 // Update session record
-                var session = new GlideRecord('x_snc_msm_pp_session');
+                var session = new GlideRecord('x_snc_msm_ppoker_session');
                 if (session.get(sessionId)) {
                     session.setValue('total_stories', storyStats.total);
                     session.setValue('completed_stories', storyStats.completed);

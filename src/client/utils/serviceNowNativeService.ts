@@ -51,7 +51,7 @@ export class ServiceNowNativeService {
             console.log(`ServiceNowNativeService.query: Using GlideAjax for ${tableName}`);
             
             // For planning poker sessions, use the Script Include
-            if (tableName === 'x_snc_msm_pp_session') {
+            if (tableName === 'x_snc_msm_ppoker_session') {
                 return await this.querySessionsViaAjax(options);
             }
             
@@ -229,7 +229,7 @@ export class ServiceNowNativeService {
             console.log(`ServiceNowNativeService.getById: Fetching ${tableName} record ${sysId}`);
             
             // For planning poker sessions, use GlideAjax
-            if (tableName === 'x_snc_msm_pp_session') {
+            if (tableName === 'x_snc_msm_ppoker_session') {
                 return await this.getSessionByIdViaAjax(sysId);
             }
             
@@ -323,7 +323,7 @@ export class ServiceNowNativeService {
             console.log(`ServiceNowNativeService.create: Creating ${tableName} record:`, data);
             
             // For planning poker sessions, use GlideAjax
-            if (tableName === 'x_snc_msm_pp_session') {
+            if (tableName === 'x_snc_msm_ppoker_session') {
                 return await this.createSessionViaAjax(data);
             }
             

@@ -15,7 +15,7 @@ PlanningPokerStoryAjax.prototype = Object.extendsObject(AbstractAjaxProcessor, {
         gs.info('PlanningPokerStoryAjax.getSessionStories: Fetching stories for session ' + sessionId);
 
         try {
-            var gr = new GlideRecord('x_snc_msm_pp_session_stories');
+            var gr = new GlideRecord('x_snc_msm_ppoker_session_stories');
             gr.addQuery('session', sessionId);
             gr.orderBy('sequence_order');
             gr.query();
@@ -41,7 +41,7 @@ PlanningPokerStoryAjax.prototype = Object.extendsObject(AbstractAjaxProcessor, {
         gs.info('PlanningPokerStoryAjax.getStory: Fetching story ' + storyId);
 
         try {
-            var gr = new GlideRecord('x_snc_msm_pp_session_stories');
+            var gr = new GlideRecord('x_snc_msm_ppoker_session_stories');
             if (gr.get(storyId)) {
                 return JSON.stringify(this._serializeStory(gr));
             } else {
@@ -68,7 +68,7 @@ PlanningPokerStoryAjax.prototype = Object.extendsObject(AbstractAjaxProcessor, {
                 sequenceOrder = this._getNextSequenceOrder(sessionId);
             }
 
-            var gr = new GlideRecord('x_snc_msm_pp_session_stories');
+            var gr = new GlideRecord('x_snc_msm_ppoker_session_stories');
             gr.initialize();
             gr.setValue('session', sessionId);
             gr.setValue('story_title', storyData.story_title);
@@ -107,7 +107,7 @@ PlanningPokerStoryAjax.prototype = Object.extendsObject(AbstractAjaxProcessor, {
         gs.info('PlanningPokerStoryAjax.updateStory: Updating story ' + storyId);
 
         try {
-            var gr = new GlideRecord('x_snc_msm_pp_session_stories');
+            var gr = new GlideRecord('x_snc_msm_ppoker_session_stories');
             if (!gr.get(storyId)) {
                 gs.warn('PlanningPokerStoryAjax.updateStory: Story not found - ' + storyId);
                 return JSON.stringify({ success: false, error: 'Story not found' });
@@ -165,12 +165,12 @@ PlanningPokerStoryAjax.prototype = Object.extendsObject(AbstractAjaxProcessor, {
 
         try {
             // First delete all votes for this story
-            var voteGr = new GlideRecord('x_snc_msm_pp_vote');
+            var voteGr = new GlideRecord('x_snc_msm_ppoker_vote');
             voteGr.addQuery('story', storyId);
             voteGr.deleteMultiple();
 
             // Then delete the story
-            var gr = new GlideRecord('x_snc_msm_pp_session_stories');
+            var gr = new GlideRecord('x_snc_msm_ppoker_session_stories');
             if (gr.get(storyId)) {
                 gr.deleteRecord();
                 gs.info('PlanningPokerStoryAjax.deleteStory: Story deleted successfully');
@@ -195,7 +195,7 @@ PlanningPokerStoryAjax.prototype = Object.extendsObject(AbstractAjaxProcessor, {
         try {
             for (var i = 0; i < storyOrders.length; i++) {
                 var item = storyOrders[i];
-                var gr = new GlideRecord('x_snc_msm_pp_session_stories');
+                var gr = new GlideRecord('x_snc_msm_ppoker_session_stories');
                 if (gr.get(item.storyId)) {
                     gr.setValue('sequence_order', item.newOrder);
                     gr.update();
@@ -218,7 +218,7 @@ PlanningPokerStoryAjax.prototype = Object.extendsObject(AbstractAjaxProcessor, {
         gs.info('PlanningPokerStoryAjax.startVoting: Starting voting for story ' + storyId);
 
         try {
-            var gr = new GlideRecord('x_snc_msm_pp_session_stories');
+            var gr = new GlideRecord('x_snc_msm_ppoker_session_stories');
             if (!gr.get(storyId)) {
                 return JSON.stringify({ success: false, error: 'Story not found' });
             }
@@ -248,7 +248,7 @@ PlanningPokerStoryAjax.prototype = Object.extendsObject(AbstractAjaxProcessor, {
         gs.info('PlanningPokerStoryAjax.completeVoting: Completing voting for story ' + storyId);
 
         try {
-            var gr = new GlideRecord('x_snc_msm_pp_session_stories');
+            var gr = new GlideRecord('x_snc_msm_ppoker_session_stories');
             if (!gr.get(storyId)) {
                 return JSON.stringify({ success: false, error: 'Story not found' });
             }
@@ -280,12 +280,12 @@ PlanningPokerStoryAjax.prototype = Object.extendsObject(AbstractAjaxProcessor, {
 
         try {
             // Clear all votes
-            var voteGr = new GlideRecord('x_snc_msm_pp_vote');
+            var voteGr = new GlideRecord('x_snc_msm_ppoker_vote');
             voteGr.addQuery('story', storyId);
             voteGr.deleteMultiple();
 
             // Reset story
-            var gr = new GlideRecord('x_snc_msm_pp_session_stories');
+            var gr = new GlideRecord('x_snc_msm_ppoker_session_stories');
             if (!gr.get(storyId)) {
                 return JSON.stringify({ success: false, error: 'Story not found' });
             }
@@ -331,7 +331,7 @@ PlanningPokerStoryAjax.prototype = Object.extendsObject(AbstractAjaxProcessor, {
 
     // Helper: Get next sequence order for a session
     _getNextSequenceOrder: function(sessionId) {
-        var gr = new GlideAggregate('x_snc_msm_pp_session_stories');
+        var gr = new GlideAggregate('x_snc_msm_ppoker_session_stories');
         gr.addQuery('session', sessionId);
         gr.addAggregate('MAX', 'sequence_order');
         gr.query();

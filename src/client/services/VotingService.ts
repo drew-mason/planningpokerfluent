@@ -4,7 +4,7 @@ export class VotingService {
     private readonly tableName: string
 
     constructor() {
-        this.tableName = 'x_snc_msm_pp_vote'
+        this.tableName = 'x_snc_msm_ppoker_vote'
     }
 
     // Submit a vote for a story
@@ -271,7 +271,7 @@ export class VotingService {
                 ...(window.g_ck && { 'X-UserToken': window.g_ck })
             }
 
-            const response = await fetch(`/api/now/table/x_snc_msm_pp_session_stories/${storyId}`, {
+            const response = await fetch(`/api/now/table/x_snc_msm_ppoker_session_stories/${storyId}`, {
                 method: 'PATCH',
                 headers,
                 body: JSON.stringify({
