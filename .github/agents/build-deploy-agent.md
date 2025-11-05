@@ -198,10 +198,39 @@ npm run type-check
 
 ## Deployment Strategies
 
-### Development Deployment:
+### ⚠️ Important: Deployment Environment Requirements
+
+**NowSDK requires GUI/Display for authentication:**
+- NowSDK uses system keychain (requires D-Bus/X11)
+- **Does NOT work in headless environments** (Codespaces, Docker, CI/CD)
+- **Error:** `Cannot autolaunch D-Bus without X11 $DISPLAY`
+
+**Authentication succeeds but credential storage fails:**
+- OAuth/Basic auth validates correctly
+- Credentials cannot be saved without GUI
+- Must deploy from local machine with display
+
+### Development Deployment (Local Machine):
 ```bash
-# Deploy to dev instance
+# Deploy to dev instance (requires GUI)
 npm run deploy
+
+# Or specify auth alias
+npx now-sdk install --auth admin
+```
+
+### Codespaces/Headless Deployment Workaround:
+```bash
+# 1. Build in Codespaces
+npm run build
+
+# 2. Download dist/ folder
+
+# 3. Deploy from local machine:
+git pull
+npm run deploy
+
+# Or manual upload via ServiceNow Studio
 ```
 
 ### Production Deployment:
@@ -212,7 +241,7 @@ npm run check-all
 # 2. Build production bundle
 NODE_ENV=production npm run build
 
-# 3. Deploy to production
+# 3. Deploy to production (from local machine)
 npm run deploy -- --instance prod
 ```
 
@@ -273,6 +302,39 @@ CLIENT_SECRET=your_client_secret
 ```
 
 ## Troubleshooting Guide
+
+### Deployment Errors
+
+**"Cannot autolaunch D-Bus without X11 $DISPLAY":**
+```bash
+# Root Cause: NowSDK requires GUI for keychain access
+# Environment: Codespaces, Docker, headless Linux, CI/CD
+
+# Solution 1: Deploy from local machine with display
+git pull
+npm run build
+npm run deploy
+
+# Solution 2: Manual upload via ServiceNow Studio
+# 1. Build in Codespaces
+npm run build
+
+# 2. Download dist/ folder to local machine
+# 3. Open ServiceNow Studio on target instance
+# 4. Navigate to application scope (x_902080_planpoker)
+# 5. Upload files to Static Content records
+# 6. Match paths from now.config.json staticContentDir
+```
+
+**Authentication Verification (works in headless):**
+```bash
+# Test authentication without storage
+npx now-sdk auth --list
+
+# Expected output in Codespaces:
+# "Successfully authenticated to instance..."
+# "ERROR: Cannot autolaunch D-Bus..." <- Normal in headless
+```
 
 ### Build Errors
 

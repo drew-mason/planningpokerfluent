@@ -30,5 +30,8 @@
     "react": "19.x",
     "react-dom": "19.x",
     "typescript": "5.5.4"
+  },
+  "dependencies": {
+    "claude": "^0.1.2"
   }
 }
