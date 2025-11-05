@@ -207,7 +207,7 @@ export default function App() {
             <header className="app-header">
                 <div className="header-content">
                     <div className="header-title">
-                        <h1>🃏 Planning Poker</h1>
+                        <h1>🃏 MSM Planning Poker</h1>
                         <p>Collaborative estimation made easy</p>
                     </div>
                     <div className="header-actions">

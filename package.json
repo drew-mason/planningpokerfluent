@@ -1,7 +1,7 @@
 {
-  "name": "x-902080-planning-poker",
+  "name": "msm-planning-poker",
   "version": "1.0.0",
-  "description": "planning poker",
+  "description": "MSM Planning Poker - Collaborative estimation for agile teams",
   "license": "UNLICENSED",
   "scripts": {
     "build": "now-sdk build",
