@@ -59,17 +59,28 @@ export default async function prebuild({ staticContentDir }) {
 
 ### 3. Deployment Process
 
-**Command:** `npm run deploy`
+**⚠️ IMPORTANT: Deployment MUST be done from local machine with GUI**
+
+**Command:** `npm run deploy` (local machine only)
 
 **What happens:**
 1. Runs `now-sdk install`
-2. Authenticates with ServiceNow instance
+2. Authenticates with ServiceNow instance (requires GUI keychain)
 3. Uploads application artifacts
 4. Creates/updates tables
 5. Creates/updates Script Includes
 6. Creates/updates Business Rules
 7. Creates/updates UI Pages
 8. Uploads static content
+
+**Workflow:**
+```bash
+# On local machine (NOT Codespaces):
+cd planningpokerfluent
+git pull          # Get latest changes from Codespaces
+npm run build     # Build application
+npm run deploy    # Deploy to ServiceNow
+```
 
 **Configuration (`now.config.json`):**
 ```json
@@ -198,51 +209,68 @@ npm run type-check
 
 ## Deployment Strategies
 
-### ⚠️ Important: Deployment Environment Requirements
+### ⚠️ ALWAYS Deploy from Local Machine
 
-**NowSDK requires GUI/Display for authentication:**
+**NowSDK Requirement:** GUI/Display for authentication
 - NowSDK uses system keychain (requires D-Bus/X11)
 - **Does NOT work in headless environments** (Codespaces, Docker, CI/CD)
-- **Error:** `Cannot autolaunch D-Bus without X11 $DISPLAY`
+- **MANDATORY:** All deployments must be from local machine with display
 
-**Authentication succeeds but credential storage fails:**
-- OAuth/Basic auth validates correctly
-- Credentials cannot be saved without GUI
-- Must deploy from local machine with display
+**Deployment Workflow:**
+1. **Develop/Build in Codespaces** (optional)
+2. **ALWAYS Deploy from Local Machine** (required)
 
-### Development Deployment (Local Machine):
+### Standard Deployment Process (Local Machine):
+
+**Step 1: Setup (One-time)**
 ```bash
-# Deploy to dev instance (requires GUI)
-npm run deploy
+# Clone repository to local machine
+git clone <repo-url>
+cd planningpokerfluent
 
-# Or specify auth alias
-npx now-sdk install --auth admin
+# Install dependencies
+npm install
+
+# Authenticate with ServiceNow (stores credentials in keychain)
+npx now-sdk auth
 ```
 
-### Codespaces/Headless Deployment Workaround:
+**Step 2: Deploy Development Changes**
 ```bash
-# 1. Build in Codespaces
+# Pull latest changes from Codespaces
+git pull
+
+# Build locally (or use pre-built artifacts)
 npm run build
 
-# 2. Download dist/ folder
-
-# 3. Deploy from local machine:
-git pull
+# Deploy to dev instance
 npm run deploy
-
-# Or manual upload via ServiceNow Studio
 ```
 
-### Production Deployment:
+**Step 3: Production Deployment**
 ```bash
-# 1. Full testing on dev
+# Ensure all tests pass
 npm run check-all
 
-# 2. Build production bundle
+# Build production bundle
 NODE_ENV=production npm run build
 
-# 3. Deploy to production (from local machine)
+# Deploy to production
 npm run deploy -- --instance prod
+```
+
+### Quick Deploy (After Initial Setup):
+```bash
+# Standard workflow
+git pull          # Get latest code
+npm run build     # Build application
+npm run deploy    # Deploy to ServiceNow
+```
+
+### Alternative: Deploy with Auth Alias
+```bash
+# Use saved credentials
+npx now-sdk install --auth admin
 ```
 
 ### Rollback:
@@ -307,29 +335,32 @@ CLIENT_SECRET=your_client_secret
 
 **"Cannot autolaunch D-Bus without X11 $DISPLAY":**
 ```bash
-# Root Cause: NowSDK requires GUI for keychain access
-# Environment: Codespaces, Docker, headless Linux, CI/CD
+# This error means you're trying to deploy from Codespaces/headless environment
+# SOLUTION: Always deploy from local machine
 
-# Solution 1: Deploy from local machine with display
-git pull
-npm run build
-npm run deploy
-
-# Solution 2: Manual upload via ServiceNow Studio
-# 1. Build in Codespaces
-npm run build
-
-# 2. Download dist/ folder to local machine
-# 3. Open ServiceNow Studio on target instance
-# 4. Navigate to application scope (x_902080_planpoker)
-# 5. Upload files to Static Content records
-# 6. Match paths from now.config.json staticContentDir
+# On your local machine:
+cd planningpokerfluent
+git pull          # Get latest changes
+npm run build     # Build application
+npm run deploy    # Deploy to ServiceNow
 ```
 
-**Authentication Verification (works in headless):**
+**"No credentials found" or "Authentication required":**
 ```bash
-# Test authentication without storage
+# Run initial authentication on local machine
+npx now-sdk auth
+
+# Follow OAuth flow in browser
+# Credentials will be stored in system keychain
+```
+
+**Verify Authentication Status:**
+```bash
+# List stored credentials (only works on local machine)
 npx now-sdk auth --list
+
+# Should show your authenticated instances
+```
 
 # Expected output in Codespaces:
 # "Successfully authenticated to instance..."
