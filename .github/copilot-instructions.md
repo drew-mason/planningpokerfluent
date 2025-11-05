@@ -27,7 +27,7 @@ src/
 - `vote` - Individual votes with versioning
 - `session_participant` - Session membership and roles
 
-Planning Poker scales: 0, 0.5, 1, 2, 3, 5, 8, 13, 20, 40, 100, ?, ☕
+Planning Poker scales (T-shirt sizing): XS, S, M, L, XL, XXL, ?, ☕
 
 ## Critical Development Patterns
 

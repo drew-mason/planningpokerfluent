@@ -50,7 +50,7 @@ export default function VotingSession({
     const [isRevealed, setIsRevealed] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [estimationScale, setEstimationScale] = useState<'poker' | 'fibonacci' | 'tshirt'>('poker')
+    const [estimationScale, setEstimationScale] = useState<'poker' | 'fibonacci' | 'tshirt'>('tshirt')
 
     const votingService = new VotingService()
     const storyService = new StoryService()

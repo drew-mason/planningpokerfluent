@@ -197,8 +197,8 @@ export const sanitizeInput = (input: string): string => {
     return input.trim().replace(/[<>\"'&]/g, '')
 }
 
-// Constants
-export const ESTIMATION_SCALE = ['0', '1', '2', '3', '5', '8', '13', '21', '34', '55', '89', '?', '☕']
+// Constants - T-Shirt Sizing Scale for Planning Poker
+export const ESTIMATION_SCALE = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '?', '☕']
 
 export const SESSION_STATUS_LABELS: Record<SessionStatus, string> = {
     pending: 'Pending',

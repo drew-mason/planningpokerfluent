@@ -22,8 +22,15 @@ const CARD_LABELS: { [key: string]: string } = {
     '20': '20',
     '40': '40',
     '100': '100',
+    'XS': 'XS',
+    'S': 'S',
+    'M': 'M',
+    'L': 'L',
+    'XL': 'XL',
+    'XXL': 'XXL',
     '?': '?',
     'coffee': '☕',
+    '☕': '☕',
     'infinity': '∞'
 }
 
@@ -39,8 +46,15 @@ const CARD_DESCRIPTIONS: { [key: string]: string } = {
     '20': 'Extra large',
     '40': 'Huge',
     '100': 'Enormous',
+    'XS': 'Extra Small - Trivial task',
+    'S': 'Small - Quick fix or minor change',
+    'M': 'Medium - Standard feature',
+    'L': 'Large - Complex feature',
+    'XL': 'Extra Large - Major feature',
+    'XXL': 'Extra Extra Large - Epic',
     '?': 'Unknown',
     'coffee': 'Break needed',
+    '☕': 'Break needed',
     'infinity': 'Too big to estimate'
 }
 
@@ -84,9 +98,18 @@ export default function VotingCard({
 
     const getCardColor = () => {
         if (value === '?') return '#6b7280'
-        if (value === 'coffee') return '#92400e'
+        if (value === 'coffee' || value === '☕') return '#92400e'
         if (value === 'infinity') return '#7c2d12'
         
+        // T-shirt sizing colors
+        if (value === 'XS') return '#10b981' // green
+        if (value === 'S') return '#3b82f6' // blue
+        if (value === 'M') return '#8b5cf6' // purple
+        if (value === 'L') return '#f59e0b' // amber
+        if (value === 'XL') return '#f97316' // orange
+        if (value === 'XXL') return '#ef4444' // red
+        
+        // Numeric values (for backward compatibility)
         const numericValue = parseFloat(value)
         if (isNaN(numericValue)) return '#3b82f6'
         
