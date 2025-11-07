@@ -5,6 +5,7 @@ import SessionForm from './components/SessionForm'
 import SessionDashboard from './components/SessionDashboard'
 import { AnalyticsDashboard } from './components/AnalyticsDashboard'
 import { formatApiError, handleAsyncOperation } from './utils/serviceUtils'
+import './generated-tailwind.css'
 import './app.css'
 
 // Error Boundary Component

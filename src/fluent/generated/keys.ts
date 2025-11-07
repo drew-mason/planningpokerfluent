@@ -9,6 +9,10 @@ declare global {
                         table: 'sys_module'
                         id: '7cd03c545a70406fb942c0149de6c513'
                     }
+                    'generated-tailwind.css': {
+                        table: 'sys_ux_theme_asset'
+                        id: '50f399987911415fab5e19bf12810986'
+                    }
                     package_json: {
                         table: 'sys_module'
                         id: '7f9914375e7c428082cbe8f4561f94fb'

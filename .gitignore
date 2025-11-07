@@ -5,3 +5,6 @@ node_modules/
 target/
 *.tsbuildinfo
 .jest_cache
+
+# Tailwind CSS generated files
+src/client/generated-tailwind.css
