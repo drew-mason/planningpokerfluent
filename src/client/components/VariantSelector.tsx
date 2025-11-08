@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { Palette, Check, ChevronDown } from 'lucide-react'
 import { useTheme, LightVariant, DarkVariant } from '../providers/ThemeProvider'
+import { useSound } from '../providers/SoundProvider'
 
 /**
  * VariantSelector Component
@@ -7,12 +9,14 @@ import { useTheme, LightVariant, DarkVariant } from '../providers/ThemeProvider'
  * Dropdown menu for selecting theme variants.
  * Shows different variants based on current mode (light/dark).
  * Updates variant on selection with visual feedback.
+ * Plays sound effect on variant change.
  *
  * Usage:
  * <VariantSelector />
  */
 export function VariantSelector() {
   const { mode, lightVariant, darkVariant, setLightVariant, setDarkVariant, currentVariant } = useTheme()
+  const { play } = useSound()
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -42,6 +46,7 @@ export function VariantSelector() {
 
   // Handle variant selection
   const handleSelect = (value: string) => {
+    play('themeChange')
     if (mode === 'light') {
       setLightVariant(value as LightVariant)
     } else {
@@ -77,16 +82,9 @@ export function VariantSelector() {
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        <span className="text-accent">🎨</span>
+        <Palette className="h-4 w-4 text-accent" />
         <span>{currentLabel}</span>
-        <svg
-          className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
+        <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {/* Dropdown menu */}
@@ -103,14 +101,14 @@ export function VariantSelector() {
               <button
                 key={variant.value}
                 onClick={() => handleSelect(variant.value)}
-                className={`dropdown-item w-full text-left ${
+                className={`dropdown-item w-full text-left flex items-center justify-between ${
                   variant.value === currentValue ? 'bg-accent-muted text-accent font-semibold' : ''
                 }`}
                 role="menuitem"
               >
-                {variant.label}
+                <span>{variant.label}</span>
                 {variant.value === currentValue && (
-                  <span className="ml-2" aria-label="Currently selected">✓</span>
+                  <Check className="h-4 w-4" aria-label="Currently selected" />
                 )}
               </button>
             ))}

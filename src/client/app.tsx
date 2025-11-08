@@ -1,9 +1,17 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import { Toaster } from 'react-hot-toast'
 import { PlanningSessionService } from './services/PlanningSessionService'
 import SessionList from './components/SessionList'
 import SessionForm from './components/SessionForm'
 import SessionDashboard from './components/SessionDashboard'
 import { AnalyticsDashboard } from './components/AnalyticsDashboard'
+import { ThemeProvider } from './providers/ThemeProvider'
+import { SoundProvider } from './providers/SoundProvider'
+import { QueryProvider } from './providers/QueryProvider'
+import { BackgroundEffects } from './components/BackgroundEffects'
+import ThemeToggle from './components/ThemeToggle'
+import VariantSelector from './components/VariantSelector'
+import { SoundToggle } from './components/SoundToggle'
 import { PlanningSession, ViewMode } from './types'
 import './generated-tailwind.css'
 import './app.css'
@@ -47,9 +55,13 @@ class ErrorBoundary extends React.Component<
     }
 }
 
-export default function App() {
+/**
+ * AppContent Component
+ * Main application logic (separated from provider wrappers)
+ */
+function AppContent() {
     console.log('Planning Poker App: Component mounting')
-    
+
     const [sessions, setSessions] = useState<PlanningSession[]>([])
     const [loading, setLoading] = useState(true)
     const [showForm, setShowForm] = useState(false)
@@ -189,12 +201,19 @@ export default function App() {
                             <h1>📊 Planning Poker Analytics</h1>
                             <p>Session insights and team performance</p>
                         </div>
-                        <button 
-                            className="create-button secondary" 
-                            onClick={() => setViewMode('list')}
-                        >
-                            ← Back to Sessions
-                        </button>
+                        <div className="header-actions">
+                            <div className="flex items-center gap-3">
+                                <ThemeToggle />
+                                <VariantSelector />
+                                <SoundToggle />
+                            </div>
+                            <button
+                                className="create-button secondary"
+                                onClick={() => setViewMode('list')}
+                            >
+                                ← Back to Sessions
+                            </button>
+                        </div>
                     </div>
                 </header>
                 <AnalyticsDashboard />
@@ -212,8 +231,13 @@ export default function App() {
                         <p>Collaborative estimation made easy</p>
                     </div>
                     <div className="header-actions">
-                        <button 
-                            className="analytics-button" 
+                        <div className="flex items-center gap-3">
+                            <ThemeToggle />
+                            <VariantSelector />
+                            <SoundToggle />
+                        </div>
+                        <button
+                            className="analytics-button"
                             onClick={() => setViewMode('analytics')}
                         >
                             📊 Analytics
@@ -255,12 +279,66 @@ export default function App() {
             </main>
 
             {showForm && (
-                <SessionForm 
-                    session={selectedSession} 
-                    onSubmit={handleFormSubmit} 
-                    onCancel={handleFormClose} 
+                <SessionForm
+                    session={selectedSession}
+                    onSubmit={handleFormSubmit}
+                    onCancel={handleFormClose}
                 />
             )}
         </div>
+    )
+}
+
+/**
+ * App Component (Main Export)
+ * Wraps application with provider hierarchy and global UI elements
+ *
+ * Provider Hierarchy (outermost to innermost):
+ * 1. ErrorBoundary - Catches and displays errors
+ * 2. QueryProvider - TanStack Query for server state
+ * 3. ThemeProvider - Theme mode and variant management
+ * 4. SoundProvider - Web Audio API sound effects
+ *
+ * Global UI Elements:
+ * - Toaster - Toast notifications (themed)
+ * - BackgroundEffects - Theme-aware background animations
+ */
+export default function App() {
+    return (
+        <ErrorBoundary>
+            <QueryProvider>
+                <ThemeProvider>
+                    <SoundProvider>
+                        <Toaster
+                            position="bottom-right"
+                            toastOptions={{
+                                duration: 3000,
+                                style: {
+                                    background: 'var(--surface)',
+                                    color: 'var(--text-primary)',
+                                    border: '1px solid var(--border)',
+                                    borderRadius: '0.5rem',
+                                    padding: '1rem',
+                                },
+                                success: {
+                                    iconTheme: {
+                                        primary: 'var(--accent)',
+                                        secondary: 'var(--surface)',
+                                    },
+                                },
+                                error: {
+                                    iconTheme: {
+                                        primary: '#ef4444',
+                                        secondary: 'var(--surface)',
+                                    },
+                                },
+                            }}
+                        />
+                        <BackgroundEffects />
+                        <AppContent />
+                    </SoundProvider>
+                </ThemeProvider>
+            </QueryProvider>
+        </ErrorBoundary>
     )
 }
