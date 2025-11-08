@@ -734,3 +734,95 @@ input:focus, textarea:focus, select:focus {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ===================================================================
+   RETRO MODE - CRT EASTER EGG
+   =================================================================== */
+
+/* Activated by typing "RETRO" anywhere in the app */
+.retro-mode {
+  font-family: 'Courier New', 'Courier', monospace !important;
+  filter: contrast(1.2) brightness(0.9);
+}
+
+/* CRT scanline overlay effect */
+.retro-mode::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 255, 0, 0.03),
+    rgba(0, 255, 0, 0.03) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 9999;
+  animation: retro-flicker 0.15s infinite;
+}
+
+/* Subtle flicker effect */
+@keyframes retro-flicker {
+  0% { opacity: 0.97; }
+  50% { opacity: 1; }
+  100% { opacity: 0.97; }
+}
+
+/* Green phosphor glow on glass panels */
+.retro-mode .glass-panel {
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.3),
+              inset 0 0 10px rgba(0, 255, 0, 0.1);
+  border-color: rgba(0, 255, 0, 0.5);
+}
+
+/* Green glow on buttons */
+.retro-mode button,
+.retro-mode .voltron-button {
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+  text-shadow: 0 0 5px rgba(0, 255, 0, 0.8);
+}
+
+/* Override accent colors with retro green */
+.retro-mode {
+  --accent: #00ff00;
+  --accent-glow: rgba(0, 255, 0, 0.6);
+  --accent-muted: rgba(0, 255, 0, 0.2);
+}
+
+/* Retro mode indicator badge styling */
+.retro-mode-indicator {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+  background: rgba(0, 255, 0, 0.2);
+  border: 2px solid #00ff00;
+  color: #00ff00;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  font-size: 0.875rem;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+  animation: retro-pulse 2s ease-in-out infinite;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.retro-mode-indicator:hover {
+  background: rgba(0, 255, 0, 0.3);
+  box-shadow: 0 0 30px rgba(0, 255, 0, 0.7);
+  transform: scale(1.05);
+}
+
+@keyframes retro-pulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
