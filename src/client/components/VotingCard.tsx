@@ -1,4 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
+import { motion } from 'framer-motion'
+import { useSound } from '../providers/SoundProvider'
 import './VotingCard.css'
 
 interface VotingCardProps {
@@ -58,41 +60,47 @@ const CARD_DESCRIPTIONS: { [key: string]: string } = {
     'infinity': 'Too big to estimate'
 }
 
-export default function VotingCard({ 
-    value, 
-    isSelected, 
-    isRevealed, 
-    onClick, 
+/**
+ * VotingCard - Modernized voting card with Framer Motion and sound effects
+ *
+ * Phase 3 Migration:
+ * - Added Framer Motion hover and tap animations
+ * - Integrated sound effects from SoundProvider
+ * - Enhanced accessibility
+ * - Maintained all existing functionality
+ */
+export default function VotingCard({
+    value,
+    isSelected,
+    isRevealed,
+    onClick,
     disabled = false,
-    variant = 'poker' 
+    variant = 'poker'
 }: VotingCardProps) {
-    const [isHovered, setIsHovered] = useState(false)
-    const [isAnimating, setIsAnimating] = useState(false)
+    const { play } = useSound()
 
     const handleClick = () => {
         if (disabled) return
-        
-        setIsAnimating(true)
-        setTimeout(() => setIsAnimating(false), 200)
+
+        // Play sound effect
+        play('cardSelect')
         onClick(value)
     }
 
     const getCardClass = () => {
         const baseClass = 'voting-card'
         const classes = [baseClass]
-        
+
         if (isSelected) classes.push('selected')
         if (isRevealed) classes.push('revealed')
         if (disabled) classes.push('disabled')
-        if (isHovered && !disabled) classes.push('hovered')
-        if (isAnimating) classes.push('animating')
         if (variant) classes.push(`variant-${variant}`)
-        
+
         // Special styling for certain cards
         if (value === '?') classes.push('unknown-card')
         if (value === 'coffee') classes.push('coffee-card')
         if (value === 'infinity') classes.push('infinity-card')
-        
+
         return classes.join(' ')
     }
 
@@ -100,7 +108,7 @@ export default function VotingCard({
         if (value === '?') return '#6b7280'
         if (value === 'coffee' || value === '☕') return '#92400e'
         if (value === 'infinity') return '#7c2d12'
-        
+
         // T-shirt sizing colors
         if (value === 'XS') return '#10b981' // green
         if (value === 'S') return '#3b82f6' // blue
@@ -108,11 +116,11 @@ export default function VotingCard({
         if (value === 'L') return '#f59e0b' // amber
         if (value === 'XL') return '#f97316' // orange
         if (value === 'XXL') return '#ef4444' // red
-        
+
         // Numeric values (for backward compatibility)
         const numericValue = parseFloat(value)
         if (isNaN(numericValue)) return '#3b82f6'
-        
+
         // Color gradient based on story point value
         if (numericValue <= 1) return '#10b981' // green
         if (numericValue <= 3) return '#3b82f6' // blue
@@ -122,11 +130,9 @@ export default function VotingCard({
     }
 
     return (
-        <div
+        <motion.div
             className={getCardClass()}
             onClick={handleClick}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
             style={{ '--card-color': getCardColor() } as React.CSSProperties}
             role="button"
             tabIndex={disabled ? -1 : 0}
@@ -138,6 +144,16 @@ export default function VotingCard({
                     handleClick()
                 }
             }}
+            // Framer Motion animations
+            whileHover={!disabled ? { scale: 1.1, rotate: 2 } : {}}
+            whileTap={!disabled ? { scale: 0.95 } : {}}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+                type: 'spring',
+                stiffness: 300,
+                damping: 20
+            }}
         >
             <div className="card-inner">
                 <div className="card-front">
@@ -145,32 +161,42 @@ export default function VotingCard({
                         <div className="card-corner top-left">{CARD_LABELS[value]}</div>
                         <div className="card-corner top-right">{CARD_LABELS[value]}</div>
                     </div>
-                    
+
                     <div className="card-center">
                         <div className="card-value">{CARD_LABELS[value]}</div>
                         <div className="card-description">{CARD_DESCRIPTIONS[value]}</div>
                     </div>
-                    
+
                     <div className="card-footer">
                         <div className="card-corner bottom-left">{CARD_LABELS[value]}</div>
                         <div className="card-corner bottom-right">{CARD_LABELS[value]}</div>
                     </div>
                 </div>
-                
+
                 {isRevealed && (
-                    <div className="card-back">
+                    <motion.div
+                        className="card-back"
+                        initial={{ rotateY: 0 }}
+                        animate={{ rotateY: 180 }}
+                        transition={{ duration: 0.6 }}
+                    >
                         <div className="card-pattern"></div>
                         <div className="planning-poker-logo">🃏</div>
-                    </div>
+                    </motion.div>
                 )}
             </div>
-            
+
             {isSelected && (
-                <div className="selection-indicator">
+                <motion.div
+                    className="selection-indicator"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 300 }}
+                >
                     <div className="selection-ring"></div>
                     <div className="selection-checkmark">✓</div>
-                </div>
+                </motion.div>
             )}
-        </div>
+        </motion.div>
     )
 }
