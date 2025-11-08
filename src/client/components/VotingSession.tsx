@@ -1,9 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Users, Eye, RefreshCw, CheckCircle, Clock, AlertCircle, XCircle } from 'lucide-react'
+import toast from 'react-hot-toast'
 import EstimationScale from './EstimationScale'
 import { VotingService } from '../services/VotingService'
 import { StoryService } from '../services/StoryService'
 import { ServiceNowDisplayValue, getValue, getDisplayValue } from '../types'
-import './VotingSession.css'
+import { GlassPanel } from './ui/GlassPanel'
+import { Button } from './ui/Button'
+import { LoadingSpinner } from './ui/LoadingSpinner'
+import { useSound } from '../providers/SoundProvider'
 
 interface Story {
     sys_id: string
@@ -37,21 +43,21 @@ interface VotingStats {
     estimates: Record<string, number>
 }
 
-export default function VotingSession({ 
-    sessionId, 
-    currentStory, 
+export default function VotingSession({
+    sessionId,
+    currentStory,
     isDealer = false,
     onStoryComplete,
-    onNextStory 
+    onNextStory
 }: VotingSessionProps) {
     const [userVote, setUserVote] = useState<string>('')
     const [allVotes, setAllVotes] = useState<VoteResult[]>([])
     const [votingStats, setVotingStats] = useState<VotingStats | null>(null)
     const [isRevealed, setIsRevealed] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
     const [estimationScale, setEstimationScale] = useState<'poker' | 'fibonacci' | 'tshirt'>('tshirt')
 
+    const { play } = useSound()
     const votingService = new VotingService()
     const storyService = new StoryService()
 
@@ -64,24 +70,24 @@ export default function VotingSession({
 
     const loadVotingData = async () => {
         if (!currentStory?.sys_id) return
-        
+
         try {
             setIsLoading(true)
-            setError(null)
-            
+
             const [existingVote, votes, stats] = await Promise.all([
                 votingService.getUserVote(currentStory.sys_id),
                 votingService.getStoryVotes(currentStory.sys_id),
                 votingService.getVotingStats(currentStory.sys_id)
             ])
-            
+
             setUserVote(existingVote?.estimate || '')
             setAllVotes(votes)
             setVotingStats(stats)
             setIsRevealed(false)
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to load voting data'
-            setError(errorMessage)
+            toast.error(errorMessage)
+            console.error('VotingSession.loadVotingData:', err)
         } finally {
             setIsLoading(false)
         }
@@ -89,18 +95,18 @@ export default function VotingSession({
 
     const handleVote = async (estimate: string) => {
         if (!currentStory?.sys_id) return
-        
+
         try {
             setIsLoading(true)
-            setError(null)
-            
+
             if (estimate === '') {
                 // Clear vote
                 setUserVote('')
                 await loadVotingData()
+                toast.success('Vote cleared')
                 return
             }
-            
+
             if (userVote) {
                 // Update existing vote
                 const existingVote = await votingService.getUserVote(currentStory.sys_id)
@@ -111,34 +117,41 @@ export default function VotingSession({
                 // Submit new vote
                 await votingService.submitVote(currentStory.sys_id, estimate)
             }
-            
+
             setUserVote(estimate)
             await loadVotingData()
+            toast.success(`Vote submitted: ${estimate}`)
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to submit vote'
-            setError(errorMessage)
+            toast.error(errorMessage)
+            console.error('VotingSession.handleVote:', err)
         } finally {
             setIsLoading(false)
         }
     }
 
     const handleRevealVotes = async () => {
+        play('reveal')
         setIsRevealed(true)
-        await loadVotingData() // Refresh stats
+        await loadVotingData()
+        toast.success('Votes revealed!')
     }
 
     const handleClearVotes = async () => {
         if (!currentStory?.sys_id) return
-        
+
         try {
             setIsLoading(true)
             await votingService.clearStoryVotes(currentStory.sys_id)
             await loadVotingData()
             setIsRevealed(false)
             setUserVote('')
+            play('roundStart')
+            toast.success('Votes cleared. Ready for new round!')
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to clear votes'
-            setError(errorMessage)
+            toast.error(errorMessage)
+            console.error('VotingSession.handleClearVotes:', err)
         } finally {
             setIsLoading(false)
         }
@@ -146,14 +159,17 @@ export default function VotingSession({
 
     const handleFinalizeStory = async (finalEstimate: string) => {
         if (!currentStory?.sys_id) return
-        
+
         try {
             setIsLoading(true)
             await votingService.finalizeStoryVoting(currentStory.sys_id, finalEstimate)
+            play('timerComplete')
+            toast.success(`Story finalized with estimate: ${finalEstimate}`)
             onStoryComplete?.(currentStory.sys_id, finalEstimate)
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to finalize story'
-            setError(errorMessage)
+            toast.error(errorMessage)
+            console.error('VotingSession.handleFinalizeStory:', err)
         } finally {
             setIsLoading(false)
         }
@@ -161,13 +177,13 @@ export default function VotingSession({
 
     if (!currentStory) {
         return (
-            <div className="voting-session no-story">
-                <div className="no-story-content">
-                    <div className="no-story-icon">📝</div>
-                    <h3>No Story Selected</h3>
-                    <p>Select a story from the session to start voting</p>
+            <GlassPanel className="flex items-center justify-center min-h-[400px]">
+                <div className="text-center space-y-4">
+                    <div className="text-6xl">📝</div>
+                    <h3 className="text-2xl font-semibold text-text">No Story Selected</h3>
+                    <p className="text-text-muted">Select a story from the session to start voting</p>
                 </div>
-            </div>
+            </GlassPanel>
         )
     }
 
@@ -178,43 +194,49 @@ export default function VotingSession({
     const currentStatus = getValue(currentStory?.status)
 
     return (
-        <div className="voting-session">
-            {error && (
-                <div className="error-banner">
-                    <span className="error-icon">⚠️</span>
-                    {error}
-                    <button 
-                        className="dismiss-error"
-                        onClick={() => setError(null)}
-                        aria-label="Dismiss error"
+        <div className="space-y-6">
+            {/* Story Header */}
+            <GlassPanel>
+                <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 space-y-2">
+                        <h2 className="text-2xl font-bold text-text">{storyTitle}</h2>
+                        {storyDescription && (
+                            <p className="text-text-muted">{storyDescription}</p>
+                        )}
+                    </div>
+
+                    <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className={`px-4 py-2 rounded-lg font-semibold ${
+                            currentStatus === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-400/30' :
+                            currentStatus === 'voting' ? 'bg-blue-500/20 text-blue-400 border border-blue-400/30' :
+                            'bg-green-500/20 text-green-400 border border-green-400/30'
+                        }`}
                     >
-                        ×
-                    </button>
-                </div>
-            )}
-            
-            <div className="story-header">
-                <div className="story-info">
-                    <h2 className="story-title">{storyTitle}</h2>
-                    {storyDescription && (
-                        <p className="story-description">{storyDescription}</p>
-                    )}
-                </div>
-                
-                <div className="story-status">
-                    <span className={`status-badge ${currentStatus}`}>
                         {currentStatus?.toUpperCase()}
-                    </span>
+                    </motion.div>
                 </div>
-            </div>
-            
-            {isLoading && (
-                <div className="loading-overlay">
-                    <div className="loading-spinner"></div>
-                    <span>Loading...</span>
-                </div>
-            )}
-            
+            </GlassPanel>
+
+            {/* Loading Overlay */}
+            <AnimatePresence>
+                {isLoading && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+                    >
+                        <GlassPanel className="flex flex-col items-center gap-4 p-8">
+                            <LoadingSpinner size="lg" />
+                            <span className="text-text">Processing...</span>
+                        </GlassPanel>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Estimation Scale */}
             <EstimationScale
                 selectedValue={userVote}
                 onVote={handleVote}
@@ -222,151 +244,220 @@ export default function VotingSession({
                 variant={estimationScale}
                 isRevealed={isRevealed}
             />
-            
-            {hasVotes && (
-                <div className="voting-results">
-                    <div className="results-header">
-                        <h3>Voting Results</h3>
-                        <div className="results-meta">
-                            <span className="vote-count">
-                                {votingStats?.totalVotes || 0} vote{(votingStats?.totalVotes || 0) !== 1 ? 's' : ''}
-                            </span>
-                        </div>
-                    </div>
-                    
-                    {!isRevealed ? (
-                        <div className="hidden-votes">
-                            <div className="vote-cards">
-                                {Array.from({ length: allVotes.length }).map((_, index) => (
-                                    <div key={index} className="hidden-vote-card">
-                                        <div className="card-back">🃏</div>
+
+            {/* Voting Results */}
+            <AnimatePresence>
+                {hasVotes && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                    >
+                        <GlassPanel>
+                            <div className="space-y-6">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <Users className="w-5 h-5 text-accent" />
+                                        <h3 className="text-xl font-semibold text-text">Voting Results</h3>
                                     </div>
-                                ))}
-                            </div>
-                            
-                            {isDealer && (
-                                <button 
-                                    className="reveal-button"
-                                    onClick={handleRevealVotes}
-                                    disabled={isLoading}
-                                >
-                                    Reveal Votes
-                                </button>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="revealed-votes">
-                            <div className="vote-breakdown">
-                                {Object.entries(votingStats?.estimates || {}).map(([estimate, count]) => (
-                                    <div key={estimate} className="estimate-group">
-                                        <div className="estimate-value">{estimate}</div>
-                                        <div className="estimate-count">{count as number} vote{(count as number) !== 1 ? 's' : ''}</div>
-                                        <div className="estimate-bar">
-                                            <div 
-                                                className="bar-fill"
-                                                style={{ 
-                                                    width: `${((count as number) / (votingStats?.totalVotes || 1)) * 100}%` 
-                                                }}
-                                            ></div>
+                                    <div className="flex items-center gap-2 text-text-muted">
+                                        <span className="font-medium">
+                                            {votingStats?.totalVotes || 0} vote{(votingStats?.totalVotes || 0) !== 1 ? 's' : ''}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {!isRevealed ? (
+                                    <div className="space-y-4">
+                                        <motion.div
+                                            className="flex flex-wrap gap-3 justify-center"
+                                            variants={{
+                                                show: { transition: { staggerChildren: 0.1 } }
+                                            }}
+                                            initial="hidden"
+                                            animate="show"
+                                        >
+                                            {Array.from({ length: allVotes.length }).map((_, index) => (
+                                                <motion.div
+                                                    key={index}
+                                                    variants={{
+                                                        hidden: { opacity: 0, scale: 0 },
+                                                        show: { opacity: 1, scale: 1 }
+                                                    }}
+                                                    className="w-16 h-24 glass-panel flex items-center justify-center text-4xl"
+                                                >
+                                                    🃏
+                                                </motion.div>
+                                            ))}
+                                        </motion.div>
+
+                                        {isDealer && (
+                                            <div className="flex justify-center">
+                                                <Button
+                                                    variant="primary"
+                                                    size="lg"
+                                                    icon={<Eye className="w-5 h-5" />}
+                                                    onClick={handleRevealVotes}
+                                                    disabled={isLoading}
+                                                >
+                                                    Reveal Votes
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        className="space-y-6"
+                                    >
+                                        {/* Vote Breakdown */}
+                                        <div className="space-y-3">
+                                            {Object.entries(votingStats?.estimates || {}).map(([estimate, count]) => (
+                                                <motion.div
+                                                    key={estimate}
+                                                    initial={{ x: -20, opacity: 0 }}
+                                                    animate={{ x: 0, opacity: 1 }}
+                                                    className="space-y-2"
+                                                >
+                                                    <div className="flex items-center justify-between text-sm">
+                                                        <span className="font-semibold text-text">{estimate}</span>
+                                                        <span className="text-text-muted">
+                                                            {count as number} vote{(count as number) !== 1 ? 's' : ''}
+                                                        </span>
+                                                    </div>
+                                                    <div className="h-3 bg-surface-darker rounded-full overflow-hidden">
+                                                        <motion.div
+                                                            initial={{ width: 0 }}
+                                                            animate={{ width: `${((count as number) / (votingStats?.totalVotes || 1)) * 100}%` }}
+                                                            transition={{ duration: 0.5, ease: 'easeOut' }}
+                                                            className="h-full bg-gradient-to-r from-accent to-accent-bright rounded-full"
+                                                        />
+                                                    </div>
+                                                </motion.div>
+                                            ))}
                                         </div>
-                                    </div>
-                                ))}
+
+                                        {/* Consensus Indicator */}
+                                        {votingStats?.consensus ? (
+                                            <motion.div
+                                                initial={{ scale: 0.8, opacity: 0 }}
+                                                animate={{ scale: 1, opacity: 1 }}
+                                                className="bg-green-500/20 border border-green-400/30 rounded-lg p-4 flex items-center gap-3"
+                                            >
+                                                <CheckCircle className="w-6 h-6 text-green-400 flex-shrink-0" />
+                                                <div>
+                                                    <div className="font-semibold text-green-400">Consensus Achieved!</div>
+                                                    <div className="text-sm text-green-300">
+                                                        Final estimate: <strong>{votingStats.consensusEstimate}</strong>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        ) : (
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-1">
+                                                    <div className="text-sm text-text-muted">Average</div>
+                                                    <div className="text-2xl font-bold text-text">
+                                                        {votingStats?.avgEstimate?.toFixed(1) || '0.0'}
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <div className="text-sm text-text-muted">Median</div>
+                                                    <div className="text-2xl font-bold text-text">
+                                                        {votingStats?.medianEstimate?.toFixed(1) || '0.0'}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </motion.div>
+                                )}
                             </div>
-                            
-                            {votingStats?.consensus && (
-                                <div className="consensus-achieved">
-                                    <div className="consensus-icon">🎯</div>
-                                    <div className="consensus-text">
-                                        <strong>Consensus Achieved!</strong>
-                                        <br />
-                                        Final estimate: <strong>{votingStats.consensusEstimate}</strong>
-                                    </div>
-                                </div>
-                            )}
-                            
-                            {!votingStats?.consensus && (
-                                <div className="consensus-stats">
-                                    <div className="stat-item">
-                                        <span className="stat-label">Average:</span>
-                                        <span className="stat-value">{votingStats?.avgEstimate || 0}</span>
-                                    </div>
-                                    <div className="stat-item">
-                                        <span className="stat-label">Median:</span>
-                                        <span className="stat-value">{votingStats?.medianEstimate || 0}</span>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-            )}
-            
+                        </GlassPanel>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Dealer Controls */}
             {isDealer && isRevealed && (
-                <div className="dealer-controls">
-                    <h4>Dealer Controls</h4>
-                    <div className="control-buttons">
-                        <button 
-                            className="clear-votes-button"
-                            onClick={handleClearVotes}
-                            disabled={isLoading}
-                        >
-                            Clear Votes & Re-vote
-                        </button>
-                        
-                        {votingStats?.consensus && (
-                            <button 
-                                className="finalize-button consensus"
-                                onClick={() => handleFinalizeStory(votingStats.consensusEstimate || '0')}
+                <GlassPanel>
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <div className="text-xl">👑</div>
+                            <h4 className="text-lg font-semibold text-text">Dealer Controls</h4>
+                        </div>
+
+                        <div className="flex flex-wrap gap-3">
+                            <Button
+                                variant="secondary"
+                                icon={<RefreshCw className="w-4 h-4" />}
+                                onClick={handleClearVotes}
                                 disabled={isLoading}
                             >
-                                Accept Consensus ({votingStats.consensusEstimate})
-                            </button>
-                        )}
-                        
-                        {!votingStats?.consensus && (
-                            <div className="finalize-options">
-                                <span className="finalize-label">Finalize with:</span>
-                                <button 
-                                    className="finalize-button"
-                                    onClick={() => handleFinalizeStory(votingStats?.avgEstimate?.toString() || '0')}
+                                Clear Votes & Re-vote
+                            </Button>
+
+                            {votingStats?.consensus ? (
+                                <Button
+                                    variant="primary"
+                                    icon={<CheckCircle className="w-4 h-4" />}
+                                    onClick={() => handleFinalizeStory(votingStats.consensusEstimate || '0')}
                                     disabled={isLoading}
                                 >
-                                    Average ({votingStats?.avgEstimate})
-                                </button>
-                                <button 
-                                    className="finalize-button"
-                                    onClick={() => handleFinalizeStory(votingStats?.medianEstimate?.toString() || '0')}
-                                    disabled={isLoading}
-                                >
-                                    Median ({votingStats?.medianEstimate})
-                                </button>
-                            </div>
-                        )}
-                        
-                        <button 
-                            className="next-story-button"
-                            onClick={onNextStory}
-                            disabled={isLoading}
-                        >
-                            Next Story →
-                        </button>
+                                    Accept Consensus ({votingStats.consensusEstimate})
+                                </Button>
+                            ) : (
+                                <>
+                                    <Button
+                                        variant="secondary"
+                                        onClick={() => handleFinalizeStory(votingStats?.avgEstimate?.toString() || '0')}
+                                        disabled={isLoading}
+                                    >
+                                        Finalize with Average ({votingStats?.avgEstimate?.toFixed(1)})
+                                    </Button>
+                                    <Button
+                                        variant="secondary"
+                                        onClick={() => handleFinalizeStory(votingStats?.medianEstimate?.toString() || '0')}
+                                        disabled={isLoading}
+                                    >
+                                        Finalize with Median ({votingStats?.medianEstimate?.toFixed(1)})
+                                    </Button>
+                                </>
+                            )}
+
+                            <Button
+                                variant="ghost"
+                                onClick={onNextStory}
+                                disabled={isLoading}
+                            >
+                                Next Story →
+                            </Button>
+                        </div>
                     </div>
-                </div>
+                </GlassPanel>
             )}
-            
-            <div className="scale-selector">
-                <label htmlFor="estimation-scale">Estimation Scale:</label>
-                <select 
-                    id="estimation-scale"
-                    value={estimationScale}
-                    onChange={(e) => setEstimationScale(e.target.value as 'poker' | 'fibonacci' | 'tshirt')}
-                    disabled={isVotingDisabled}
-                >
-                    <option value="poker">Planning Poker</option>
-                    <option value="fibonacci">Fibonacci</option>
-                    <option value="tshirt">T-Shirt Sizes</option>
-                </select>
-            </div>
+
+            {/* Scale Selector */}
+            <GlassPanel>
+                <div className="flex items-center justify-between">
+                    <label htmlFor="estimation-scale" className="text-text font-medium">
+                        Estimation Scale:
+                    </label>
+                    <select
+                        id="estimation-scale"
+                        value={estimationScale}
+                        onChange={(e) => {
+                            setEstimationScale(e.target.value as 'poker' | 'fibonacci' | 'tshirt')
+                            play('themeChange')
+                        }}
+                        disabled={isVotingDisabled}
+                        className="bg-surface border border-accent/30 rounded-lg px-4 py-2 text-text focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-50"
+                    >
+                        <option value="poker">Planning Poker</option>
+                        <option value="fibonacci">Fibonacci</option>
+                        <option value="tshirt">T-Shirt Sizes</option>
+                    </select>
+                </div>
+            </GlassPanel>
         </div>
     )
 }

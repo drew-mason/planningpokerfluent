@@ -1,4 +1,5 @@
 import React from 'react';
+import { GlassPanel } from './ui/GlassPanel';
 import './ConsensusChart.css';
 
 interface ConsensusData {
@@ -60,7 +61,8 @@ export const ConsensusChart: React.FC<ConsensusChartProps> = ({
     : 0;
 
   return (
-    <div className="consensus-chart" style={{ height }}>
+    <GlassPanel>
+      <div className="consensus-chart" style={{ height }}>
       {/* Summary Cards */}
       <div className="consensus-summary">
         <div className="summary-card consensus-rate">
@@ -220,5 +222,6 @@ export const ConsensusChart: React.FC<ConsensusChartProps> = ({
         </div>
       </div>
     </div>
+    </GlassPanel>
   );
 };
