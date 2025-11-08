@@ -1,4 +1,5 @@
 import React from 'react';
+import { GlassPanel } from './ui/GlassPanel';
 import './VelocityChart.css';
 
 interface VelocityData {
@@ -33,7 +34,8 @@ export const VelocityChart: React.FC<VelocityChartProps> = ({
   const chartHeight = height - 80; // Leave space for labels
 
   return (
-    <div className="velocity-chart" style={{ height }}>
+    <GlassPanel>
+      <div className="velocity-chart" style={{ height }}>
       <div className="chart-legend">
         <div className="legend-item">
           <div className="legend-color story-points"></div>
@@ -122,5 +124,6 @@ export const VelocityChart: React.FC<VelocityChartProps> = ({
         </div>
       </div>
     </div>
+    </GlassPanel>
   );
 };

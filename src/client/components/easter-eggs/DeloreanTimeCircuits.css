@@ -1,0 +1,135 @@
+/* DeLorean Time Circuits CSS */
+
+.delorean-time-circuits {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 50;
+  background: #000000;
+  border: 3px solid #f59e0b;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.6),
+              inset 0 0 10px rgba(245, 158, 11, 0.2);
+  animation: circuits-appear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  min-width: 300px;
+}
+
+@keyframes circuits-appear {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.circuits-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: transparent;
+  border: none;
+  color: #f59e0b;
+  cursor: pointer;
+  padding: 0.25rem;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.circuits-close:hover {
+  opacity: 1;
+}
+
+.circuit-panel {
+  margin-bottom: 1rem;
+}
+
+.circuit-panel:last-child {
+  margin-bottom: 0;
+}
+
+.circuit-label {
+  font-family: 'Courier New', monospace;
+  font-size: 0.625rem;
+  font-weight: bold;
+  color: #94a3b8;
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.05em;
+}
+
+.circuit-display {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.circuit-date,
+.circuit-time {
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.1em;
+}
+
+/* Destination panel - Red */
+.destination .circuit-display {
+  background: #1a0a0a;
+}
+
+.destination .circuit-date,
+.destination .circuit-time {
+  color: #dc2626;
+  text-shadow: 0 0 10px rgba(220, 38, 38, 0.8);
+}
+
+/* Present panel - Green */
+.present .circuit-display {
+  background: #0a1a0a;
+}
+
+.present .circuit-date,
+.present .circuit-time {
+  color: #10b981;
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
+  animation: present-blink 1s ease-in-out infinite;
+}
+
+@keyframes present-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Departed panel - Amber */
+.departed .circuit-display {
+  background: #1a1408;
+}
+
+.departed .circuit-date,
+.departed .circuit-time {
+  color: #f59e0b;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.8);
+}
+
+.circuit-date {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.circuit-time {
+  font-size: 0.875rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .delorean-time-circuits {
+    bottom: 1rem;
+    right: 1rem;
+    left: 1rem;
+    min-width: unset;
+  }
+}

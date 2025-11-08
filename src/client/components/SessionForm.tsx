@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { 
-    PlanningSession, 
-    SessionStatus, 
+import { motion, AnimatePresence } from 'framer-motion'
+import { X, Dice6 } from 'lucide-react'
+import {
+    PlanningSession,
+    SessionStatus,
     SESSION_STATUS_LABELS,
     getValue,
     getDisplayValue,
@@ -9,6 +11,7 @@ import {
     sanitizeInput
 } from '../types'
 import { serviceUtils } from '../utils/serviceUtils'
+import { GlassPanel, Button } from './ui'
 import './SessionForm.css'
 
 interface SessionFormProps {
@@ -34,6 +37,18 @@ interface FormErrors {
     timebox_minutes?: string
 }
 
+/**
+ * SessionForm - Modernized session creation/edit form
+ *
+ * Phase 3 Migration:
+ * - Uses GlassPanel for form wrapper
+ * - Tailwind form utilities
+ * - Button component for actions
+ * - Framer Motion animations for errors and modal
+ * - Lucide icons
+ * - Improved accessibility with ARIA
+ * - Maintained all validation logic
+ */
 export default function SessionForm({ session, onSubmit, onCancel, isLoading = false }: SessionFormProps) {
     const isEditing = !!session
 
@@ -91,13 +106,13 @@ export default function SessionForm({ session, onSubmit, onCancel, isLoading = f
                     return 'Session name must be 100 characters or less'
                 }
                 break
-            
+
             case 'description':
                 if (value && value.toString().length > 1000) {
                     return 'Description must be 1000 characters or less'
                 }
                 break
-            
+
             case 'session_code':
                 if (!value || !value.toString().trim()) {
                     return 'Session code is required'
@@ -106,7 +121,7 @@ export default function SessionForm({ session, onSubmit, onCancel, isLoading = f
                     return 'Session code must be 6 characters (letters and numbers only)'
                 }
                 break
-            
+
             case 'timebox_minutes':
                 const minutes = Number(value)
                 if (isNaN(minutes) || minutes < 5) {
@@ -166,7 +181,7 @@ export default function SessionForm({ session, onSubmit, onCancel, isLoading = f
 
     const handleSubmit = useCallback((e: React.FormEvent) => {
         e.preventDefault()
-        
+
         // Mark all fields as touched
         setTouched({
             name: true,
@@ -196,195 +211,251 @@ export default function SessionForm({ session, onSubmit, onCancel, isLoading = f
     }
 
     return (
-        <div className="form-overlay" onClick={(e) => e.target === e.currentTarget && onCancel()}>
-            <div className="form-container">
-                <div className="form-header">
-                    <h2>{isEditing ? 'Edit Planning Session' : 'Create New Planning Session'}</h2>
-                    <button 
-                        type="button" 
-                        className="close-button" 
-                        onClick={onCancel}
-                        disabled={isLoading}
-                        aria-label="Close form"
-                    >
-                        ×
-                    </button>
-                </div>
-                
-                <form onSubmit={handleSubmit} noValidate>
-                    <div className="form-body">
-                        {/* Session Name */}
-                        <div className={`form-group ${hasError('name') ? 'has-error' : ''}`}>
-                            <label htmlFor="session-name" className="required">
-                                Session Name
-                            </label>
-                            <input
-                                id="session-name"
-                                type="text"
-                                value={formData.name}
-                                onChange={(e) => handleChange('name', e.target.value)}
-                                onBlur={() => handleBlur('name')}
-                                placeholder="Enter a descriptive name for your planning session"
-                                maxLength={100}
+        <AnimatePresence>
+            <motion.div
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={(e) => e.target === e.currentTarget && onCancel()}
+            >
+                <motion.div
+                    className="w-full max-w-2xl"
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.9, opacity: 0 }}
+                >
+                    <GlassPanel className="p-6">
+                        {/* Header */}
+                        <div className="mb-6 flex items-center justify-between">
+                            <h2 className="text-2xl font-heading uppercase tracking-wider text-accent">
+                                {isEditing ? 'Edit Planning Session' : 'Create New Planning Session'}
+                            </h2>
+                            <button
+                                type="button"
+                                className="rounded-lg p-1 hover:bg-accent-muted"
+                                onClick={onCancel}
                                 disabled={isLoading}
-                                autoComplete="off"
-                                data-no-autofill="true"
-                                data-form-type="other"
-                                aria-describedby={hasError('name') ? 'name-error' : undefined}
-                                aria-invalid={hasError('name')}
-                            />
-                            {getFieldError('name') && (
-                                <div id="name-error" className="field-error" role="alert">
-                                    {getFieldError('name')}
-                                </div>
-                            )}
-                            <div className="field-hint">
-                                {formData.name.length}/100 characters
-                            </div>
-                        </div>
-
-                        {/* Description */}
-                        <div className={`form-group ${hasError('description') ? 'has-error' : ''}`}>
-                            <label htmlFor="session-description">Description</label>
-                            <textarea
-                                id="session-description"
-                                value={formData.description}
-                                onChange={(e) => handleChange('description', e.target.value)}
-                                onBlur={() => handleBlur('description')}
-                                placeholder="Optional: Add details about this planning session"
-                                rows={4}
-                                maxLength={1000}
-                                disabled={isLoading}
-                                autoComplete="off"
-                                data-no-autofill="true"
-                                data-form-type="other"
-                                aria-describedby={hasError('description') ? 'description-error' : undefined}
-                                aria-invalid={hasError('description')}
-                            />
-                            {getFieldError('description') && (
-                                <div id="description-error" className="field-error" role="alert">
-                                    {getFieldError('description')}
-                                </div>
-                            )}
-                            <div className="field-hint">
-                                {formData.description.length}/1000 characters
-                            </div>
-                        </div>
-
-                        <div className="form-row">
-                            {/* Session Code */}
-                            <div className={`form-group ${hasError('session_code') ? 'has-error' : ''}`}>
-                                <label htmlFor="session-code" className="required">
-                                    Session Code
-                                </label>
-                                <div className="input-group">
-                                    <input
-                                        id="session-code"
-                                        type="text"
-                                        value={formData.session_code}
-                                        onChange={(e) => handleChange('session_code', e.target.value)}
-                                        onBlur={() => handleBlur('session_code')}
-                                        placeholder="ABC123"
-                                        maxLength={6}
-                                        className="session-code-input"
-                                        disabled={isLoading}
-                                        autoComplete="off"
-                                        data-no-autofill="true"
-                                        data-form-type="other"
-                                        aria-describedby={hasError('session_code') ? 'code-error' : 'code-hint'}
-                                        aria-invalid={hasError('session_code')}
-                                    />
-                                    <button
-                                        type="button"
-                                        className="generate-code-button"
-                                        onClick={generateNewCode}
-                                        disabled={isLoading}
-                                        title="Generate new code"
-                                        aria-label="Generate new session code"
-                                    >
-                                        🎲
-                                    </button>
-                                </div>
-                                {getFieldError('session_code') && (
-                                    <div id="code-error" className="field-error" role="alert">
-                                        {getFieldError('session_code')}
-                                    </div>
-                                )}
-                                <div id="code-hint" className="field-hint">
-                                    Share this code with team members to join the session
-                                </div>
-                            </div>
-
-                            {/* Timebox */}
-                            <div className={`form-group ${hasError('timebox_minutes') ? 'has-error' : ''}`}>
-                                <label htmlFor="timebox-minutes">Timebox (minutes)</label>
-                                <input
-                                    id="timebox-minutes"
-                                    type="number"
-                                    min={5}
-                                    max={480}
-                                    value={formData.timebox_minutes}
-                                    onChange={(e) => handleChange('timebox_minutes', e.target.value)}
-                                    onBlur={() => handleBlur('timebox_minutes')}
-                                    disabled={isLoading}
-                                    aria-describedby={hasError('timebox_minutes') ? 'timebox-error' : undefined}
-                                    aria-invalid={hasError('timebox_minutes')}
-                                />
-                                {getFieldError('timebox_minutes') && (
-                                    <div id="timebox-error" className="field-error" role="alert">
-                                        {getFieldError('timebox_minutes')}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Status */}
-                        <div className="form-group">
-                            <label htmlFor="session-status">Status</label>
-                            <select
-                                id="session-status"
-                                value={formData.status}
-                                onChange={(e) => handleChange('status', e.target.value as SessionStatus)}
-                                disabled={isLoading}
-                                autoComplete="off"
-                                data-no-autofill="true"
-                                data-form-type="other"
+                                aria-label="Close form"
                             >
-                                {Object.entries(SESSION_STATUS_LABELS).map(([value, label]) => (
-                                    <option key={value} value={value}>
-                                        {label}
-                                    </option>
-                                ))}
-                            </select>
+                                <X className="h-5 w-5" />
+                            </button>
                         </div>
-                    </div>
 
-                    <div className="form-actions">
-                        <button 
-                            type="button" 
-                            className="secondary-button" 
-                            onClick={onCancel}
-                            disabled={isLoading}
-                        >
-                            Cancel
-                        </button>
-                        <button 
-                            type="submit" 
-                            className="primary-button"
-                            disabled={isLoading || Object.keys(errors).some(key => errors[key as keyof FormErrors])}
-                        >
-                            {isLoading ? (
-                                <>
-                                    <span className="spinner" aria-hidden="true"></span>
-                                    {isEditing ? 'Updating...' : 'Creating...'}
-                                </>
-                            ) : (
-                                isEditing ? 'Update Session' : 'Create Session'
-                            )}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                        <form onSubmit={handleSubmit} noValidate>
+                            {/* Session Name */}
+                            <div className="mb-4">
+                                <label htmlFor="session-name" className="mb-2 block text-sm font-medium">
+                                    Session Name <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    id="session-name"
+                                    type="text"
+                                    value={formData.name}
+                                    onChange={(e) => handleChange('name', e.target.value)}
+                                    onBlur={() => handleBlur('name')}
+                                    placeholder="Enter a descriptive name for your planning session"
+                                    maxLength={100}
+                                    disabled={isLoading}
+                                    className={`w-full rounded-lg border ${hasError('name') ? 'border-red-500' : 'border-border'
+                                        } bg-surface px-4 py-2 focus:outline-none focus:ring-2 ${hasError('name') ? 'focus:ring-red-500' : 'focus:ring-accent'
+                                        }`}
+                                    aria-describedby={hasError('name') ? 'name-error' : undefined}
+                                    aria-invalid={hasError('name')}
+                                />
+                                <AnimatePresence>
+                                    {getFieldError('name') && (
+                                        <motion.div
+                                            id="name-error"
+                                            className="mt-1 text-sm text-red-500"
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0 }}
+                                            role="alert"
+                                        >
+                                            {getFieldError('name')}
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                                <div className="mt-1 text-xs text-accent/60">
+                                    {formData.name.length}/100 characters
+                                </div>
+                            </div>
+
+                            {/* Description */}
+                            <div className="mb-4">
+                                <label htmlFor="session-description" className="mb-2 block text-sm font-medium">
+                                    Description
+                                </label>
+                                <textarea
+                                    id="session-description"
+                                    value={formData.description}
+                                    onChange={(e) => handleChange('description', e.target.value)}
+                                    onBlur={() => handleBlur('description')}
+                                    placeholder="Optional: Add details about this planning session"
+                                    rows={4}
+                                    maxLength={1000}
+                                    disabled={isLoading}
+                                    className={`w-full rounded-lg border ${hasError('description') ? 'border-red-500' : 'border-border'
+                                        } bg-surface px-4 py-2 focus:outline-none focus:ring-2 ${hasError('description') ? 'focus:ring-red-500' : 'focus:ring-accent'
+                                        }`}
+                                    aria-describedby={hasError('description') ? 'description-error' : undefined}
+                                    aria-invalid={hasError('description')}
+                                />
+                                <AnimatePresence>
+                                    {getFieldError('description') && (
+                                        <motion.div
+                                            id="description-error"
+                                            className="mt-1 text-sm text-red-500"
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0 }}
+                                            role="alert"
+                                        >
+                                            {getFieldError('description')}
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                                <div className="mt-1 text-xs text-accent/60">
+                                    {formData.description.length}/1000 characters
+                                </div>
+                            </div>
+
+                            <div className="mb-4 grid gap-4 md:grid-cols-2">
+                                {/* Session Code */}
+                                <div>
+                                    <label htmlFor="session-code" className="mb-2 block text-sm font-medium">
+                                        Session Code <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            id="session-code"
+                                            type="text"
+                                            value={formData.session_code}
+                                            onChange={(e) => handleChange('session_code', e.target.value)}
+                                            onBlur={() => handleBlur('session_code')}
+                                            placeholder="ABC123"
+                                            maxLength={6}
+                                            disabled={isLoading}
+                                            className={`flex-1 rounded-lg border ${hasError('session_code') ? 'border-red-500' : 'border-border'
+                                                } bg-surface px-4 py-2 text-center font-mono uppercase tracking-wider focus:outline-none focus:ring-2 ${hasError('session_code') ? 'focus:ring-red-500' : 'focus:ring-accent'
+                                                }`}
+                                            aria-describedby={hasError('session_code') ? 'code-error' : undefined}
+                                            aria-invalid={hasError('session_code')}
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="md"
+                                            onClick={generateNewCode}
+                                            disabled={isLoading}
+                                            icon={<Dice6 className="h-4 w-4" />}
+                                            title="Generate new code"
+                                            aria-label="Generate new session code"
+                                            soundEnabled={false}
+                                        />
+                                    </div>
+                                    <AnimatePresence>
+                                        {getFieldError('session_code') && (
+                                            <motion.div
+                                                id="code-error"
+                                                className="mt-1 text-sm text-red-500"
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0 }}
+                                                role="alert"
+                                            >
+                                                {getFieldError('session_code')}
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                    <div className="mt-1 text-xs text-accent/60">
+                                        Share this code with team members to join the session
+                                    </div>
+                                </div>
+
+                                {/* Timebox */}
+                                <div>
+                                    <label htmlFor="timebox-minutes" className="mb-2 block text-sm font-medium">
+                                        Timebox (minutes)
+                                    </label>
+                                    <input
+                                        id="timebox-minutes"
+                                        type="number"
+                                        min={5}
+                                        max={480}
+                                        value={formData.timebox_minutes}
+                                        onChange={(e) => handleChange('timebox_minutes', e.target.value)}
+                                        onBlur={() => handleBlur('timebox_minutes')}
+                                        disabled={isLoading}
+                                        className={`w-full rounded-lg border ${hasError('timebox_minutes') ? 'border-red-500' : 'border-border'
+                                            } bg-surface px-4 py-2 focus:outline-none focus:ring-2 ${hasError('timebox_minutes') ? 'focus:ring-red-500' : 'focus:ring-accent'
+                                            }`}
+                                        aria-describedby={hasError('timebox_minutes') ? 'timebox-error' : undefined}
+                                        aria-invalid={hasError('timebox_minutes')}
+                                    />
+                                    <AnimatePresence>
+                                        {getFieldError('timebox_minutes') && (
+                                            <motion.div
+                                                id="timebox-error"
+                                                className="mt-1 text-sm text-red-500"
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0 }}
+                                                role="alert"
+                                            >
+                                                {getFieldError('timebox_minutes')}
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            </div>
+
+                            {/* Status */}
+                            <div className="mb-6">
+                                <label htmlFor="session-status" className="mb-2 block text-sm font-medium">
+                                    Status
+                                </label>
+                                <select
+                                    id="session-status"
+                                    value={formData.status}
+                                    onChange={(e) => handleChange('status', e.target.value as SessionStatus)}
+                                    disabled={isLoading}
+                                    className="w-full rounded-lg border border-border bg-surface px-4 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+                                >
+                                    {Object.entries(SESSION_STATUS_LABELS).map(([value, label]) => (
+                                        <option key={value} value={value}>
+                                            {label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex gap-3">
+                                <Button
+                                    type="button"
+                                    variant="secondary"
+                                    onClick={onCancel}
+                                    disabled={isLoading}
+                                    className="flex-1"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    variant="primary"
+                                    disabled={isLoading || Object.keys(errors).some(key => errors[key as keyof FormErrors])}
+                                    loading={isLoading}
+                                    className="flex-1"
+                                >
+                                    {isLoading ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Session' : 'Create Session')}
+                                </Button>
+                            </div>
+                        </form>
+                    </GlassPanel>
+                </motion.div>
+            </motion.div>
+        </AnimatePresence>
     )
 }

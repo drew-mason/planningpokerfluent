@@ -4,7 +4,11 @@ import SessionList from './components/SessionList'
 import SessionForm from './components/SessionForm'
 import SessionDashboard from './components/SessionDashboard'
 import { AnalyticsDashboard } from './components/AnalyticsDashboard'
+import { ThemeProvider } from './providers/ThemeProvider'
+import ThemeToggle from './components/ThemeToggle'
+import VariantSelector from './components/VariantSelector'
 import { formatApiError, handleAsyncOperation } from './utils/serviceUtils'
+import './generated-tailwind.css'
 import './app.css'
 
 // Error Boundary Component
@@ -271,11 +275,13 @@ export default function App() {
     if (viewMode === 'dashboard' && activeSessionId) {
         return (
             <ErrorBoundary>
-                <NotificationBar notification={notification} onDismiss={clearNotification} />
-                <SessionDashboard
-                    sessionId={activeSessionId}
-                    onExit={handleExitSession}
-                />
+                <ThemeProvider>
+                    <NotificationBar notification={notification} onDismiss={clearNotification} />
+                    <SessionDashboard
+                        sessionId={activeSessionId}
+                        onExit={handleExitSession}
+                    />
+                </ThemeProvider>
             </ErrorBoundary>
         )
     }
@@ -283,24 +289,30 @@ export default function App() {
     if (viewMode === 'analytics') {
         return (
             <ErrorBoundary>
-                <div className="planning-app">
-                    <NotificationBar notification={notification} onDismiss={clearNotification} />
-                    <header className="app-header">
-                        <div className="header-content">
-                            <div className="header-title">
-                                <h1>📊 Planning Poker Analytics</h1>
-                                <p>Session insights and team performance</p>
+                <ThemeProvider>
+                    <div className="planning-app">
+                        <NotificationBar notification={notification} onDismiss={clearNotification} />
+                        <header className="app-header">
+                            <div className="header-content">
+                                <div className="header-title">
+                                    <h1>📊 Planning Poker Analytics</h1>
+                                    <p>Session insights and team performance</p>
+                                </div>
+                                <div className="header-actions">
+                                    <ThemeToggle />
+                                    <VariantSelector />
+                                    <button
+                                        className="secondary-button"
+                                        onClick={() => setViewMode('list')}
+                                    >
+                                        ← Back to Sessions
+                                    </button>
+                                </div>
                             </div>
-                            <button 
-                                className="secondary-button" 
-                                onClick={() => setViewMode('list')}
-                            >
-                                ← Back to Sessions
-                            </button>
-                        </div>
-                    </header>
-                    <AnalyticsDashboard />
-                </div>
+                        </header>
+                        <AnalyticsDashboard />
+                    </div>
+                </ThemeProvider>
             </ErrorBoundary>
         )
     }
@@ -308,57 +320,61 @@ export default function App() {
     // Main session list view
     return (
         <ErrorBoundary>
-            <div className="planning-app">
-                <NotificationBar notification={notification} onDismiss={clearNotification} />
-                <LoadingSpinner isLoading={loading.isLoading} loadingMessage={loading.loadingMessage} />
-                
-                <header className="app-header">
-                    <div className="header-content">
-                        <div className="header-title">
-                            <h1>🃏 Planning Poker</h1>
-                            <p>Collaborative estimation made easy</p>
-                        </div>
-                        <div className="header-actions">
-                            <button 
-                                className="secondary-button" 
-                                onClick={() => setViewMode('analytics')}
-                                disabled={loading.isLoading}
-                            >
-                                📊 Analytics
-                            </button>
-                            <button 
-                                className="primary-button" 
-                                onClick={handleCreateClick}
-                                disabled={loading.isLoading}
-                            >
-                                Create New Session
-                            </button>
-                        </div>
-                    </div>
-                </header>
+            <ThemeProvider>
+                <div className="planning-app">
+                    <NotificationBar notification={notification} onDismiss={clearNotification} />
+                    <LoadingSpinner isLoading={loading.isLoading} loadingMessage={loading.loadingMessage} />
 
-                <main className="app-main">
-                    <SessionList
-                        sessions={sessions}
-                        onEdit={handleEditClick}
-                        onRefresh={refreshSessions}
-                        onJoinSession={handleJoinSession}
-                        onViewSession={handleViewSession}
-                        onDelete={handleDeleteSession}
-                        service={sessionService}
-                        isLoading={loading.isLoading}
-                    />
-                </main>
+                    <header className="app-header">
+                        <div className="header-content">
+                            <div className="header-title">
+                                <h1>🃏 Planning Poker</h1>
+                                <p>Collaborative estimation made easy</p>
+                            </div>
+                            <div className="header-actions">
+                                <ThemeToggle />
+                                <VariantSelector />
+                                <button
+                                    className="secondary-button"
+                                    onClick={() => setViewMode('analytics')}
+                                    disabled={loading.isLoading}
+                                >
+                                    📊 Analytics
+                                </button>
+                                <button
+                                    className="primary-button"
+                                    onClick={handleCreateClick}
+                                    disabled={loading.isLoading}
+                                >
+                                    Create New Session
+                                </button>
+                            </div>
+                        </div>
+                    </header>
 
-                {showForm && (
-                    <SessionForm 
-                        session={selectedSession} 
-                        onSubmit={handleFormSubmit} 
-                        onCancel={handleFormClose}
-                        isLoading={loading.isLoading}
-                    />
-                )}
-            </div>
+                    <main className="app-main">
+                        <SessionList
+                            sessions={sessions}
+                            onEdit={handleEditClick}
+                            onRefresh={refreshSessions}
+                            onJoinSession={handleJoinSession}
+                            onViewSession={handleViewSession}
+                            onDelete={handleDeleteSession}
+                            service={sessionService}
+                            isLoading={loading.isLoading}
+                        />
+                    </main>
+
+                    {showForm && (
+                        <SessionForm
+                            session={selectedSession}
+                            onSubmit={handleFormSubmit}
+                            onCancel={handleFormClose}
+                            isLoading={loading.isLoading}
+                        />
+                    )}
+                </div>
+            </ThemeProvider>
         </ErrorBoundary>
     )
 }

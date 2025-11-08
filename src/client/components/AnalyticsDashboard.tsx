@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { TrendingUp, Users, Clock, Award, FileText, BarChart2, Target, Download } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { AnalyticsService } from '../services';
 import { VelocityChart } from './VelocityChart';
 import { ConsensusChart } from './ConsensusChart';
+import { GlassPanel } from './ui/GlassPanel';
+import { Button } from './ui/Button';
+import { LoadingSpinner } from './ui/LoadingSpinner';
+import { MetricCard } from './ui/MetricCard';
 import './AnalyticsDashboard.css';
 
 interface SessionMetrics {
@@ -83,8 +90,9 @@ export const AnalyticsDashboard: React.FC = () => {
   const handleExportReport = async (format: 'pdf' | 'csv') => {
     try {
       await AnalyticsService.exportReport(format, selectedTimeRange);
+      toast.success(`Exporting ${format.toUpperCase()} report...`);
     } catch (err) {
-      setError('Failed to export report');
+      toast.error('Failed to export report');
       console.error('Export error:', err);
     }
   };
@@ -107,267 +115,132 @@ export const AnalyticsDashboard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="analytics-dashboard loading">
-        <div className="loading-spinner"></div>
-        <p>Loading analytics data...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <GlassPanel className="flex flex-col items-center gap-4 p-8">
+          <LoadingSpinner size="lg" />
+          <h3 className="text-xl font-semibold text-text">Loading Analytics...</h3>
+          <p className="text-text-muted">Analyzing session data</p>
+        </GlassPanel>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="analytics-dashboard error">
-        <div className="error-message">
-          <h3>Analytics Error</h3>
-          <p>{error}</p>
-          <button onClick={loadAnalyticsData} className="retry-button">
+      <div className="min-h-screen flex items-center justify-center">
+        <GlassPanel className="flex flex-col items-center gap-4 p-8 text-center">
+          <div className="text-6xl">⚠️</div>
+          <h3 className="text-xl font-semibold text-text">Analytics Error</h3>
+          <p className="text-text-muted">{error}</p>
+          <Button variant="primary" onClick={loadAnalyticsData}>
             Retry
-          </button>
-        </div>
+          </Button>
+        </GlassPanel>
       </div>
     );
   }
 
   return (
-    <div className="analytics-dashboard">
-      <div className="analytics-header">
-        <h1>Planning Poker Analytics</h1>
-        <div className="analytics-controls">
-          <div className="time-range-selector">
-            <label htmlFor="timeRange">Time Range:</label>
+    <div className="min-h-screen p-4 md:p-6 space-y-6">
+      {/* Header */}
+      <GlassPanel>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-text">Planning Poker Analytics</h1>
+            <p className="text-text-muted mt-1">Track your team's estimation performance</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
             <select
               id="timeRange"
               value={selectedTimeRange}
               onChange={(e) => setSelectedTimeRange(e.target.value as any)}
+              className="bg-surface border border-accent/30 rounded-lg px-4 py-2 text-text focus:outline-none focus:ring-2 focus:ring-accent"
             >
               <option value="7d">Last 7 days</option>
               <option value="30d">Last 30 days</option>
               <option value="90d">Last 90 days</option>
               <option value="all">All time</option>
             </select>
-          </div>
-          <div className="export-controls">
-            <button 
-              onClick={() => handleExportReport('pdf')}
-              className="export-button pdf"
-            >
-              Export PDF
-            </button>
-            <button 
+            <Button
+              variant="secondary"
+              size="sm"
+              icon={<Download className="w-4 h-4" />}
               onClick={() => handleExportReport('csv')}
-              className="export-button csv"
             >
-              Export CSV
-            </button>
+              Export
+            </Button>
           </div>
         </div>
-      </div>
+      </GlassPanel>
 
       {/* Key Metrics Cards */}
-      <div className="metrics-grid">
-        <div className="metric-card">
-          <div className="metric-icon sessions"></div>
-          <div className="metric-content">
-            <h3>Total Sessions</h3>
-            <div className="metric-value">{metrics?.totalSessions || 0}</div>
-            <div className="metric-subtitle">Planning sessions conducted</div>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <MetricCard
+          icon={BarChart2}
+          label="Total Sessions"
+          value={metrics?.totalSessions || 0}
+          subtitle="Planning sessions conducted"
+          colorClass="text-blue-400"
+          delay={0}
+        />
 
-        <div className="metric-card">
-          <div className="metric-icon stories"></div>
-          <div className="metric-content">
-            <h3>Stories Estimated</h3>
-            <div className="metric-value">{metrics?.totalStories || 0}</div>
-            <div className="metric-subtitle">User stories completed</div>
-          </div>
-        </div>
+        <MetricCard
+          icon={FileText}
+          label="Stories Estimated"
+          value={metrics?.totalStories || 0}
+          subtitle="User stories completed"
+          colorClass="text-green-400"
+          delay={0.05}
+        />
 
-        <div className="metric-card">
-          <div className="metric-icon velocity"></div>
-          <div className="metric-content">
-            <h3>Average Velocity</h3>
-            <div className="metric-value">{metrics?.averageVelocity?.toFixed(1) || '0.0'}</div>
-            <div className="metric-subtitle">
-              Story points per session
-              <span className={`trend ${getVelocityTrend()}`}>
-                {getVelocityTrend() === 'increasing' && '↗️'}
-                {getVelocityTrend() === 'decreasing' && '↘️'}
-                {getVelocityTrend() === 'stable' && '→'}
-              </span>
-            </div>
-          </div>
-        </div>
+        <MetricCard
+          icon={TrendingUp}
+          label="Average Velocity"
+          value={metrics?.averageVelocity?.toFixed(1) || '0.0'}
+          subtitle="Story points per session"
+          trend={getVelocityTrend() === 'increasing' ? 'up' : getVelocityTrend() === 'decreasing' ? 'down' : 'stable'}
+          colorClass="text-purple-400"
+          delay={0.1}
+        />
 
-        <div className="metric-card">
-          <div className="metric-icon consensus"></div>
-          <div className="metric-content">
-            <h3>Consensus Rate</h3>
-            <div className="metric-value">
-              <span className={getConsensusRateColor(metrics?.consensusRate || 0)}>
-                {metrics?.consensusRate?.toFixed(1) || '0.0'}%
-              </span>
-            </div>
-            <div className="metric-subtitle">First-round consensus achieved</div>
-          </div>
-        </div>
+        <MetricCard
+          icon={Target}
+          label="Consensus Rate"
+          value={`${metrics?.consensusRate?.toFixed(1) || '0.0'}%`}
+          subtitle="First-round consensus achieved"
+          colorClass="text-yellow-400"
+          delay={0.15}
+        />
 
-        <div className="metric-card">
-          <div className="metric-icon estimation"></div>
-          <div className="metric-content">
-            <h3>Avg Estimation</h3>
-            <div className="metric-value">{metrics?.averageEstimation?.toFixed(1) || '0.0'}</div>
-            <div className="metric-subtitle">Story points per story</div>
-          </div>
-        </div>
+        <MetricCard
+          icon={Award}
+          label="Avg Estimation"
+          value={metrics?.averageEstimation?.toFixed(1) || '0.0'}
+          subtitle="Story points per story"
+          colorClass="text-orange-400"
+          delay={0.2}
+        />
 
-        <div className="metric-card">
-          <div className="metric-icon engagement"></div>
-          <div className="metric-content">
-            <h3>Participation</h3>
-            <div className="metric-value">{metrics?.participantEngagement?.toFixed(1) || '0.0'}%</div>
-            <div className="metric-subtitle">Average voting participation</div>
-          </div>
-        </div>
+        <MetricCard
+          icon={Users}
+          label="Participation"
+          value={`${metrics?.participantEngagement?.toFixed(1) || '0.0'}%`}
+          subtitle="Average voting participation"
+          colorClass="text-pink-400"
+          delay={0.25}
+        />
       </div>
 
       {/* Charts Section */}
-      <div className="charts-section">
-        <div className="chart-row">
-          <div className="chart-container velocity-chart">
-            <h3>Velocity Trend</h3>
-            <VelocityChart data={velocityData} height={300} />
-          </div>
-
-          <div className="chart-container consensus-chart">
-            <h3>Consensus Analysis</h3>
-            <ConsensusChart data={consensusData} height={300} />
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div>
+          <h3 className="text-lg font-semibold text-text mb-4">Velocity Trend</h3>
+          <VelocityChart data={velocityData} height={300} />
         </div>
 
-        <div className="chart-row">
-          <div className="chart-container estimation-chart">
-            <h3>Estimation Distribution</h3>
-            <div className="chart-placeholder">
-              <p>Estimation distribution chart will be rendered here</p>
-              <small>Frequency of different story point values</small>
-            </div>
-          </div>
-
-          <div className="chart-container complexity-chart">
-            <h3>Story Complexity Trends</h3>
-            <div className="chart-placeholder">
-              <p>Complexity trend chart will be rendered here</p>
-              <small>Low, Medium, High complexity stories over time</small>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Detailed Tables */}
-      <div className="tables-section">
-        <div className="table-container">
-          <h3>Recent Sessions</h3>
-          <div className="table-responsive">
-            <table className="analytics-table">
-              <thead>
-                <tr>
-                  <th>Session</th>
-                  <th>Date</th>
-                  <th>Stories</th>
-                  <th>Velocity</th>
-                  <th>Consensus Rate</th>
-                  <th>Participants</th>
-                </tr>
-              </thead>
-              <tbody>
-                {velocityData.slice(0, 10).map((session, index) => (
-                  <tr key={index}>
-                    <td>{session.sessionName}</td>
-                    <td>{new Date(session.date).toLocaleDateString()}</td>
-                    <td>{session.storiesCompleted}</td>
-                    <td>{session.storyPoints}</td>
-                    <td>
-                      <span className={getConsensusRateColor(75)}>75%</span>
-                    </td>
-                    <td>5</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="table-container">
-          <h3>Consensus Breakdown</h3>
-          <div className="table-responsive">
-            <table className="analytics-table">
-              <thead>
-                <tr>
-                  <th>Story</th>
-                  <th>Session</th>
-                  <th>Consensus</th>
-                  <th>Rounds</th>
-                  <th>Final Estimate</th>
-                  <th>Variance</th>
-                </tr>
-              </thead>
-              <tbody>
-                {consensusData.slice(0, 10).map((item, index) => (
-                  <tr key={index}>
-                    <td>{item.storyTitle}</td>
-                    <td>{item.sessionName}</td>
-                    <td>
-                      <span className={item.consensusAchieved ? 'success' : 'danger'}>
-                        {item.consensusAchieved ? '✅ Yes' : '❌ No'}
-                      </span>
-                    </td>
-                    <td>{item.votingRounds}</td>
-                    <td>{item.finalEstimate}</td>
-                    <td>{item.variance?.toFixed(1) || 'N/A'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      {/* Insights Section */}
-      <div className="insights-section">
-        <h3>Key Insights</h3>
-        <div className="insights-grid">
-          <div className="insight-card">
-            <h4>🎯 Estimation Accuracy</h4>
-            <p>
-              Your team achieves consensus on <strong>{metrics?.consensusRate?.toFixed(1)}%</strong> of stories 
-              in the first round, indicating good alignment on story complexity.
-            </p>
-          </div>
-          
-          <div className="insight-card">
-            <h4>📈 Velocity Trend</h4>
-            <p>
-              Average velocity is <strong>{metrics?.averageVelocity?.toFixed(1)} story points</strong> per session, 
-              with a {getVelocityTrend()} trend over recent sessions.
-            </p>
-          </div>
-          
-          <div className="insight-card">
-            <h4>👥 Team Engagement</h4>
-            <p>
-              Participation rate is <strong>{metrics?.participantEngagement?.toFixed(1)}%</strong>, 
-              showing good team involvement in estimation sessions.
-            </p>
-          </div>
-          
-          <div className="insight-card">
-            <h4>📊 Story Complexity</h4>
-            <p>
-              Average estimation is <strong>{metrics?.averageEstimation?.toFixed(1)} points</strong> per story, 
-              suggesting balanced story sizing in your backlog.
-            </p>
-          </div>
+        <div>
+          <h3 className="text-lg font-semibold text-text mb-4">Consensus Analysis</h3>
+          <ConsensusChart data={consensusData} height={300} />
         </div>
       </div>
     </div>

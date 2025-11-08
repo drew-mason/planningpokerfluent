@@ -1,5 +1,7 @@
 import React from 'react'
+import { motion } from 'framer-motion'
 import VotingCard from './VotingCard'
+import { GlassPanel } from './ui/GlassPanel'
 import './EstimationScale.css'
 
 interface EstimationScaleProps {
@@ -64,17 +66,18 @@ export default function EstimationScale({
     }
 
     return (
-        <div className="estimation-scale">
-            <div className="scale-header">
-                <h3 className="scale-title">
-                    {variant === 'poker' && '🃏 Planning Poker'}
-                    {variant === 'fibonacci' && '🔢 Fibonacci'}
-                    {variant === 'tshirt' && '👕 T-Shirt Sizes'}
-                </h3>
-                <p className="scale-description">
-                    {SCALE_DESCRIPTIONS[variant]}
-                </p>
-            </div>
+        <GlassPanel>
+            <div className="estimation-scale">
+                <div className="scale-header mb-4">
+                    <h3 className="text-lg font-semibold text-text flex items-center gap-2">
+                        {variant === 'poker' && '🃏 Planning Poker'}
+                        {variant === 'fibonacci' && '🔢 Fibonacci'}
+                        {variant === 'tshirt' && '👕 T-Shirt Sizes'}
+                    </h3>
+                    <p className="text-sm text-text-muted mt-1">
+                        {SCALE_DESCRIPTIONS[variant]}
+                    </p>
+                </div>
             
             <div 
                 className={`cards-container ${disabled ? 'disabled' : ''}`}
@@ -97,41 +100,48 @@ export default function EstimationScale({
                     </div>
                 ))}
             </div>
-            
-            {selectedValue && (
-                <div className="selection-summary">
-                    <div className="selection-icon">✓</div>
-                    <span className="selection-text">
-                        Your vote: <strong>{selectedValue}</strong>
-                    </span>
-                    <button 
-                        className="change-vote-button"
-                        onClick={() => onVote('')}
-                        disabled={disabled}
-                        aria-label="Clear your vote"
+
+                {selectedValue && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-4 flex items-center justify-between bg-accent/10 border border-accent/30 rounded-lg p-3"
                     >
-                        Change Vote
-                    </button>
-                </div>
-            )}
-            
-            {!selectedValue && !disabled && (
-                <div className="voting-prompt">
-                    <div className="prompt-icon">👆</div>
-                    <span className="prompt-text">
-                        Select a card to cast your vote
-                    </span>
-                </div>
-            )}
-            
-            {disabled && (
-                <div className="disabled-message">
-                    <div className="disabled-icon">⏸️</div>
-                    <span className="disabled-text">
-                        Voting is currently disabled
-                    </span>
-                </div>
-            )}
-        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="text-green-400 text-xl">✓</div>
+                            <span className="text-text">
+                                Your vote: <strong className="text-accent">{selectedValue}</strong>
+                            </span>
+                        </div>
+                        <button
+                            className="px-3 py-1 text-sm text-text-muted hover:text-text hover:bg-surface-darker rounded transition-colors"
+                            onClick={() => onVote('')}
+                            disabled={disabled}
+                            aria-label="Clear your vote"
+                        >
+                            Change Vote
+                        </button>
+                    </motion.div>
+                )}
+
+                {!selectedValue && !disabled && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="mt-4 text-center text-text-muted flex items-center justify-center gap-2"
+                    >
+                        <span className="text-2xl">👆</span>
+                        <span>Select a card to cast your vote</span>
+                    </motion.div>
+                )}
+
+                {disabled && (
+                    <div className="mt-4 text-center text-text-muted flex items-center justify-center gap-2">
+                        <span className="text-2xl">⏸️</span>
+                        <span>Voting is currently disabled</span>
+                    </div>
+                )}
+            </div>
+        </GlassPanel>
     )
 }
